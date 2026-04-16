@@ -5,7 +5,7 @@ charset = utf-8
 spelling_error_severity=error
 
 # チェックの対象を識別子とコメントに限定する
-spelling_checkable_types=identifier,comment
+spelling_checkable_types=identifiers,comments
 
 # 辞書を英語に設定する
 spelling_languages=en-us
@@ -14,4 +14,4 @@ spelling_languages=en-us
 spelling_use_default_exclusion_dictionary=true
 
 # 自分の除外辞書を設定
-spelling_excludion_path=./exclusion.dic
+spelling_exclusion_path=./exclusion.dic
