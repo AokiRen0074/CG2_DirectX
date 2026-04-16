@@ -31,7 +31,8 @@ RECT wrc{ 0,0,kClientWidth,kClientHeight };
 /*--------------------------
 ログ
 ------------------------------*/
-void Log(const std::string& message) {
+void Log(std::ostream& os, const std::string& message) {
+	os << message << std::endl;
 	OutputDebugStringA(message.c_str());
 }
 
@@ -103,7 +104,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	RegisterClass(&wc);
 
 	// 出力ウィンドウへの文字出力
-	Log(std::format("Hello DirectX!\n"));
+	Log(logStream, std::format("Hello DirectX!\n"));
 
 
 	// クライアント領域を元に実際のサイズにwrcを変更してもらう
