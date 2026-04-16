@@ -2,6 +2,9 @@
 #include<cstdint>
 #include <string>
 #include <format>
+#include <filesystem>
+#include <fstream>
+#include <chrono>
 
 // クライアント領域のサイズ
 const int32_t kClientWidth = 1280;
@@ -11,7 +14,9 @@ const int32_t kClientHeight = 720;
 RECT wrc{ 0,0,kClientWidth,kClientHeight };
 
 
-// ログ
+/*--------------------------
+ログ
+------------------------------*/
 void Log(const std::string& message) {
 	OutputDebugStringA(message.c_str());
 }
@@ -43,6 +48,7 @@ std::string ConvertString(const std::wstring& str) {
 	WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
 	return result;
 }
+
 
 // ウィンドウプロシージャ
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -103,6 +109,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		wc.hInstance,
 		nullptr
 	);
+
+	// ログのディレクトリを用意
+	std::filesystem::create_directory("logs");
 
 	ShowWindow(hwnd, SW_SHOW);
 
