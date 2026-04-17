@@ -40,4 +40,7 @@ private:
     // RTVを2つ作るのでディスクリプタを2つ取得
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2];
 
+    //エラー、警告を出す
+	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue_;
+
 };

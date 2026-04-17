@@ -3,6 +3,8 @@
 #include <strsafe.h>
 
 #pragma comment(lib, "dbghelp.lib")
+#pragma comment(lib, "d3d12.lib") 
+#pragma comment(lib, "dxgi.lib")
 
 /*-----------------------
 インスタンスの生成
@@ -70,6 +72,19 @@ void WindowApp::Initialize() {
         wrc.right - wrc.left, wrc.bottom - wrc.top,
         nullptr, nullptr, wc_.hInstance, nullptr
     );
+
+
+    // デバッグレイヤー
+#ifdef _DEBUG
+
+    if(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController_)))) {
+		// デバッグレイヤーを有効化
+        debugController_->EnableDebugLayer();
+        // GPU側でもチェック
+		debugController_->SetEnableGPUBasedValidation(true);
+	}
+
+#endif
 
     ShowWindow(hwnd_, SW_SHOW);
 }
