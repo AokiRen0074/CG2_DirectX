@@ -87,7 +87,15 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXCommon.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="WindowApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DirectXCommon.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="WindowApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
