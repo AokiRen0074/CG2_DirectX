@@ -5,6 +5,12 @@
 #include <filesystem>
 #include <fstream>
 #include <chrono>
+#include<d3d12.h>
+#include <dxgi1_6.h>
+#include <cassert>
+
+#pragma comment(lib,"d3d12.lib")
+#pragma comment(lib,"dxgi.lib")
 
 // 現在時刻を取得
 std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -19,13 +25,6 @@ std::string dateString = std::format("{:%Y%m%d_%H%M%S}", localTime);
 std::string logFilePath = std::string("logs/") + dateString + ".log";
 // ファイルを作って書き込み準備
 std::ofstream logStream(logFilePath);
-
-// クライアント領域のサイズ
-const int32_t kClientWidth = 1280;
-const int32_t kClientHeight = 720;
-
-//　ウィンドウサイズを表す構造体にクライアント領域を入れる
-RECT wrc{ 0,0,kClientWidth,kClientHeight };
 
 
 /*--------------------------
@@ -86,6 +85,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 // Windowsアプリでのエントリーポイント
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
+	// クライアント領域のサイズ
+	const int32_t kClientWidth = 1280;
+	const int32_t kClientHeight = 720;
+
+	//　ウィンドウサイズを表す構造体にクライアント領域を入れる
+	RECT wrc{ 0,0,kClientWidth,kClientHeight };
+
 	WNDCLASS wc{};
 
 	// ウィンドウプロシージャ
@@ -130,10 +136,59 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	ShowWindow(hwnd, SW_SHOW);
 
+	// DXGIファクトリーの生成
+	IDXGIFactory7* dxgiFactory = nullptr;
+	HRESULT hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory));
+	assert(SUCCEEDED(hr));
+
+	// 使用するアダプタ用の変数
+	IDXGIAdapter4* useAdapter = nullptr;
+
+	for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) != DXGI_ERROR_NOT_FOUND; i++) {
+		//　アダプターの情報を取得する
+		DXGI_ADAPTER_DESC3 adapterDesc{};
+		hr = useAdapter->GetDesc3(&adapterDesc);
+		assert(SUCCEEDED(hr));
+
+		// ソフトウェアアダプタではなければ採用する
+
+		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)){
+			Log(logStream, std::format("Use Adapter:{}\n", ConvertString(adapterDesc.Description)));
+			break;
+		}
+		useAdapter = nullptr;
+	}
+	assert(useAdapter != nullptr);
+
+	ID3D12Device* device = nullptr;
+
+	// 機能レベルとログ出力用jの文字列
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_12_2,
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+	};
+
+	const char* featureLevelStrings[] = {
+		"12.2","12.1","12.0"
+	};
+
+	// 高い順に生成できるか試していく
+	for (size_t i = 0; i < _countof(featureLevels); i++) {
+		hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&device));
+		if (SUCCEEDED(hr)) {
+			Log(logStream, std::format("Feature Level {} is supported.\n", featureLevelStrings[i]));
+			break;
+		}
+	}
+
+	assert(device != nullptr);
+	Log(logStream, "Complete create D3D12 Device.\n");
+
 	MSG msg{};
 
 	while (msg.message != WM_QUIT) {
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
