@@ -35,7 +35,7 @@ void Logger::Finalize() {
 --------------------------------*/
 void Logger::Log(const std::string& message) {
     if (logStream_.is_open()) {
-        logStream_ << message << std::endl;
+        logStream_ << message;
     }
     OutputDebugStringA(message.c_str());
 }

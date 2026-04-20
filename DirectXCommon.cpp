@@ -22,7 +22,8 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 		assert(SUCCEEDED(hr));
 
 		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
-			Logger::Log(std::format("Use Adapter:{}\n", Logger::ConvertString(adapterDesc.Description)));
+			std::wstring adapterName(adapterDesc.Description);
+			Logger::Log(std::format("Use Adapter:{}\n", Logger::ConvertString(adapterName)));
 			break;
 		}
 		useAdapter.Reset();
