@@ -2,6 +2,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <wrl.h>
+#include <cstdint>
 
 class WindowApp;
 
@@ -42,5 +43,11 @@ private:
 
     //エラー、警告を出す
 	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue_;
+
+    // FenceとEvent
+    Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
+	uint64_t fenceValue_ = 0;
+	HANDLE fenceEvent_ = nullptr;
+
 
 };

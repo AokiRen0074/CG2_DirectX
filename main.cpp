@@ -14,10 +14,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Logger::Log("Hello DirectX!\n");
 
 	// std::formatを使ったログ
-	Logger::Log(std::format("ウィンドウサイズ:{} x {}\n", WindowApp::kClientWidth, WindowApp::kClientHeight));
+	Logger::Log(std::format("window size:{} x {}\n", WindowApp::kClientWidth, WindowApp::kClientHeight));
 
 	// ConvertString を使ったログの利用例
-	std::wstring testWString = L"ワイド文字列変換のテスト\n";
+	std::wstring testWString = L"test\n";
 	Logger::Log(Logger::ConvertString(testWString));
 
 	winApp->Initialize();

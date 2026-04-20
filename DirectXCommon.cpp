@@ -78,7 +78,7 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 		infoQueue_->PushStorageFilter(&filter);
 
 		// 解放
-		infoQueue_->Release();
+		//infoQueue_->Release();
 	}
 
 #endif
@@ -145,6 +145,16 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 	rtvHandles_[1].ptr = rtvHandles_[0].ptr + device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device_->CreateRenderTargetView(swapChainResources_[1].Get(), &rtvDesc, rtvHandles_[1]);
 
+	// FenceとEventの生成
+	// 初期値0でFenceを生成
+	hr = device_->CreateFence(fenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
+	assert(SUCCEEDED(hr));
+
+	// Fenceのイベントを生成
+	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
+	assert(fenceEvent_ != nullptr);
+
+
 }
 
 /*-------------------------
@@ -154,6 +164,25 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 void DirectXCommon::PreDraw() {
 	// これから書き込むバックバッファのインデックスを取得
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+
+	// TransitionBarrierの設定
+	D3D12_RESOURCE_BARRIER barrier{};
+
+	// 今回のバリアはTransition
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
+	// バリアを張る対象のリソース
+	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
+
+	// バリア前の状態
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+
+	// バリア後の状態
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+	//TransitionBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier);
 
 	// 描画先のRTVを設定する
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, nullptr);
@@ -165,6 +194,23 @@ void DirectXCommon::PreDraw() {
 
 // 描画後処理
 void DirectXCommon::PostDraw() {
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+
+	D3D12_RESOURCE_BARRIER barrier{};
+
+	// バリアの種類と対象リソースの指定
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
+
+	// 状態の移行
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+	// TransitionのBarrierを張る
+	commandList_->ResourceBarrier(1, &barrier);
+	
+
 	// コマンドリストの内容を確定させる
 	HRESULT hr = commandList_->Close();
 	assert(SUCCEEDED(hr));
@@ -175,6 +221,19 @@ void DirectXCommon::PostDraw() {
 
 	// GPUとOSに画面の交換を行うよう通知する
 	swapChain_->Present(1, 0);
+
+	// Fenceの値を更新
+	fenceValue_++;
+
+	commandQueue_->Signal(fence_.Get(), fenceValue_);
+
+	if (fence_->GetCompletedValue() < fenceValue_) {
+		// 指定したsignalにたどり着くまで待つようにイベントを設定する
+		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+
+		// イベントを待つ
+		WaitForSingleObject(fenceEvent_, INFINITE);
+	}
 
 	// 次のフレーム用のコマンドリストを準備
 	hr = commandAllocator_->Reset();
