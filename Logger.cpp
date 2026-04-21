@@ -5,7 +5,7 @@
 #include <filesystem>
 
 // 静的メンバ変数の実体
-std::ofstream Logger::logStream_;
+std::ofstream* Logger::logStream_ = nullptr;
 
 /*---------------------------------
 初期化
@@ -18,15 +18,21 @@ void Logger::Initialize() {
     std::string dateString = std::format("{:%Y%m%d_%H%M%S}", localTime);
     std::string logFilePath = "logs/" + dateString + ".log";
 
-    logStream_.open(logFilePath);
+    logStream_ = new std::ofstream(logFilePath);
 }
 
 /*------------------------------
 終了処理
 --------------------------------*/
+
 void Logger::Finalize() {
-    if (logStream_.is_open()) {
-        logStream_.close();
+    if (logStream_) {
+        if (logStream_->is_open()) {
+            logStream_->close();
+        }
+        // 動的に確保したメモリを解放する
+        delete logStream_;
+        logStream_ = nullptr;
     }
 }
 
@@ -34,8 +40,8 @@ void Logger::Finalize() {
 ログ出力
 --------------------------------*/
 void Logger::Log(const std::string& message) {
-    if (logStream_.is_open()) {
-        logStream_ << message;
+    if (logStream_ && logStream_->is_open()) {
+        (*logStream_) << message;
     }
     OutputDebugStringA(message.c_str());
 }
