@@ -250,6 +250,7 @@ void DirectXCommon::PostDraw() {
 	commandList_->ResourceBarrier(1, &barrier);
 	
 
+
 	// コマンドリストの内容を確定させる
 	HRESULT hr = commandList_->Close();
 	assert(SUCCEEDED(hr));
