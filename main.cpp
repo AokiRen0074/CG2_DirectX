@@ -3,6 +3,7 @@
 #include "DirectXCommon.h"
 #include <format>
 #include <dxgidebug.h>
+#include "Object3d.h"
 
 #pragma comment(lib,"dxguid.lib")
 
@@ -11,6 +12,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 各機能のインスタンス
 	WindowApp* winApp = WindowApp::GetInstance();
 	DirectXCommon* dxCommon = new DirectXCommon();
+	Object3d* object3d = new Object3d();
 
 	// 初期化処理
 	Logger::Initialize();
@@ -25,7 +27,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	winApp->Initialize();
 	dxCommon->Initialize(winApp);
-
+	object3d->Initialize(dxCommon);
+	
 	// メインループ
 	while (true) {
 		// メッセージ処理（×ボタンが押されたらループを抜ける）
@@ -51,7 +54,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		dxCommon->PreDraw();
 
 		// モデルの描画など
-
+		object3d->Draw();
 
 
 		// 描画の終了
@@ -65,6 +68,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 終了処理
 	// 各オブジェクトはComPtrを使用しているので、dxCommonをdeleteした際に生成と逆順でReleaseされる
 	delete dxCommon;
+	delete object3d;
 	winApp->Finalize();
 	Logger::Finalize();
 

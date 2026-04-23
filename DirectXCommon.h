@@ -4,6 +4,7 @@
 #include <wrl.h>
 #include <cstdint>
 #include <dxcapi.h>
+#include <string>
 
 #pragma comment(lib,"dxcompiler.lib")
 
@@ -24,8 +25,12 @@ public:
     ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
     IDXGISwapChain4* GetSwapChain() const { return swapChain_.Get(); }
 
+    IDxcUtils* GetDxcUtils() const { return dxcUtils_.Get(); }
+    IDxcCompiler3* GetDxcCompiler() const { return dxcCompiler_.Get(); }
+    IDxcIncludeHandler* GetIncludeHandler() const { return includeHandler_.Get(); }
+
     // CompileShader関数
-    IDxcBlob* CompilerShader(
+    Microsoft::WRL::ComPtr<IDxcBlob>CompilerShader(
         const std::wstring& filePath,
         const wchar_t* profile,
         IDxcUtils* dxcUtils,
@@ -61,8 +66,8 @@ private:
 	HANDLE fenceEvent_ = nullptr;
 
     // DXCの初期化
-    IDxcUtils* dxcUtils_ = nullptr;
-    IDxcUtils* dxcCompiler_ = nullptr;
-    IDxcIncludeHandler* includeHandler_ = nullptr;
+    Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_;
+    Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_;
+    Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_;
 
 };

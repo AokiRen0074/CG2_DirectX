@@ -3,6 +3,7 @@
 #include <cassert>
 #include <format>
 #include "WindowApp.h"
+#include <wrl.h>
 
 
 #pragma comment(lib, "d3d12.lib")
@@ -168,27 +169,77 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 
 }
 
+
+
 /*----------------------------------------
 CompileShader
 --------------------------------------------*/
 
-IDxcBlob* CompilerShader(
+Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompilerShader(
 	const std::wstring& filePath,
 	const wchar_t* profile,
 	IDxcUtils* dxcUtils,
 	IDxcCompiler3* dxcCompiler,
 	IDxcIncludeHandler* includeHandler
 ) {
-	
+
 	// hlslファイルを読み込む
 
-	// Compileする
+	Logger::Log(Logger::ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}\n", filePath, profile)));
 	
+	Microsoft::WRL::ComPtr<IDxcBlobEncoding> shaderSource;
+	HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
+
+	// 読み込めなかったら止める
+	assert(SUCCEEDED(hr));
+
+	DxcBuffer shaderSourceBuffer;
+	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
+	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
+	shaderSourceBuffer.Encoding = DXC_CP_UTF8;
+
+	// Compileする
+	LPCWSTR arguments[] = {
+		filePath.c_str(),// コンパイル対象のファイル名
+		L"-E",L"main",// エントリーポイントの指定
+		L"-T",profile,// ShaderProfileの設定
+		L"-Zi",L"-Qembed_debug",// デバッグ用の情報を埋めこむ
+		L"-Od",// 最適化を外しておく
+		L"-Zpr",// メモリレイアウトは行優先
+	};
+
+	// 実際にShaderをコンパイルする
+	Microsoft::WRL::ComPtr<IDxcResult> shaderResult;
+	hr = dxcCompiler->Compile(
+		&shaderSourceBuffer,// 読み込んだファイル
+		arguments,// コンパイルオプション
+		_countof(arguments),// コンパイルオプションの数
+		includeHandler,// includeに含まれた諸々
+		IID_PPV_ARGS(&shaderResult)// コンパイル結果
+	);
+
+	// dxcが起動できないなどの致命的な状況
+	assert(SUCCEEDED(hr));
+
 	// 警告、エラーが出ていないか確認する
+	Microsoft::WRL::ComPtr<IDxcBlobUtf8> shaderError;
+	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
+		Logger::Log(shaderError->GetStringPointer());
+		// 警告エラーはゆるさねえ
+		assert(false);
+	}
+
 
 	// Compile結果を受け取って返す
 
+	Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob;
+	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
+	assert(SUCCEEDED(hr));
 
+	Logger::Log(Logger::ConvertString(std::format(L"Compile Succeeded,path:{},profile:{}\n", filePath, profile)));
+
+	return shaderBlob;
 
 
 
@@ -248,7 +299,7 @@ void DirectXCommon::PostDraw() {
 
 	// TransitionのBarrierを張る
 	commandList_->ResourceBarrier(1, &barrier);
-	
+
 
 
 	// コマンドリストの内容を確定させる
