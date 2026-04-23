@@ -4,6 +4,7 @@
 #include <format>
 #include "WindowApp.h"
 
+
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
@@ -154,8 +155,46 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fenceEvent_ != nullptr);
 
+	// DXCの初期化
+	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
+	assert(SUCCEEDED(hr));
+
+	hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler_));
+	assert(SUCCEEDED(hr));
+
+	// includeに対応する溜めの設定
+	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
+	assert(SUCCEEDED(hr));
 
 }
+
+/*----------------------------------------
+CompileShader
+--------------------------------------------*/
+
+IDxcBlob* CompilerShader(
+	const std::wstring& filePath,
+	const wchar_t* profile,
+	IDxcUtils* dxcUtils,
+	IDxcCompiler3* dxcCompiler,
+	IDxcIncludeHandler* includeHandler
+) {
+	
+	// hlslファイルを読み込む
+
+	// Compileする
+	
+	// 警告、エラーが出ていないか確認する
+
+	// Compile結果を受け取って返す
+
+
+
+
+
+}
+
+
 
 /*-------------------------
 描画処理

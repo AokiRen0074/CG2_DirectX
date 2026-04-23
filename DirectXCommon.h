@@ -3,6 +3,9 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 #include <cstdint>
+#include <dxcapi.h>
+
+#pragma comment(lib,"dxcompiler.lib")
 
 class WindowApp;
 
@@ -21,6 +24,14 @@ public:
     ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
     IDXGISwapChain4* GetSwapChain() const { return swapChain_.Get(); }
 
+    // CompileShader関数
+    IDxcBlob* CompilerShader(
+        const std::wstring& filePath,
+        const wchar_t* profile,
+        IDxcUtils* dxcUtils,
+        IDxcCompiler3* dxcCompiler,
+        IDxcIncludeHandler* includeHandler
+    );
 
 private:
     Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_;
@@ -49,5 +60,9 @@ private:
 	uint64_t fenceValue_ = 0;
 	HANDLE fenceEvent_ = nullptr;
 
+    // DXCの初期化
+    IDxcUtils* dxcUtils_ = nullptr;
+    IDxcUtils* dxcCompiler_ = nullptr;
+    IDxcIncludeHandler* includeHandler_ = nullptr;
 
 };
