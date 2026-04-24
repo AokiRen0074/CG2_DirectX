@@ -7,6 +7,9 @@ struct Vector4 {
 	float x, y, z, w;
 };
 
+/*--------------------------
+初期化
+-----------------------------------*/
 void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 	dxCommon_ = dxCommon;
@@ -17,6 +20,16 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+
+	// RootParameter作成。複数設定できるので配列。今回は結果１つだけなので長さ１の配列
+	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;// CBVを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;// PixelShaderで使う
+	rootParameters[0].Descriptor.ShaderRegister = 0;// レジスタ番号０とバインド
+	descriptionRootSignature.pParameters = rootParameters;// ルートパラメーター配列へのポインタ
+	descriptionRootSignature.NumParameters = _countof(rootParameters);// 配列の長さ
+
 
 	// シリアライズしてバイナリにする
 	ID3DBlob* signatureBlob = nullptr;
@@ -105,54 +118,34 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 
 	//頂点リソース用のヒープの設定
-	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeap
-	//頂点リソースの設定
-	D3D12_RESOURCE_DESC vertexResourceDesc{};
-	//バッファリソース。テクスチャの場合はまた別の設定をする
-	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResourceDesc.Width = sizeof(Vector4) * 3;//リソースのサイズ。今回はVector4を3頂点分
-	//バッファの場合はこれらは1にする決まり
-	vertexResourceDesc.Height = 1;
-	vertexResourceDesc.DepthOrArraySize = 1;
-	vertexResourceDesc.MipLevels = 1;
-	vertexResourceDesc.SampleDesc.Count = 1;
-	//バッファの場合はこれにする決まり
-	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//実際に頂点リソースを作る
-	ID3D12Resource* vertexResource = nullptr;
-	hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
-		&vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-		IID_PPV_ARGS(&vertexResource_));
-	assert(SUCCEEDED(hr));
+	vertexResource_ = CreateBufferResource(device, sizeof(Vector4) * 3);
 
 	// 頂点バッファビューを作成する
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
-
-	// リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-
-	// 使用するリソースのサイズは頂点3つ文のサイズ
 	vertexBufferView_.SizeInBytes = sizeof(Vector4) * 3;
-
-	// 1頂点当たりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(Vector4);
 
+	// 頂点リソースにデータを書き込む
 	Vector4* vertexData = nullptr;
-
-	// 書き込むためのアドレスを取得
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	vertexData[0] = { -0.5f, -0.5f, 0.0f, 1.0f }; // 左下
+	vertexData[1] = { 0.0f,  0.5f, 0.0f, 1.0f }; // 上
+	vertexData[2] = { 0.5f, -0.5f, 0.0f, 1.0f }; // 右下
 
-	// 左上
-	vertexData[0] = { -0.5f,-0.5f,0.0f,1.0f };
-	// 上
-	vertexData[1] = { 0.0f,0.5f,0.0f,1.0f };
-	// 右下
-	vertexData[2] = { 0.5f,-0.5f,0.0f,1.0f };
+	// 色1つ分（Vector4）のサイズで作る
+	materialResources_ = CreateBufferResource(device, sizeof(Vector4));
 
+	// マテリアルにデータを書き込む
+	Vector4* materialData = nullptr;
+	materialResources_->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
+	// 今回は赤色を書き込んでみる
+	*materialData = { 1.0f, 0.0f, 0.0f, 1.0f };
 }
 
+
+/*----------------------------------------
+描画
+---------------------------------------*/
 void Object3d::Draw() {
 
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
@@ -161,7 +154,7 @@ void Object3d::Draw() {
 	D3D12_VIEWPORT viewport{};
 	// クライアント領域のサイズと一緒にして画面全体に表示
 	viewport.Width = WindowApp::kClientWidth;
-	viewport.Height =WindowApp:: kClientHeight;
+	viewport.Height = WindowApp::kClientHeight;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
@@ -183,6 +176,40 @@ void Object3d::Draw() {
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	commandList->SetGraphicsRootConstantBufferView(0, materialResources_->GetGPUVirtualAddress());
+
 	//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawInstanced(3, 1, 0, 0);
+}
+
+/*--------------------------
+Resource作成の関数化
+------------------------------*/
+
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Object3d::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
+	// 頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeap
+
+	// 頂点リソースの設定
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	//サイズをセットする
+	resourceDesc.Width = sizeInBytes;
+	resourceDesc.Height = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	// 実際にリソースを作る
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
+		&resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&resource));
+	assert(SUCCEEDED(hr));
+
+	return resource;
 }
