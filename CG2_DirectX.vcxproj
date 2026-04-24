@@ -90,13 +90,17 @@
     <ClCompile Include="DirectXCommon.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Matrix4x4.cpp" />
     <ClCompile Include="Object3d.cpp" />
+    <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="WindowApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXCommon.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Object3d.h" />
+    <ClInclude Include="Vector3.h" />
     <ClInclude Include="WindowApp.h" />
   </ItemGroup>
   <ItemGroup>

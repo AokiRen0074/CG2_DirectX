@@ -3,11 +3,25 @@
 #include <wrl.h>
 #include "Logger.h"
 #include <string>
+#include "Matrix4x4.h"
 
 class Object3d {
 
 public:
+
+
+	struct Transform {
+		Vector3  scale;
+		Vector3 rotate;
+		Vector3 translate;
+	};
+
+
+
 	void Initialize(DirectXCommon* dxCommon);
+
+	void Update();
+
 
 	void Draw();
 
@@ -18,7 +32,7 @@ public:
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 
-	// rootSignatureとGraphicPiplineState
+	// rootSignatureとGraphicPipelineState
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 
@@ -30,4 +44,11 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource_;
+
+	// 自分の位置　回転スケールを持つ変数
+	Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	Transform cameraTransform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -5.0f} };
+
+	Matrix4x4* wvpData_ = nullptr;
 };

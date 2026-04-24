@@ -62,7 +62,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
-	// BlemdStateの設定
+	// BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
 
 	// 全ての色要素を書き込む
@@ -138,11 +138,47 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// 色1つ分（Vector4）のサイズで作る
 	materialResources_ = CreateBufferResource(device, sizeof(Vector4));
 
+
+
 	// マテリアルにデータを書き込む
 	Vector4* materialData = nullptr;
 	materialResources_->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	// 今回は赤色を書き込んでみる
 	*materialData = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+	// WVP用のリソースを作る。
+	wvpResource_ = CreateBufferResource(device, sizeof(Matrix4x4));
+
+	// データを書き込む
+	Matrix4x4* wvpData = nullptr;
+
+	// 書き込む溜めのアドレスを取得
+	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
+
+	// 単位行列を書き込んでおく
+	*wvpData = MakeIdentity4x4();
+
+	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
+	*wvpData_ = MakeIdentity4x4();
+}
+
+
+void Object3d::Update() {
+	// Y軸を毎フレーム少しずつ回転させる
+	transform_.rotate.y += 0.03f;
+
+	// アフィン変換行列を作る
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+
+	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WindowApp::kClientWidth) / float(WindowApp::kClientHeight), 0.1f, 100.0f);
+
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+
+	// 計算した行列を、GPUに送るデータに上書きする
+	*wvpData_ = worldMatrix;
 }
 
 
@@ -179,8 +215,10 @@ void Object3d::Draw() {
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
+
 	commandList->SetGraphicsRootConstantBufferView(0, materialResources_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+
 
 	//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawInstanced(3, 1, 0, 0);
