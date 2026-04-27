@@ -5,6 +5,12 @@
 #include <dxgidebug.h>
 #include "Object3d.h"
 
+#ifdef USE_IMGUI
+#include "externals/imgui/imgui.h"
+#include "externals/imgui/imgui_impl_dx12.h"
+#include "externals/imgui/imgui_impl_win32.h"
+#endif
+
 #pragma comment(lib,"dxguid.lib")
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -39,13 +45,26 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/*------------------------
 		更新処理はここから
 		----------------------------*/
+#ifdef USE_IMGUI
+		// imguiのフレーム開始
+		ImGui_ImplDX12_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 
+		// 怪異発揚UIの処理
+		ImGui::ShowDemoWindow();
+
+#endif
 
 		object3d->Update();
 
+#ifdef USE_IMGUI
+		ImGui::Render();
+#endif
 		/*--------------------
 		更新処理はここまで
 		-----------------------------*/
+
 
 		/*------------------------------
 		描画処理はここから
@@ -69,6 +88,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 各オブジェクトはComPtrを使用しているので、dxCommonをdeleteした際に生成と逆順でReleaseされる
 	delete dxCommon;
 	delete object3d;
+#ifdef USE_IMGUI
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+#endif
 	winApp->Finalize();
 	Logger::Finalize();
 

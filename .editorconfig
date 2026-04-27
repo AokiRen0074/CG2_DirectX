@@ -15,3 +15,9 @@ spelling_use_default_exclusion_dictionary=true
 
 # ©•ª‚ÌœŠO«‘‚ğİ’è
 spelling_exclusion_path=./exclusion.dic
+
+[imgui/**]
+generated_code = true
+
+[externals/**]
+generated_code=ture

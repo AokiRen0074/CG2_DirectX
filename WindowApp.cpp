@@ -2,6 +2,13 @@
 #include <dbghelp.h>
 #include <strsafe.h>
 
+#ifdef USE_IMGUI
+#include "externals/imgui/imgui.h"
+#include "externals/imgui/imgui_impl_dx12.h"
+#include "externals/imgui/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
 #pragma comment(lib, "dbghelp.lib")
 #pragma comment(lib, "d3d12.lib") 
 #pragma comment(lib, "dxgi.lib")
@@ -18,6 +25,13 @@ WindowApp* WindowApp::GetInstance() {
 ウィンドウプロシージャ
 ------------------------------*/
 LRESULT CALLBACK WindowApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+   
+#ifdef USE_IMGUI
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+        return true;
+    }
+#endif
+    
     switch (msg) {
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -72,6 +86,7 @@ void WindowApp::Initialize() {
         wrc.right - wrc.left, wrc.bottom - wrc.top,
         nullptr, nullptr, wc_.hInstance, nullptr
     );
+
 
 
     // デバッグレイヤー
