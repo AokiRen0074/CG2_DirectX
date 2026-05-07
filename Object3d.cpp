@@ -149,15 +149,6 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// WVP用のリソースを作る。
 	wvpResource_ = CreateBufferResource(device, sizeof(Matrix4x4));
 
-	// データを書き込む
-	Matrix4x4* wvpData = nullptr;
-
-	// 書き込む溜めのアドレスを取得
-	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
-
-	// 単位行列を書き込んでおく
-	*wvpData = MakeIdentity4x4();
-
 	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
 	*wvpData_ = MakeIdentity4x4();
 }
@@ -178,7 +169,7 @@ void Object3d::Update() {
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
 	// 計算した行列を、GPUに送るデータに上書きする
-	*wvpData_ = worldMatrix;
+	*wvpData_ = worldViewProjectionMatrix;
 }
 
 
