@@ -33,6 +33,8 @@ public:
     IDxcCompiler3* GetDxcCompiler() const { return dxcCompiler_.Get(); }
     IDxcIncludeHandler* GetIncludeHandler() const { return includeHandler_.Get(); }
 
+    ID3D12DescriptorHeap* GetDsvDescriptorHeap() const { return dsvDescriptorHeap_.Get(); }
+
     // CompileShader関数
     Microsoft::WRL::ComPtr<IDxcBlob>CompilerShader(
         const std::wstring& filePath,
@@ -80,5 +82,8 @@ private:
     // imguiでつかうSRV用のヒープ
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_;
 
+    Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_;
 
 };
