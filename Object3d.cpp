@@ -205,7 +205,10 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	DirectX::ScratchImage mipImages = TextureManager::LoadTexture("Resources/uvChecker.png");
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 	textureResource_ = TextureManager::CreateTextureResource(device, metadata);
-	TextureManager::UploadTextureData(textureResource_.Get(), mipImages);
+	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource =
+		TextureManager::UploadTextureData(textureResource_.Get(), mipImages, device, dxCommon_->GetCommandList());
+
+	dxCommon_->FlushCommandList();
 
 	// SRV用のヒープをDirectXCommonから取得
 	ID3D12DescriptorHeap* srvDescriptorHeap = dxCommon_->GetSrvDescriptorHeap();

@@ -19,6 +19,9 @@ public:
     void PreDraw();
 	void PostDraw();
 
+    // コマンドを実行してGPUを待つ関数
+    void FlushCommandList();
+
     // ゲッター
     ID3D12Device* GetDevice() const { return device_.Get(); }
     ID3D12CommandQueue* GetCommandQueue() const { return commandQueue_.Get(); }

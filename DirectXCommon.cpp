@@ -275,6 +275,25 @@ Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompilerShader(
 
 }
 
+void DirectXCommon::FlushCommandList() {
+	// コマンドリストを閉じる
+	commandList_->Close();
+	// 実行
+	ID3D12CommandList* commandLists[] = { commandList_.Get() };
+	commandQueue_->ExecuteCommandLists(1, commandLists);
+
+	// GPUの処理が終わるのを待つ
+	fenceValue_++;
+	commandQueue_->Signal(fence_.Get(), fenceValue_);
+	if (fence_->GetCompletedValue() < fenceValue_) {
+		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+		WaitForSingleObject(fenceEvent_, INFINITE);
+	}
+
+	// リセットして次のコマンドを積めるようにする
+	commandAllocator_->Reset();
+	commandList_->Reset(commandAllocator_.Get(), nullptr);
+}
 
 
 /*-------------------------
