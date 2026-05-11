@@ -7,3 +7,5 @@ hlsl
 dxgi
 Descs
 imgui
+texcoord
+subresources

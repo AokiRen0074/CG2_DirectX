@@ -4,6 +4,7 @@
 #include <format>
 #include <dxgidebug.h>
 #include "Object3d.h"
+#include "Sprite.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -36,6 +37,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	winApp->Initialize();
 	dxCommon->Initialize(winApp);
 	object3d->Initialize(dxCommon);
+
+	D3D12_GPU_DESCRIPTOR_HANDLE sharedTextureHandle = object3d->GetTextureSrvHandleGPU();
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(dxCommon, sharedTextureHandle);
+
 	
 	// メインループ
 	while (true) {
@@ -60,6 +66,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		object3d->Update();
 
+		sprite->Update();
+
 #ifdef USE_IMGUI
 		ImGui::Render();
 #endif
@@ -76,6 +84,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		// モデルの描画など
 		object3d->Draw();
+		sprite->Draw();
 
 
 		// 描画の終了
@@ -90,6 +99,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 各オブジェクトはComPtrを使用しているので、dxCommonをdeleteした際に生成と逆順でReleaseされる
 	delete dxCommon;
 	delete object3d;
+	delete sprite;
 	CoUninitialize();
 #ifdef USE_IMGUI
 	ImGui_ImplDX12_Shutdown();

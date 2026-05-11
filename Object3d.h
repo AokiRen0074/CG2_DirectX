@@ -37,6 +37,8 @@ public:
 
 	void Draw();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
+
 	// ゲッター
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	ID3D12PipelineState* GetGraphicsPipelineState()const { return graphicsPipelineState_.Get(); }
