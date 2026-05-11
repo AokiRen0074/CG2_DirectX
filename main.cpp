@@ -15,6 +15,8 @@
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
+	CoInitializeEx(0,COINIT_MULTITHREADED);
+
 	// 各機能のインスタンス
 	WindowApp* winApp = WindowApp::GetInstance();
 	DirectXCommon* dxCommon = new DirectXCommon();
@@ -88,6 +90,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 各オブジェクトはComPtrを使用しているので、dxCommonをdeleteした際に生成と逆順でReleaseされる
 	delete dxCommon;
 	delete object3d;
+	CoUninitialize();
 #ifdef USE_IMGUI
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();

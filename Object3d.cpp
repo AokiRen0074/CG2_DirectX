@@ -2,6 +2,13 @@
 #include <cassert>
 #include "DirectXCommon.h" 
 #include "WindowApp.h"
+#include "TextureManager.h"
+
+#ifdef USE_IMGUI
+#include "externals/imgui/imgui.h"
+#include "externals/imgui/imgui_impl_dx12.h"
+#include "externals/imgui/imgui_impl_win32.h"
+#endif
 
 struct Vector4 {
 	float x, y, z, w;
@@ -23,16 +30,43 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 
 	// RootParameter作成。複数設定できるので配列
-	D3D12_ROOT_PARAMETER rootParameters[2] = {};
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;// CBVを使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;// PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0;// レジスタ番号０とバインド
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;// CBVを使う
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;// VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;// レジスタ番号0を使う
-	descriptionRootSignature.pParameters = rootParameters;// ルートパラメーター配列へのポインタ
-	descriptionRootSignature.NumParameters = _countof(rootParameters);// 配列の長さ
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[0].Descriptor.ShaderRegister = 0;
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[1].Descriptor.ShaderRegister = 0;
 
+	// DescriptorRangeの設定
+	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
+	descriptorRange[0].BaseShaderRegister = 0; // t0から始まる
+	descriptorRange[0].NumDescriptors = 1;     // 扱うテクスチャの数は1つ
+	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
+	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// DescriptorTableの設定
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+
+	descriptionRootSignature.pParameters = rootParameters;
+	descriptionRootSignature.NumParameters = _countof(rootParameters);
+
+	// Samplerの設定
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR; // 拡大縮小したときに綺麗にぼかす（バイリニア）
+	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP; // UVが1.0を超えたらリピートする
+	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;
+	staticSamplers[0].ShaderRegister = 0; // s0 を使う
+	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	descriptionRootSignature.pStaticSamplers = staticSamplers;
+	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
 	// シリアライズしてバイナリにする
 	ID3DBlob* signatureBlob = nullptr;
@@ -53,14 +87,22 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	assert(SUCCEEDED(hr));
 
 	// InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+	// テクスチャ座標情報
+	inputElementDescs[1].SemanticName = "TEXCOORD";
+	inputElementDescs[1].SemanticIndex = 0;
+
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = _countof(inputElementDescs);
+	inputLayoutDesc.NumElements = _countof(inputElementDescs); 
 
 	// BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
@@ -120,20 +162,29 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	assert(SUCCEEDED(hr));
 
 
-	//頂点リソース用のヒープの設定
-	vertexResource_ = CreateBufferResource(device, sizeof(Vector4) * 3);
+	
+	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 3);
 
 	// 頂点バッファビューを作成する
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = sizeof(Vector4) * 3;
-	vertexBufferView_.StrideInBytes = sizeof(Vector4);
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 3;
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
 	// 頂点リソースにデータを書き込む
-	Vector4* vertexData = nullptr;
+	VertexData* vertexData = nullptr;
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-	vertexData[0] = { -0.5f, -0.5f, 0.0f, 1.0f }; // 左下
-	vertexData[1] = { 0.0f,  0.5f, 0.0f, 1.0f }; // 上
-	vertexData[2] = { 0.5f, -0.5f, 0.0f, 1.0f }; // 右下
+
+	// 左下
+	vertexData[0].position = { -0.5f, -0.5f, 0.0f, 1.0f };
+	vertexData[0].texcoord = { 0.0f, 1.0f };
+
+	// 上
+	vertexData[1].position = { 0.0f,  0.5f, 0.0f, 1.0f };
+	vertexData[1].texcoord = { 0.5f, 0.0f };
+
+	// 右下
+	vertexData[2].position = { 0.5f, -0.5f, 0.0f, 1.0f };
+	vertexData[2].texcoord = { 1.0f, 1.0f };
 
 	// 色1つ分（Vector4）のサイズで作る
 	materialResources_ = CreateBufferResource(device, sizeof(Vector4));
@@ -141,16 +192,41 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 
 	// マテリアルにデータを書き込む
-	Vector4* materialData = nullptr;
-	materialResources_->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	// 今回は赤色を書き込んでみる
-	*materialData = { 1.0f, 0.0f, 0.0f, 1.0f };
+	materialResources_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+	*materialData_ = materialColor_;
 
 	// WVP用のリソースを作る。
 	wvpResource_ = CreateBufferResource(device, sizeof(Matrix4x4));
 
 	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
 	*wvpData_ = MakeIdentity4x4();
+
+	// テクスチャ読み込み処理
+	DirectX::ScratchImage mipImages = TextureManager::LoadTexture("Resources/uvChecker.png");
+	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
+	textureResource_ = TextureManager::CreateTextureResource(device, metadata);
+	TextureManager::UploadTextureData(textureResource_.Get(), mipImages);
+
+	// SRV用のヒープをDirectXCommonから取得
+	ID3D12DescriptorHeap* srvDescriptorHeap = dxCommon_->GetSrvDescriptorHeap();
+
+	// metadataを基にSRVの設定
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = metadata.format;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
+	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+	// SRVを作成するDescriptorHeapの場所を決める
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	textureSrvHandleGPU_ = srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart(); // メンバ変数に保存
+
+	// 先頭はImGuiが使っているので、その次を使う
+	UINT incrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	textureSrvHandleCPU.ptr += incrementSize;
+	textureSrvHandleGPU_.ptr += incrementSize; 
+	// SRVの生成
+	device->CreateShaderResourceView(textureResource_.Get(), &srvDesc, textureSrvHandleCPU);
 }
 
 
@@ -170,6 +246,16 @@ void Object3d::Update() {
 
 	// 計算した行列を、GPUに送るデータに上書きする
 	*wvpData_ = worldViewProjectionMatrix;
+
+#ifdef USE_IMGUI
+	ImGui::Begin("Settings");
+	ImGui::ColorEdit4("Material Color", &materialColor_.x); // カラーピッカーを表示
+	ImGui::End();
+
+	*materialData_ = materialColor_;
+
+#endif
+
 }
 
 
@@ -207,9 +293,12 @@ void Object3d::Draw() {
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	ID3D12DescriptorHeap* descriptorHeaps[] = { dxCommon_->GetSrvDescriptorHeap() };
+	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
 	commandList->SetGraphicsRootConstantBufferView(0, materialResources_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
-
+	commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
 
 	//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawInstanced(3, 1, 0, 0);

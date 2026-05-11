@@ -24,6 +24,7 @@ public:
     ID3D12CommandQueue* GetCommandQueue() const { return commandQueue_.Get(); }
     ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
     IDXGISwapChain4* GetSwapChain() const { return swapChain_.Get(); }
+    ID3D12DescriptorHeap* GetSrvDescriptorHeap() const { return srvDescriptorHeap_.Get(); }
 
     IDxcUtils* GetDxcUtils() const { return dxcUtils_.Get(); }
     IDxcCompiler3* GetDxcCompiler() const { return dxcCompiler_.Get(); }
