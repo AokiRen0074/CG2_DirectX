@@ -45,7 +45,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	
 	// メインループ
 	while (true) {
-		// メッセージ処理（×ボタンが押されたらループを抜ける）
+		// メッセージ処理
 		if (winApp->ProcessMessage()) {
 			break;
 		}
