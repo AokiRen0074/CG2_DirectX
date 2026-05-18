@@ -42,6 +42,7 @@ public:
 	// ゲッター
 	ID3D12RootSignature* GetRootSignature() { return rootSignature_.Get(); }
 	ID3D12PipelineState* GetGraphicsPipelineState()const { return graphicsPipelineState_.Get(); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU2() const { return textureSrvHandleGPU2_; }
 
 private:
 	DirectXCommon* dxCommon_ = nullptr;
@@ -75,4 +76,10 @@ private:
 	// マテリアル用の色
 	Vector4* materialData_ = nullptr;
 	Vector4 materialColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2_;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource2_;
+
+	bool useMonsterBall_ = true;
 };

@@ -28,12 +28,15 @@ public:
     ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); }
     IDXGISwapChain4* GetSwapChain() const { return swapChain_.Get(); }
     ID3D12DescriptorHeap* GetSrvDescriptorHeap() const { return srvDescriptorHeap_.Get(); }
-
+    uint32_t GetDescriptorSizeSRV() const { return descriptorSizeSRV_; }
     IDxcUtils* GetDxcUtils() const { return dxcUtils_.Get(); }
     IDxcCompiler3* GetDxcCompiler() const { return dxcCompiler_.Get(); }
     IDxcIncludeHandler* GetIncludeHandler() const { return includeHandler_.Get(); }
 
     ID3D12DescriptorHeap* GetDsvDescriptorHeap() const { return dsvDescriptorHeap_.Get(); }
+
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index);
+    D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
     // CompileShader関数
     Microsoft::WRL::ComPtr<IDxcBlob>CompilerShader(
@@ -85,5 +88,12 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_;
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_;
+
+
+    uint32_t descriptorSizeSRV_;
+    uint32_t descriptorSizeRTV_;
+    uint32_t descriptorSizeDSV_;
+
+
 
 };

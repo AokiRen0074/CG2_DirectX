@@ -274,6 +274,34 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 	dxCommon_->FlushCommandList();
 
+	// 二枚目のテクスチャを読み込む
+	DirectX::ScratchImage mipImages2 = TextureManager::LoadTexture("Resources/monsterBall.png");
+	const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
+
+	// ここで 2枚目のテクスチャ本体を作る
+	textureResource2_ = TextureManager::CreateTextureResource(device, metadata2);
+
+	// VRAMにデータを転送して待つ
+	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = TextureManager::UploadTextureData(textureResource2_.Get(), mipImages2, device, dxCommon_->GetCommandList());
+	dxCommon_->FlushCommandList();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
+	srvDesc2.Format = metadata2.format; // さっき定義した metadata2 を使う
+	srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
+
+	// どこに作るか（DescriptorHeapの場所）を決める
+	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
+	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
+
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, 2);
+	textureSrvHandleGPU2_ = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, 2);
+
+	// index=2 の場所にSRV（本）を登録する
+	// さっき定義した textureResource2_ を使う
+	device->CreateShaderResourceView(textureResource2_.Get(), &srvDesc2, textureSrvHandleCPU2);
+
 	// SRV用のヒープをDirectXCommonから取得
 	ID3D12DescriptorHeap* srvDescriptorHeap = dxCommon_->GetSrvDescriptorHeap();
 
@@ -317,6 +345,7 @@ void Object3d::Update() {
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
 	ImGui::ColorEdit4("Material Color", &materialColor_.x); // カラーピッカーを表示
+	ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
 	ImGui::End();
 
 	*materialData_ = materialColor_;
@@ -365,7 +394,7 @@ void Object3d::Draw() {
 
 	commandList->SetGraphicsRootConstantBufferView(0, materialResources_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
+	commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall_ ? textureSrvHandleGPU2_ : textureSrvHandleGPU_);
 
 	commandList->DrawInstanced(1536, 1, 0, 0);
 }
