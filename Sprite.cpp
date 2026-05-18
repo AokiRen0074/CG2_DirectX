@@ -9,6 +9,7 @@
 #include "externals/imgui/imgui_impl_dx12.h"
 #include "externals/imgui/imgui_impl_win32.h"
 #endif
+#include "Object3d.h"
 
 void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
     dxCommon_ = dxCommon;
@@ -30,25 +31,50 @@ void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE tex
     // 1枚目の三角形
     vertexData[0].position = { 0.0f, 360.0f, 0.0f, 1.0f }; // 左下
     vertexData[0].texcoord = { 0.0f, 1.0f };
+    vertexData[0].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+
     vertexData[1].position = { 0.0f, 0.0f, 0.0f, 1.0f };   // 左上
     vertexData[1].texcoord = { 0.0f, 0.0f };
+    vertexData[1].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+
     vertexData[2].position = { 640.0f, 360.0f, 0.0f, 1.0f }; // 右下
     vertexData[2].texcoord = { 1.0f, 1.0f };
+    vertexData[2].normal = { 0.0f, 0.0f, -1.0f };         // 法線
 
     // 2枚目の三角形
     vertexData[3].position = { 0.0f, 0.0f, 0.0f, 1.0f };   // 左上
     vertexData[3].texcoord = { 0.0f, 0.0f };
+    vertexData[3].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+
     vertexData[4].position = { 640.0f, 0.0f, 0.0f, 1.0f };   // 右上
     vertexData[4].texcoord = { 1.0f, 0.0f };
+    vertexData[4].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+
     vertexData[5].position = { 640.0f, 360.0f, 0.0f, 1.0f }; // 右下
     vertexData[5].texcoord = { 1.0f, 1.0f };
+    vertexData[5].normal = { 0.0f, 0.0f, -1.0f };         // 法線
 
     // ==========================================
     // 行列バッファの作成
     // ==========================================
-    transformationMatrixResource_ = CreateBufferResource(device, sizeof(Matrix4x4));
+    uint32_t transformMatrixSize = sizeof(TransformationMatrix);
+    transformMatrixSize = (transformMatrixSize + 255) & ~255;
+
+    transformationMatrixResource_ = CreateBufferResource(device, transformMatrixSize);
     transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
-    *transformationMatrixData_ = MakeIdentity4x4(); // 初期値は単位行列
+
+    transformationMatrixData_->WVP = MakeIdentity4x4();
+    transformationMatrixData_->World = MakeIdentity4x4();
+
+
+    materialResource_ = CreateBufferResource(device, sizeof(Material));
+    materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+
+    // スプライトは基本的に白色
+    materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    // スプライトはライティングしないので false
+    materialData_->enableLighting = 0;
+
 }
 
 void Sprite::Update() {
@@ -56,17 +82,14 @@ void Sprite::Update() {
 
 
 #ifdef USE_IMGUI
-    ImGui::Begin("Sprite Settings");
+    ImGui::Begin("Settings");
 
-    ImGui::DragFloat3("Translate", &transform_.translate.x, 1.0f);
-
-    // Rotate
-    ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
-
-    // Scale
-    ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
+    ImGui::ColorEdit4("colorSprite", &materialData_->color.x);
+    ImGui::DragFloat3("translateSprite", &transform_.translate.x, 1.0f);
 
     ImGui::End();
+
+ 
 
 #endif
 
@@ -75,6 +98,7 @@ void Sprite::Update() {
     // ==========================================
     // WVP行列の計算
     // ==========================================
+
 
     // ワールド行列
     Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
@@ -87,8 +111,11 @@ void Sprite::Update() {
         0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f
     );
 
+    Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+
     // 行列を掛け合わせて転送
-    *transformationMatrixData_ = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+    transformationMatrixData_->WVP = worldViewProjectionMatrix;
+    transformationMatrixData_->World = worldMatrix;
 
 
 
@@ -96,6 +123,8 @@ void Sprite::Update() {
 
 void Sprite::Draw() {
     ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+
+    commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
     // ==========================================
     // 描画コマンドを積む

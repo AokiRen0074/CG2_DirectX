@@ -12,36 +12,51 @@
 struct VertexData {
     Vector4 position;
     Vector2 texcoord;
+    Vector3 normal;
+};
+
+struct Material {
+    Vector4 color;
+    int32_t enableLighting;
+};
+
+struct TransformationMatrix {
+    Matrix4x4 WVP;
+    Matrix4x4 World;
 };
 
 
 
-class Sprite {
-public:
-    
-    void Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
-    void Update();
-    void Draw();
+    class Sprite {
+    public:
 
-    // 位置や大きさを変えるためのゲッター・セッター
-   struct Transform& GetTransform() { return transform_; }
+        void Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+        void Update();
+        void Draw();
 
-private:
-    // DirectXの便利クラス
-    DirectXCommon* dxCommon_ = nullptr;
+        // 位置や大きさを変えるためのゲッター・セッター
+        struct Transform& GetTransform() { return transform_; }
 
-    // ▼ 1. 頂点データ関連（スライド 150846）
-    Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-    D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+    private:
+        // DirectXの便利クラス
+        DirectXCommon* dxCommon_ = nullptr;
 
-    // ▼ 2. 行列データ関連（スライド 150854）
-    Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_;
-    Matrix4x4* transformationMatrixData_ = nullptr;
-    struct Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+        // 頂点データ関連
+        Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+        D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-    // 描画するテクスチャのGPUハンドル
-    D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU_;
+        // 行列データ関連
+        Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_;
+        TransformationMatrix* transformationMatrixData_ = nullptr;
+        struct Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 
-    // リソース作成用の便利関数（Object3dからコピーまたは共有）
-    Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
-};
+        // 描画するテクスチャのGPUハンドル
+        D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU_;
+
+        // リソース作成用の便利関数（Object3dからコピーまたは共有）
+        Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
+
+        Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+        Material* materialData_ = nullptr;
+
+    };

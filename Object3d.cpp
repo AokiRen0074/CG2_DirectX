@@ -31,7 +31,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 
 	// RootParameter作成。複数設定できるので配列
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
@@ -51,6 +51,11 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+
+	// ライト用のCBV
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].Descriptor.ShaderRegister = 1;
 
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
@@ -88,7 +93,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	assert(SUCCEEDED(hr));
 
 	// InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[2] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -104,6 +109,14 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs); 
+
+	inputElementDescs[2].SemanticName = "NORMAL";
+	inputElementDescs[2].SemanticIndex = 0;
+	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+	inputLayoutDesc.pInputElementDescs = inputElementDescs;
+	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
 	// BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
@@ -207,7 +220,6 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 			uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
 			float lon = lonIndex * kLonEvery; // 現在の経度
 
-
 			float latCos = std::cos(lat);
 			float latSin = std::sin(lat);
 			float latNextCos = std::cos(lat + kLatEvery);
@@ -224,46 +236,82 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 			float uNext = float(lonIndex + 1) / float(kSubdivision);
 			float vNext = 1.0f - float(latIndex + 1) / float(kSubdivision);
 
-			// 頂点1
+			// --------------------------------------------------------
+			// 頂点1：a (左下)
+			// --------------------------------------------------------
 			vertexData[start].position = { latCos * lonCos, latSin, latCos * lonSin, 1.0f };
 			vertexData[start].texcoord = { u, v };
+			vertexData[start].normal = { latCos * lonCos, latSin, latCos * lonSin }; // 法線
 
-			// 頂点2
+			// --------------------------------------------------------
+			// 頂点2：b (左上)
+			// --------------------------------------------------------
 			vertexData[start + 1].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
 			vertexData[start + 1].texcoord = { u, vNext };
+			vertexData[start + 1].normal = { latNextCos * lonCos, latNextSin, latNextCos * lonSin }; // 法線
 
-			// 頂点3
+			// --------------------------------------------------------
+			// 頂点3：c (右下)
+			// --------------------------------------------------------
 			vertexData[start + 2].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
 			vertexData[start + 2].texcoord = { uNext, v };
+			vertexData[start + 2].normal = { latCos * lonNextCos, latSin, latCos * lonNextSin }; // 法線
 
-			// 頂点4
+			// --------------------------------------------------------
+			// 頂点4：c (右下) - 2枚目の三角形の始まり
+			// --------------------------------------------------------
 			vertexData[start + 3].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
 			vertexData[start + 3].texcoord = { uNext, v };
+			vertexData[start + 3].normal = { latCos * lonNextCos, latSin, latCos * lonNextSin }; // 法線
 
-			// 頂点5
+			// --------------------------------------------------------
+			// 頂点5：b (左上)
+			// --------------------------------------------------------
 			vertexData[start + 4].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
 			vertexData[start + 4].texcoord = { u, vNext };
+			vertexData[start + 4].normal = { latNextCos * lonCos, latNextSin, latNextCos * lonSin }; // 法線
 
-			// 頂点6
+			// --------------------------------------------------------
+			// 頂点6：d (右上)
+			// --------------------------------------------------------
 			vertexData[start + 5].position = { latNextCos * lonNextCos, latNextSin, latNextCos * lonNextSin, 1.0f };
 			vertexData[start + 5].texcoord = { uNext, vNext };
+			vertexData[start + 5].normal = { latNextCos * lonNextCos, latNextSin, latNextCos * lonNextSin }; // 法線
 		}
 	}
 
 	// 色1つ分（Vector4）のサイズで作る
 	materialResources_ = CreateBufferResource(device, sizeof(Vector4));
 
+	uint32_t lightSize = sizeof(DirectionalLight);
+	lightSize = (lightSize + 255) & ~255;
+	directionalLightResource_ = CreateBufferResource(device, lightSize);
 
+	directionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData_));
+
+	// デフォルト値：真下（Yが-1）に向かって白い光を当てる
+	directionalLightData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
+	directionalLightData_->intensity = 1.0f;
 
 	// マテリアルにデータを書き込む
+	uint32_t materialSize = sizeof(Material);
+	materialSize = (materialSize + 255) & ~255;
+	materialResources_ = CreateBufferResource(device, materialSize);
+
 	materialResources_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
-	*materialData_ = materialColor_;
+	materialData_->color = materialColor_;
+	materialData_->enableLighting = 1;
 
 	// WVP用のリソースを作る。
-	wvpResource_ = CreateBufferResource(device, sizeof(Matrix4x4));
+	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
+	transformMatrixSize = (transformMatrixSize + 255) & ~255; // 256の倍数に切り上げ
+
+	wvpResource_ = CreateBufferResource(device, transformMatrixSize);
 
 	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
-	*wvpData_ = MakeIdentity4x4();
+	wvpData_->WVP = MakeIdentity4x4();
+	wvpData_->World = MakeIdentity4x4();
 
 	// テクスチャ読み込み処理
 	DirectX::ScratchImage mipImages = TextureManager::LoadTexture("Resources/uvChecker.png");
@@ -322,6 +370,10 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	textureSrvHandleGPU_.ptr += incrementSize; 
 	// SRVの生成
 	device->CreateShaderResourceView(textureResource_.Get(), &srvDesc, textureSrvHandleCPU);
+
+
+
+
 }
 
 
@@ -340,16 +392,60 @@ void Object3d::Update() {
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
 
 	// 計算した行列を、GPUに送るデータに上書きする
-	*wvpData_ = worldViewProjectionMatrix;
+	wvpData_->WVP = worldViewProjectionMatrix;
+	wvpData_->World = worldMatrix;
 
 #ifdef USE_IMGUI
+
 	ImGui::Begin("Settings");
-	ImGui::ColorEdit4("Material Color", &materialColor_.x); // カラーピッカーを表示
+
+	// ==========================================
+	// カメラ設定
+	// ==========================================
+	ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
+	ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
+	// ==========================================
+	//  球体のマテリアル設定
+	// ==========================================
+	ImGui::ColorEdit4("color", &materialColor_.x);
+
+	bool isLighting = (materialData_->enableLighting != 0);
+	if (ImGui::Checkbox("enableLighting", &isLighting)) {
+		materialData_->enableLighting = isLighting ? 1 : 0;
+	}
+
 	ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
+
+	// ==========================================
+	// 平行光源
+	// ==========================================
+	ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
+
+
+	if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
+		// 三平方の定理でベクトルの長さを求める
+		float len = std::sqrt(
+			directionalLightData_->direction.x * directionalLightData_->direction.x +
+			directionalLightData_->direction.y * directionalLightData_->direction.y +
+			directionalLightData_->direction.z * directionalLightData_->direction.z
+		);
+
+		if (len != 0.0f) {
+			directionalLightData_->direction.x /= len;
+			directionalLightData_->direction.y /= len;
+			directionalLightData_->direction.z /= len;
+		}
+	}
+
+	ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+
 	ImGui::End();
 
-	*materialData_ = materialColor_;
 
+	materialData_->color = materialColor_;
 #endif
 
 }
@@ -395,6 +491,7 @@ void Object3d::Draw() {
 	commandList->SetGraphicsRootConstantBufferView(0, materialResources_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall_ ? textureSrvHandleGPU2_ : textureSrvHandleGPU_);
+	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 
 	commandList->DrawInstanced(1536, 1, 0, 0);
 }

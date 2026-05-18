@@ -1,25 +1,66 @@
-#include "Object3d.hlsli"
+// ==========================================
+// 構造体の定義
+// ==========================================
 
+// マテリアル
 struct Material
 {
     float32_t4 color;
+    int32_t enableLighting;
 };
-ConstantBuffer<Material> gMaterial : register(b0);
 
-Texture2D<float32_t4> gTexture : register(t0); 
+// 平行光源
+struct DirectionalLight
+{
+    float32_t4 color; // ライトの色
+    float32_t3 direction; // ライトの向き
+    float intensity; // 輝度
+};
+
+// 頂点シェーダーから送られてきたデータ
+struct VertexShaderOutput
+{
+    float32_t4 position : SV_POSITION;
+    float32_t2 texcoord : TEXCOORD0;
+    float32_t3 normal : NORMAL0;
+};
+
+// ==========================================
+// 定数バッファとリソース
+// ==========================================
+ConstantBuffer<Material> gMaterial : register(b0);
+ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
+Texture2D<float32_t4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
-struct PixelShaderOutput
+// ==========================================
+// メイン関数
+// ==========================================
+float32_t4 main(VertexShaderOutput input) : SV_TARGET
 {
-    float32_t4 color : SV_TARGET0;
-};
-
-PixelShaderOutput main(VertexShaderOutput input)
-{
-    PixelShaderOutput output;
     
+    // テクスチャから色をサンプリング
     float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
-    output.color = gMaterial.color * textureColor;
-    
-    return output;
+    float32_t4 outputColor;
+
+    // ライティングの計算
+    if (gMaterial.enableLighting != 0)
+    {
+        // ライティング有効の場合
+        float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        
+        // 光の計算
+        outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        
+  
+        outputColor.a = gMaterial.color.a * textureColor.a;
+        
+    }
+    else
+    {
+        // ライティング無効の場合
+        outputColor = gMaterial.color * textureColor;
+    }
+
+    return outputColor;
 }
