@@ -3,6 +3,7 @@
 #include "DirectXCommon.h" 
 #include "WindowApp.h"
 #include "TextureManager.h"
+#include <numbers>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -176,38 +177,78 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 
 	
-	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6);
+	const uint32_t kSubdivision = 16; // 分割数
+	const uint32_t kVertexCount = kSubdivision * kSubdivision * 6; // 全頂点数
+	const float pi = std::numbers::pi_v<float>;
 
-	// 頂点バッファビューを作成する
+	// 頂点リソースの作成
+	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * kVertexCount);
+
+	// VBVにも新しいサイズを教える
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * kVertexCount;
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
-	// 頂点リソースにデータを書き込む
 	VertexData* vertexData = nullptr;
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
-	// 左下
-	vertexData[0].position = { -0.5f, -0.5f, 0.0f, 1.0f };
-	vertexData[0].texcoord = { 0.0f, 1.0f };
 
-	// 上
-	vertexData[1].position = { 0.0f,  0.5f, 0.0f, 1.0f };
-	vertexData[1].texcoord = { 0.5f, 0.0f };
+	// 経度分割1つ分の角度
+	const float kLonEvery = pi * 2.0f / float(kSubdivision);
+	// 緯度分割1つ分の角度
+	const float kLatEvery = pi / float(kSubdivision);
 
-	// 右下
-	vertexData[2].position = { 0.5f, -0.5f, 0.0f, 1.0f };
-	vertexData[2].texcoord = { 1.0f, 1.0f };
+	// 緯度の方向に分割
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+		float lat = -pi / 2.0f + kLatEvery * latIndex; // 現在の緯度 
 
-	// 左下2
-	vertexData[3].position = { -0.5f, -0.5f, 0.5f, 1.0f };
-	vertexData[3].texcoord = { 0.0f, 1.0f };
-	// 上2
-	vertexData[4].position = { 0.0f, 0.0f, 0.0f, 1.0f };
-	vertexData[4].texcoord = { 0.5f, 0.0f };
-	// 右下2
-	vertexData[5].position = { 0.5f, -0.5f, -0.5f, 1.0f };
-	vertexData[5].texcoord = { 1.0f, 1.0f };
+		// 経度の方向に分割しながら線を描く
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+			uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
+			float lon = lonIndex * kLonEvery; // 現在の経度
+
+
+			float latCos = std::cos(lat);
+			float latSin = std::sin(lat);
+			float latNextCos = std::cos(lat + kLatEvery);
+			float latNextSin = std::sin(lat + kLatEvery);
+
+			float lonCos = std::cos(lon);
+			float lonSin = std::sin(lon);
+			float lonNextCos = std::cos(lon + kLonEvery);
+			float lonNextSin = std::sin(lon + kLonEvery);
+
+			// UV座標の計算
+			float u = float(lonIndex) / float(kSubdivision);
+			float v = 1.0f - float(latIndex) / float(kSubdivision);
+			float uNext = float(lonIndex + 1) / float(kSubdivision);
+			float vNext = 1.0f - float(latIndex + 1) / float(kSubdivision);
+
+			// 頂点1
+			vertexData[start].position = { latCos * lonCos, latSin, latCos * lonSin, 1.0f };
+			vertexData[start].texcoord = { u, v };
+
+			// 頂点2
+			vertexData[start + 1].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
+			vertexData[start + 1].texcoord = { u, vNext };
+
+			// 頂点3
+			vertexData[start + 2].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
+			vertexData[start + 2].texcoord = { uNext, v };
+
+			// 頂点4
+			vertexData[start + 3].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
+			vertexData[start + 3].texcoord = { uNext, v };
+
+			// 頂点5
+			vertexData[start + 4].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
+			vertexData[start + 4].texcoord = { u, vNext };
+
+			// 頂点6
+			vertexData[start + 5].position = { latNextCos * lonNextCos, latNextSin, latNextCos * lonNextSin, 1.0f };
+			vertexData[start + 5].texcoord = { uNext, vNext };
+		}
+	}
 
 	// 色1つ分（Vector4）のサイズで作る
 	materialResources_ = CreateBufferResource(device, sizeof(Vector4));
@@ -326,7 +367,7 @@ void Object3d::Draw() {
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
 
-	commandList->DrawInstanced(6, 1, 0, 0);
+	commandList->DrawInstanced(1536, 1, 0, 0);
 }
 
 /*--------------------------
