@@ -349,7 +349,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// SRVの生成
 	device->CreateShaderResourceView(textureResource_.Get(), &srvDesc, textureSrvHandleCPU);
 
-
+	materialData_->uvTransform = MakeIdentity4x4();
 
 
 }
@@ -374,57 +374,78 @@ void Object3d::Update() {
 	wvpData_->World = worldMatrix;
 
 #ifdef USE_IMGUI
-
 	ImGui::Begin("Settings");
 
 	// ==========================================
 	// カメラ設定
 	// ==========================================
-	ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
-	ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
-	ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
-	ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	if (ImGui::TreeNode("Camera")) {
+		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
+		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+		ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+		ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
 
-	// ==========================================
-	//  球体のマテリアル設定
-	// ==========================================
-	ImGui::ColorEdit4("color", &materialColor_.x);
-
-	bool isLighting = (materialData_->enableLighting != 0);
-	if (ImGui::Checkbox("enableLighting", &isLighting)) {
-		materialData_->enableLighting = isLighting ? 1 : 0;
+		ImGui::TreePop(); 
 	}
 
-	ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
+	// ==========================================
+	// 球体設定
+	// ==========================================
+	if (ImGui::TreeNode("Sphere Settings")) {
+		ImGui::ColorEdit4("Material Color", &materialColor_.x);
+		ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
+
+		// さらに階層を深く
+		if (ImGui::TreeNode("UV Transform")) {
+			ImGui::DragFloat2("Translate", &uvTransform_.translate.x, 0.01f, -10.0f, 10.0f);
+			ImGui::DragFloat2("Scale", &uvTransform_.scale.x, 0.01f, -10.0f, 10.0f);
+			ImGui::SliderAngle("Rotate", &uvTransform_.rotate.z);
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
 
 	// ==========================================
 	// 平行光源
 	// ==========================================
-	ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
-
-
-	if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
-		// 三平方の定理でベクトルの長さを求める
-		float len = std::sqrt(
-			directionalLightData_->direction.x * directionalLightData_->direction.x +
-			directionalLightData_->direction.y * directionalLightData_->direction.y +
-			directionalLightData_->direction.z * directionalLightData_->direction.z
-		);
-
-		if (len != 0.0f) {
-			directionalLightData_->direction.x /= len;
-			directionalLightData_->direction.y /= len;
-			directionalLightData_->direction.z /= len;
+	if (ImGui::TreeNode("Directional Light")) {
+		// enableLightingはint32_tなのでbool変換
+		bool isLighting = (materialData_->enableLighting != 0);
+		if (ImGui::Checkbox("enableLighting", &isLighting)) {
+			materialData_->enableLighting = isLighting ? 1 : 0;
 		}
-	}
 
-	ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+		ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
+
+		if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
+			float len = std::sqrt(
+				directionalLightData_->direction.x * directionalLightData_->direction.x +
+				directionalLightData_->direction.y * directionalLightData_->direction.y +
+				directionalLightData_->direction.z * directionalLightData_->direction.z
+			);
+			if (len != 0.0f) {
+				directionalLightData_->direction.x /= len;
+				directionalLightData_->direction.y /= len;
+				directionalLightData_->direction.z /= len;
+			}
+		}
+		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+
+		ImGui::TreePop();
+	}
 
 	ImGui::End();
 
-
+	// 最後に色データを更新
 	materialData_->color = materialColor_;
 #endif
+
+	Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransform_.scale);
+	uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransform_.rotate.z));
+	uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransform_.translate));
+
+	materialData_->uvTransform = uvTransformMatrix;
 
 }
 

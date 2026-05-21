@@ -32,6 +32,8 @@ public:
 	struct Material {
 		Vector4 color;
 		int32_t enableLighting;
+		float padding[3];
+		Matrix4x4 uvTransform;
 	};
 
 	struct DirectionalLight {
@@ -82,8 +84,6 @@ private:
 	Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	Transform cameraTransform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -5.0f} };
 
-
-
 	TransformationMatrix* wvpData_ = nullptr;
 
 	// テクスチャ追加用のリソース
@@ -107,4 +107,9 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	Transform uvTransform_{
+		{ 1.0f, 1.0f, 1.0f }, // scale
+		{ 0.0f, 0.0f, 0.0f }, // rotate
+		{ 0.0f, 0.0f, 0.0f }  // translate
+	};
 };

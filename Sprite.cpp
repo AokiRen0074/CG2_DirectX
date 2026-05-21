@@ -86,6 +86,8 @@ void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE tex
     // スプライトはライティングしないので false
     materialData_->enableLighting = 0;
 
+    materialData_->uvTransform = MakeIdentity4x4();
+
 }
 
 void Sprite::Update() {
@@ -95,14 +97,33 @@ void Sprite::Update() {
 #ifdef USE_IMGUI
     ImGui::Begin("Settings");
 
-    ImGui::ColorEdit4("colorSprite", &materialData_->color.x);
-    ImGui::DragFloat3("translateSprite", &transform_.translate.x, 1.0f);
+    // ==========================================
+    // スプライト設定
+    // ==========================================
+    if (ImGui::TreeNode("Sprite Settings")) {
+        ImGui::ColorEdit4("Color", &materialData_->color.x);
+        ImGui::DragFloat3("Translate", &transform_.translate.x, 1.0f);
+
+        if (ImGui::TreeNode("UV Transform")) {
+            ImGui::DragFloat2("Translate", &uvTransformSprite_.translate.x, 0.01f, -10.0f, 10.0f);
+            ImGui::DragFloat2("Scale", &uvTransformSprite_.scale.x, 0.01f, -10.0f, 10.0f);
+            ImGui::SliderAngle("Rotate", &uvTransformSprite_.rotate.z);
+            ImGui::TreePop();
+        }
+
+        ImGui::TreePop();
+    }
 
     ImGui::End();
-
- 
-
 #endif
+
+    //UVTransform行列の計算
+    Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite_.scale);
+    uvTransformMatrix = Multiply(uvTransformMatrix, MakeRotateZMatrix(uvTransformSprite_.rotate.z));
+    uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(uvTransformSprite_.translate));
+
+    // GPUへ送るデータに代入
+    materialData_->uvTransform = uvTransformMatrix;
 
 
 
