@@ -4,6 +4,7 @@
 #include "WindowApp.h"
 #include "TextureManager.h"
 #include <numbers>
+#include "Model.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -306,6 +307,32 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 	// ここで 2枚目のテクスチャ本体を作る
 	textureResource2_ = TextureManager::CreateTextureResource(device, metadata2);
+
+	Model model;
+	ModelData modelData = model.LoadObjectFile("resources", "plane.obj");
+
+	// 頂点リソースを作る（サイズは「頂点1個分のサイズ × 頂点の数」）
+	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * modelData.vertices.size());
+
+	// 頂点バッファビューを作成する
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+	// 頂点リソースにデータを書き込む
+	VertexData* vertexData = nullptr;
+	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+
+	// 今までは forループ で1個ずつ書いていましたが、今回は memcpy で配列ごと一気にコピーします
+	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+
+
+
+
+
+
+
 
 	// VRAMにデータを転送して待つ
 	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource2 = TextureManager::UploadTextureData(textureResource2_.Get(), mipImages2, device, dxCommon_->GetCommandList());

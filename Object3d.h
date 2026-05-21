@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include <string>
 #include "Matrix4x4.h"
+#include "Model.h"
 
 class Object3d {
 
