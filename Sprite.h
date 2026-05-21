@@ -59,4 +59,8 @@ struct TransformationMatrix {
         Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
         Material* materialData_ = nullptr;
 
+        // SpriteをIndex描画に変更する
+        Microsoft::WRL::ComPtr<ID3D12Resource> indexResourceSprite_;
+        D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite_{};
+
     };

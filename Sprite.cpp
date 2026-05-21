@@ -19,40 +19,51 @@ void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE tex
     // ==========================================
     // 頂点バッファの作成
     // ==========================================
-    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 6);
+    vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
     vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
+    vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
     vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
     VertexData* vertexData = nullptr;
     vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
 
-    // 1枚目の三角形
+    // 三角形
     vertexData[0].position = { 0.0f, 360.0f, 0.0f, 1.0f }; // 左下
     vertexData[0].texcoord = { 0.0f, 1.0f };
-    vertexData[0].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+    vertexData[0].normal = { 0.0f, 0.0f, -1.0f };          // 法線
 
     vertexData[1].position = { 0.0f, 0.0f, 0.0f, 1.0f };   // 左上
     vertexData[1].texcoord = { 0.0f, 0.0f };
-    vertexData[1].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+    vertexData[1].normal = { 0.0f, 0.0f, -1.0f };          // 法線
 
     vertexData[2].position = { 640.0f, 360.0f, 0.0f, 1.0f }; // 右下
     vertexData[2].texcoord = { 1.0f, 1.0f };
-    vertexData[2].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+    vertexData[2].normal = { 0.0f, 0.0f, -1.0f };           // 法線
 
-    // 2枚目の三角形
-    vertexData[3].position = { 0.0f, 0.0f, 0.0f, 1.0f };   // 左上
-    vertexData[3].texcoord = { 0.0f, 0.0f };
-    vertexData[3].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+    vertexData[3].position = { 640.0f, 0.0f, 0.0f, 1.0f };   // 右上
+    vertexData[3].texcoord = { 1.0f, 0.0f };
+    vertexData[3].normal = { 0.0f, 0.0f, -1.0f };           //　法線
 
-    vertexData[4].position = { 640.0f, 0.0f, 0.0f, 1.0f };   // 右上
-    vertexData[4].texcoord = { 1.0f, 0.0f };
-    vertexData[4].normal = { 0.0f, 0.0f, -1.0f };         // 法線
 
-    vertexData[5].position = { 640.0f, 360.0f, 0.0f, 1.0f }; // 右下
-    vertexData[5].texcoord = { 1.0f, 1.0f };
-    vertexData[5].normal = { 0.0f, 0.0f, -1.0f };         // 法線
+    /*-------------------------------
+    インデックスバッファの作成
+    ---------------------------------------*/
+    indexResourceSprite_ = CreateBufferResource(device, sizeof(uint32_t) * 6);
+
+    indexBufferViewSprite_.BufferLocation = indexResourceSprite_->GetGPUVirtualAddress();
+    indexBufferViewSprite_.SizeInBytes = sizeof(uint32_t) * 6;
+    indexBufferViewSprite_.Format = DXGI_FORMAT_R32_UINT;
+
+    uint32_t* indexDataSprite = nullptr;
+    indexResourceSprite_->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+
+    // 頂点を結ぶ順番
+    // 三角形1枚目
+    indexDataSprite[0] = 0; indexDataSprite[1] = 1; indexDataSprite[2] = 2;
+    // 三角形2枚目
+    indexDataSprite[3] = 1; indexDataSprite[4] = 3; indexDataSprite[5] = 2;
+
 
     // ==========================================
     // 行列バッファの作成
@@ -133,6 +144,11 @@ void Sprite::Draw() {
     // 頂点データをセット
     commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
+    // インデックスデータをセット
+    commandList->IASetIndexBuffer(&indexBufferViewSprite_);
+    commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
+
     // 行列データをセット
     commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
@@ -140,7 +156,7 @@ void Sprite::Draw() {
     commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
 
 
-    commandList->DrawInstanced(6, 1, 0, 0);
+    commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
 

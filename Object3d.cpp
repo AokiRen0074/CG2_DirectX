@@ -108,7 +108,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
-	inputLayoutDesc.NumElements = _countof(inputElementDescs); 
+	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
 	inputElementDescs[2].SemanticName = "NORMAL";
 	inputElementDescs[2].SemanticIndex = 0;
@@ -189,94 +189,72 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	assert(SUCCEEDED(hr));
 
 
-	
-	const uint32_t kSubdivision = 16; // 分割数
-	const uint32_t kVertexCount = kSubdivision * kSubdivision * 6; // 全頂点数
+
+	// ==========================================
+	// 球体の頂点・インデックスデータの計算
+	// ==========================================
+	const uint32_t kSubdivision = 16;
+
+	// 頂点数
+	const uint32_t kVertexCount = (kSubdivision + 1) * (kSubdivision + 1);
+	// インデックス数：分割数 × 分割数 × 6
+	const uint32_t kIndexCount = kSubdivision * kSubdivision * 6;
+
 	const float pi = std::numbers::pi_v<float>;
 
-	// 頂点リソースの作成
+	// 頂点バッファの作成
 	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * kVertexCount);
-
-	// VBVにも新しいサイズを教える
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	vertexBufferView_.SizeInBytes = sizeof(VertexData) * kVertexCount;
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
-
 	VertexData* vertexData = nullptr;
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
+	//インデックスバッファの作成
+	indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * kIndexCount);
+	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * kIndexCount;
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+	uint32_t* indexData = nullptr;
+	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
 
-	// 経度分割1つ分の角度
+	// 角度の計算
 	const float kLonEvery = pi * 2.0f / float(kSubdivision);
-	// 緯度分割1つ分の角度
 	const float kLatEvery = pi / float(kSubdivision);
 
-	// 緯度の方向に分割
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
-		float lat = -pi / 2.0f + kLatEvery * latIndex; // 現在の緯度 
+	// グリッド状に重複のない頂点だけを敷き詰める
+	for (uint32_t latIndex = 0; latIndex <= kSubdivision; ++latIndex) {
+		float lat = -pi / 2.0f + kLatEvery * latIndex;
+		for (uint32_t lonIndex = 0; lonIndex <= kSubdivision; ++lonIndex) {
+			uint32_t index = latIndex * (kSubdivision + 1) + lonIndex; // 1次元配列のインデックス
+			float lon = lonIndex * kLonEvery;
 
-		// 経度の方向に分割しながら線を描く
+			vertexData[index].position = { std::cos(lat) * std::cos(lon), std::sin(lat), std::cos(lat) * std::sin(lon), 1.0f };
+			vertexData[index].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
+			vertexData[index].normal = { std::cos(lat) * std::cos(lon), std::sin(lat), std::cos(lat) * std::sin(lon) };
+		}
+	}
+
+	// 敷き詰めた頂点をインデックスで結んで四角形を作っていく
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
 			uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
-			float lon = lonIndex * kLonEvery; // 現在の経度
 
-			float latCos = std::cos(lat);
-			float latSin = std::sin(lat);
-			float latNextCos = std::cos(lat + kLatEvery);
-			float latNextSin = std::sin(lat + kLatEvery);
+			// 四角形を構成する4つの頂点の番号を計算
+			uint32_t v0 = latIndex * (kSubdivision + 1) + lonIndex;       // 左下
+			uint32_t v1 = (latIndex + 1) * (kSubdivision + 1) + lonIndex; // 左上
+			uint32_t v2 = latIndex * (kSubdivision + 1) + (lonIndex + 1); // 右下
+			uint32_t v3 = (latIndex + 1) * (kSubdivision + 1) + (lonIndex + 1); // 右上
 
-			float lonCos = std::cos(lon);
-			float lonSin = std::sin(lon);
-			float lonNextCos = std::cos(lon + kLonEvery);
-			float lonNextSin = std::sin(lon + kLonEvery);
+			// 三角形1枚目（左下、左上、右下）
+			indexData[start] = v0;
+			indexData[start + 1] = v1;
+			indexData[start + 2] = v2;
 
-			// UV座標の計算
-			float u = float(lonIndex) / float(kSubdivision);
-			float v = 1.0f - float(latIndex) / float(kSubdivision);
-			float uNext = float(lonIndex + 1) / float(kSubdivision);
-			float vNext = 1.0f - float(latIndex + 1) / float(kSubdivision);
-
-			// --------------------------------------------------------
-			// 頂点1：a (左下)
-			// --------------------------------------------------------
-			vertexData[start].position = { latCos * lonCos, latSin, latCos * lonSin, 1.0f };
-			vertexData[start].texcoord = { u, v };
-			vertexData[start].normal = { latCos * lonCos, latSin, latCos * lonSin }; // 法線
-
-			// --------------------------------------------------------
-			// 頂点2：b (左上)
-			// --------------------------------------------------------
-			vertexData[start + 1].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
-			vertexData[start + 1].texcoord = { u, vNext };
-			vertexData[start + 1].normal = { latNextCos * lonCos, latNextSin, latNextCos * lonSin }; // 法線
-
-			// --------------------------------------------------------
-			// 頂点3：c (右下)
-			// --------------------------------------------------------
-			vertexData[start + 2].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
-			vertexData[start + 2].texcoord = { uNext, v };
-			vertexData[start + 2].normal = { latCos * lonNextCos, latSin, latCos * lonNextSin }; // 法線
-
-			// --------------------------------------------------------
-			// 頂点4：c (右下) - 2枚目の三角形の始まり
-			// --------------------------------------------------------
-			vertexData[start + 3].position = { latCos * lonNextCos, latSin, latCos * lonNextSin, 1.0f };
-			vertexData[start + 3].texcoord = { uNext, v };
-			vertexData[start + 3].normal = { latCos * lonNextCos, latSin, latCos * lonNextSin }; // 法線
-
-			// --------------------------------------------------------
-			// 頂点5：b (左上)
-			// --------------------------------------------------------
-			vertexData[start + 4].position = { latNextCos * lonCos, latNextSin, latNextCos * lonSin, 1.0f };
-			vertexData[start + 4].texcoord = { u, vNext };
-			vertexData[start + 4].normal = { latNextCos * lonCos, latNextSin, latNextCos * lonSin }; // 法線
-
-			// --------------------------------------------------------
-			// 頂点6：d (右上)
-			// --------------------------------------------------------
-			vertexData[start + 5].position = { latNextCos * lonNextCos, latNextSin, latNextCos * lonNextSin, 1.0f };
-			vertexData[start + 5].texcoord = { uNext, vNext };
-			vertexData[start + 5].normal = { latNextCos * lonNextCos, latNextSin, latNextCos * lonNextSin }; // 法線
+			// 三角形2枚目（右下、左上、右上）
+			indexData[start + 3] = v2;
+			indexData[start + 4] = v1;
+			indexData[start + 5] = v3;
 		}
 	}
 
@@ -367,7 +345,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// 先頭はImGuiが使っているので、その次を使う
 	UINT incrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	textureSrvHandleCPU.ptr += incrementSize;
-	textureSrvHandleGPU_.ptr += incrementSize; 
+	textureSrvHandleGPU_.ptr += incrementSize;
 	// SRVの生成
 	device->CreateShaderResourceView(textureResource_.Get(), &srvDesc, textureSrvHandleCPU);
 
@@ -478,10 +456,15 @@ void Object3d::Draw() {
 
 	commandList->RSSetViewports(1, &viewport); // Viewport &RE
 	commandList->RSSetScissorRects(1, &scissorRect);
-	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+	//RootSignatureを設定
 	commandList->SetGraphicsRootSignature(rootSignature_.Get());
 	commandList->SetPipelineState(graphicsPipelineState_.Get());
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
+
+	// インデックスバッファをセット
+	commandList->IASetIndexBuffer(&indexBufferView_);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	//形状を設定。PSOに設定しているものとはまた別。同じものを設定すると考えておけば良い
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -493,7 +476,7 @@ void Object3d::Draw() {
 	commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall_ ? textureSrvHandleGPU2_ : textureSrvHandleGPU_);
 	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 
-	commandList->DrawInstanced(1536, 1, 0, 0);
+	commandList->DrawIndexedInstanced(1536, 1, 0, 0, 0);
 }
 
 /*--------------------------
