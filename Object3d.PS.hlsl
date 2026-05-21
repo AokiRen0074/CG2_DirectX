@@ -47,8 +47,9 @@ float32_t4 main(VertexShaderOutput input) : SV_TARGET
     if (gMaterial.enableLighting != 0)
     {
         // ライティング有効の場合
-        float cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        
+        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+ 
+        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         // 光の計算
         outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
         
