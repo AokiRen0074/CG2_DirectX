@@ -6,6 +6,7 @@
 #include "Object3d.h"
 #include "Sprite.h"
 
+
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
 #include "externals/imgui/imgui_impl_dx12.h"
@@ -14,7 +15,20 @@
 
 #pragma comment(lib,"dxguid.lib")
 
+struct D3DResourceLeakChecker {
+	~D3DResourceLeakChecker() {
+		Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
+		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
+			// メモリリークを判定
+			debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+		}
+	}
+};
+
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+
+	D3DResourceLeakChecker leakCheck;
+
 
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
