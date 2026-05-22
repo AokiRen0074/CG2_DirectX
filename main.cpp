@@ -84,7 +84,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		// モデルの描画など
 		object3d->Draw();
-		sprite->Draw();
+		//sprite->Draw();
 
 
 		// 描画の終了

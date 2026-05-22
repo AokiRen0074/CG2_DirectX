@@ -4,26 +4,17 @@
 #include "Logger.h"
 #include <string>
 #include "Matrix4x4.h"
+#include "Vector4.h"
+#include "Vector3.h"
+
+
+
 #include "Model.h"
+
 
 class Object3d {
 
 public:
-
-	struct Vector4 {
-		float x, y, z, w;
-	};
-
-	struct Vector2 {
-		float x, y;
-	};
-
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
-
 	struct Transform {
 		Vector3  scale;
 		Vector3 rotate;
@@ -48,13 +39,21 @@ public:
 		Matrix4x4 World;
 	};
 
-
+	/*-----------------------
+	メッシュごとのリソースを管理する構造体
+	----------------------------------------------*/
+	struct MeshResource {
+		Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+		Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
+		Material* materialData = nullptr;
+		uint32_t vertexCount = 0;
+		Microsoft::WRL::ComPtr<ID3D12Resource> textureResource;
+		D3D12_GPU_DESCRIPTOR_HANDLE textureHandleGPU{}; // このパーツが使うテクスチャのハンドル
+	};
 
 	void Initialize(DirectXCommon* dxCommon);
-
 	void Update();
-
-
 	void Draw();
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
@@ -71,11 +70,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 
-	// 頂点データ
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResources_;
+	std::vector<MeshResource> meshResources_;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
 
@@ -93,12 +88,9 @@ private:
 	// テクスチャのGPU上のアドレス
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU_;
 
-	// マテリアル用の色
-	Material* materialData_ = nullptr;
 	Vector4 materialColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2_;
-
 	Microsoft::WRL::ComPtr<ID3D12Resource> textureResource2_;
 
 	bool useMonsterBall_ = true;
