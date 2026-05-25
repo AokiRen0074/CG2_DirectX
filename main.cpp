@@ -6,6 +6,7 @@
 #include "Object3d.h"
 #include "Sprite.h"
 #include "Audio.h"
+#include "Input.h"
 
 
 #ifdef USE_IMGUI
@@ -53,19 +54,22 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	dxCommon->Initialize(winApp);
 	object3d->Initialize(dxCommon);
 
-	D3D12_GPU_DESCRIPTOR_HANDLE sharedTextureHandle = object3d->GetTextureSrvHandleGPU();
-	Sprite* sprite = new Sprite();
-	sprite->Initialize(dxCommon, sharedTextureHandle);
-
 	// 音
 	Audio* audio = new Audio();
 	audio->Initialize();
 
 	SoundData soundData = audio->SoundLoadWave("Resources/Alarm01.wav");
+
+	//audio->SoundPlayWave(soundData);
+
+
+	D3D12_GPU_DESCRIPTOR_HANDLE sharedTextureHandle = object3d->GetTextureSrvHandleGPU();
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(dxCommon, sharedTextureHandle);
+
 	
-	audio->SoundPlayWave(soundData);
-
-
+	Input* input = new Input();
+	input->Initialize(winApp->GetHInstance(), winApp->GetHwnd());
 
 	// メインループ
 	while (true) {
@@ -78,6 +82,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		更新処理はここから
 		----------------------------*/
 
+		input->Update();
+
+		if (input->PushKey(DIK_0)) {
+			OutputDebugStringA("Hit 0\n");
+		}
 		
 #ifdef USE_IMGUI
 		// imguiのフレーム開始

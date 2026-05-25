@@ -24,6 +24,8 @@ public:
 	// ゲッター
 	HWND GetHwnd() const { return hwnd_; }
 
+	HINSTANCE GetHInstance() const { return wc_.hInstance; }
+
 private:
 	WindowApp() = default;
 	~WindowApp() = default;
