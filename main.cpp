@@ -5,6 +5,7 @@
 #include <dxgidebug.h>
 #include "Object3d.h"
 #include "Sprite.h"
+#include "Audio.h"
 
 
 #ifdef USE_IMGUI
@@ -56,7 +57,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Sprite* sprite = new Sprite();
 	sprite->Initialize(dxCommon, sharedTextureHandle);
 
+	// 音
+	Audio* audio = new Audio();
+	audio->Initialize();
+
+	SoundData soundData = audio->SoundLoadWave("Resources/Alarm01.wav");
 	
+	audio->SoundPlayWave(soundData);
+
+
 	// メインループ
 	while (true) {
 		// メッセージ処理
@@ -67,6 +76,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/*------------------------
 		更新処理はここから
 		----------------------------*/
+
+		
 #ifdef USE_IMGUI
 		// imguiのフレーム開始
 		ImGui_ImplDX12_NewFrame();
@@ -115,6 +126,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	delete object3d;
 	delete sprite;
 	CoUninitialize();
+	audio->SoundUnload(&soundData);
+	audio->Finalize();
 #ifdef USE_IMGUI
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
