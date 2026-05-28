@@ -56,6 +56,11 @@ public:
 	void Update();
 	void Draw();
 
+	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
+		viewMatrix_ = view;
+		projectionMatrix_ = projection;
+	}
+
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 
 	// ゲッター
@@ -105,4 +110,7 @@ private:
 		{ 0.0f, 0.0f, 0.0f }, // rotate
 		{ 0.0f, 0.0f, 0.0f }  // translate
 	};
+
+	Matrix4x4 viewMatrix_ = MakeIdentity4x4();
+	Matrix4x4 projectionMatrix_ = MakeIdentity4x4();
 };

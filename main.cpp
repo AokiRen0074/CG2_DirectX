@@ -7,6 +7,7 @@
 #include "Sprite.h"
 #include "Audio.h"
 #include "Input.h"
+#include "DebugCamera.h"
 
 
 #ifdef USE_IMGUI
@@ -54,6 +55,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	dxCommon->Initialize(winApp);
 	object3d->Initialize(dxCommon);
 
+	DebugCamera* debugCamera = new DebugCamera();
+	debugCamera->Initialize();
+
 	// 音
 	Audio* audio = new Audio();
 	audio->Initialize();
@@ -68,8 +72,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	sprite->Initialize(dxCommon, sharedTextureHandle);
 
 	
-	Input* input = new Input();
-	input->Initialize(winApp->GetHInstance(), winApp->GetHwnd());
+	Input::GetInstance()->Initialize(winApp->GetHInstance(), winApp->GetHwnd());
 
 	// メインループ
 	while (true) {
@@ -82,9 +85,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		更新処理はここから
 		----------------------------*/
 
-		input->Update();
+		Input::GetInstance()->Update();
 
-		if (input->PushKey(DIK_0)) {
+		debugCamera->Update();
+
+		if (Input::GetInstance()->PushKey(DIK_0)) {
 			OutputDebugStringA("Hit 0\n");
 		}
 		
@@ -98,6 +103,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::ShowDemoWindow();
 
 #endif
+		object3d->SetCameraMatrix(debugCamera->GetViewMatrix(), debugCamera->GetProjectionMatrix());
 
 		object3d->Update();
 
@@ -135,6 +141,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	delete dxCommon;
 	delete object3d;
 	delete sprite;
+	delete debugCamera;
 	CoUninitialize();
 	audio->SoundUnload(&soundData);
 	audio->Finalize();
