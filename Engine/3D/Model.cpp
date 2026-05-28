@@ -56,7 +56,7 @@ std::map<std::string, MaterialData> LoadMaterialTemplateFile(const std::string& 
 }
 
 // ==========================================
-// OBJファイルの読み込み（複数パーツ対応）
+// OBJファイルの読み込み
 // ==========================================
 ModelData LoadObjectFile(const std::string& directoryPath, const std::string& filename) {
 	ModelData modelData;

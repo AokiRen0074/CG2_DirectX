@@ -1,5 +1,5 @@
 #pragma once
-#include "DirectXCommon.h"
+#include "Base/DirectXCommon.h"
 #include <wrl.h>
 #include "Logger.h"
 #include <string>

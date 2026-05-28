@@ -1,13 +1,13 @@
-#include "Logger.h"
-#include "WindowApp.h"
-#include "DirectXCommon.h"
+#include "Base/Logger.h"
+#include "Base/WindowApp.h"
+#include "Base/DirectXCommon.h"
 #include <format>
 #include <dxgidebug.h>
-#include "Object3d.h"
-#include "Sprite.h"
-#include "Audio.h"
-#include "Input.h"
-#include "DebugCamera.h"
+#include "3D/Object3d.h"
+#include "2D/Sprite.h"
+#include "Audio/Audio.h"
+#include "Input/Input.h"
+#include "3D/DebugCamera.h"
 
 
 #ifdef USE_IMGUI
