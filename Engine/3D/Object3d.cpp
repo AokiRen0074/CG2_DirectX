@@ -134,14 +134,14 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Object3D.VS.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.VS.hlsl",
 		L"vs_6_0", dxCommon_->GetDxcUtils(),
 		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
 	);
 	assert(vertexShaderBlob != nullptr);
 
 
-	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob = dxCommon_->CompilerShader(L"Object3D.PS.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
 		L"ps_6_0", dxCommon_->GetDxcUtils(),
 		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
 	);
