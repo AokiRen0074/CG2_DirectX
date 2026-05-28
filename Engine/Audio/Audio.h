@@ -32,7 +32,17 @@ struct SoundData {
 
 
 class Audio {
+
+private:
+	Audio() = default;
+	~Audio() = default;
 public:
+
+	Audio(const Audio&) = delete;
+	Audio& operator=(const Audio&) = delete;
+
+
+	static Audio* GetInstance();
 	// 初期化
 	void Initialize();
 

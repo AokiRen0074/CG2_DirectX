@@ -2,6 +2,12 @@
 #include <fstream>
 #include <cassert>
 
+
+Audio* Audio::GetInstance() {
+	static Audio instance;
+	return &instance;
+}
+
 /*-------------------------------------
 初期化
 ---------------------------------------------*/
