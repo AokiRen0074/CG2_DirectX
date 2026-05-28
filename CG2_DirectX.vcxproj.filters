@@ -172,18 +172,14 @@
     <Text Include="externals\imgui\LICENSE.txt">
       <Filter>imgui</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Shaders\Object3d.hlsli">
+    <Text Include="Resources\Shaders\Object3d.VS.hlsl">
       <Filter>Resources\Shader</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Resources\Shaders\Object3d.PS.hlsl">
+    </Text>
+    <Text Include="Resources\Shaders\Object3d.hlsli">
       <Filter>Resources\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="Resources\Shaders\Object3d.VS.hlsl">
+    </Text>
+    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
       <Filter>Resources\Shader</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

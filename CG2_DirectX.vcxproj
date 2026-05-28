@@ -173,11 +173,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\Object3d.hlsli" />
+    <Text Include="Resources\Shaders\Object3d.hlsli">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Resources\Shaders\Object3d.PS.hlsl" />
-    <FxCompile Include="Resources\Shaders\Object3d.VS.hlsl" />
+    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="Resources\Shaders\Object3d.VS.hlsl">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
