@@ -32,16 +32,24 @@ struct TransformationMatrix {
 class Sprite {
 public:
 
-	void Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
+	static void StaticInitialize(DirectXCommon* dxCommon);
+
+	static Sprite* Create(uint32_t textureHandle, Vector2 position);
+
+	void Initialize(DirectXCommon* dxCommon, uint32_t textureHandle);
 	void Update();
 	void Draw();
+
+	void SetPosition(const Vector2& position);
 
 	// 位置や大きさを変えるためのゲッター・セッター
 	struct Transform& GetTransform() { return transform_; }
 
 private:
-	// DirectXの便利クラス
+
 	DirectXCommon* dxCommon_ = nullptr;
+
+	uint32_t textureHandle_ = 0;
 
 	// 頂点データ関連
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
@@ -52,8 +60,7 @@ private:
 	TransformationMatrix* transformationMatrixData_ = nullptr;
 	struct Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 
-	// 描画するテクスチャのGPUハンドル
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU_;
+
 
 	// リソース作成用の便利関数
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
@@ -70,4 +77,7 @@ private:
 		{ 0.0f,0.0f,0.0f },// rotate
 		{ 0.0f,0.0f,0.0f }//taransrate
 	};
+
+	static DirectXCommon* sDxCommon_;
+
 };

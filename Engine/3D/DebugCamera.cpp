@@ -25,75 +25,53 @@ void DebugCamera::Update() {
 	if (!input) { return; }
 
 	bool isImGuiHovered = false;
-	bool isImGuiActiveKeyboard = false;
-
 #ifdef USE_IMGUI
-	// UIの上にマウスがあるか、UIを操作中か
 	isImGuiHovered = ImGui::GetIO().WantCaptureMouse;
-	// UIのテキストボックスなどに文字入力中か
-	isImGuiActiveKeyboard = ImGui::GetIO().WantCaptureKeyboard;
 #endif
 
 	// =================================================
-	// カメラの回転
+	// マウス入力による角度・距離の更新
 	// =================================================
-	float mouseMoveX = 0.0f;
-	float mouseMoveY = 0.0f;
-	float wheel = 0.0f;
-	Vector3 move = { 0.0f, 0.0f, 0.0f };
-	const float speed = 0.5f;
-
+	static float distance = 50.0f;
 
 	if (!isImGuiHovered) {
-		// 左ドラッグで回転
+		// 左ドラッグでカメラの角度
 		if (input->PushMouseLeft()) {
-			mouseMoveX = input->GetMouseMoveX() * 0.001f;
-			mouseMoveY = input->GetMouseMoveY() * 0.001f;
+			rotY_ += input->GetMouseMoveX() * 0.005f; // 左右に回る
+			rotX_ += input->GetMouseMoveY() * 0.005f; // 上下に回る
+
+			// 真上・真下に行き過ぎて画面がひっくり返るのを防止
+			if (rotX_ > 1.5f) { rotX_ = 1.5f; }
+			if (rotX_ < -1.5f) { rotX_ = -1.5f; }
 		}
 
-		// 右ドラッグで上下左右移動
-		if (input->PushMouseRight()) {
-			move.x = -input->GetMouseMoveX() * 0.05f;
-			move.y = input->GetMouseMoveY() * 0.05f;
-		}
-
-		// ホイールで前後移動
-		wheel = input->GetWheel();
+		// ホイールでオブジェクトにズームイン・ズームアウト
+		float wheel = input->GetWheel();
 		if (wheel != 0.0f) {
-			move.z = wheel * 0.01f;
+			distance -= wheel * 0.05f; // 感度調整
+			if (distance < 1.0f) { distance = 1.0f; }
 		}
 	}
 
-
-	if (!isImGuiActiveKeyboard) {
-		if (input->PushKey(DIK_W)) { move.z += speed; }
-		if (input->PushKey(DIK_S)) { move.z += -speed; }
-		if (input->PushKey(DIK_D)) { move.x += speed; }
-		if (input->PushKey(DIK_A)) { move.x += -speed; }
-	}
-
 	// =================================================
-	// カメラ行列の計算と適用
+	//  カメラ行列の計算
 	// =================================================
-	// 追加の回転を計算
-	Matrix4x4 matRotDelta = MakeIdentity4x4();
-	Matrix4x4 rotX = MakeRotateXMatrix(mouseMoveY);
-	Matrix4x4 rotY = MakeRotateYMatrix(mouseMoveX);
-	matRotDelta = Multiply(rotX, rotY);
-	matRot_ = Multiply(matRotDelta, matRot_);
+	// まずは純粋な回転行列を作る
+	Matrix4x4 rotXMat = MakeRotateXMatrix(rotX_);
+	Matrix4x4 rotYMat = MakeRotateYMatrix(rotY_);
+	matRot_ = Multiply(rotXMat, rotYMat);
 
-	// 移動ベクトルをカメラの向きに合わせて回転させる
-	Vector3 right = { matRot_.m[0][0], matRot_.m[0][1], matRot_.m[0][2] };
-	Vector3 up = { matRot_.m[1][0], matRot_.m[1][1], matRot_.m[1][2] };
+	// 回転行列から、カメラのZ軸のベクトルを取り出す
 	Vector3 forward = { matRot_.m[2][0], matRot_.m[2][1], matRot_.m[2][2] };
 
-	translation_.x += (right.x * move.x) + (up.x * move.y) + (forward.x * move.z);
-	translation_.y += (right.y * move.x) + (up.y * move.y) + (forward.y * move.z);
-	translation_.z += (right.z * move.x) + (up.z * move.y) + (forward.z * move.z);
+
+
+	translation_.x = -forward.x * distance;
+	translation_.y = -forward.y * distance;
+	translation_.z = -forward.z * distance;
 
 	// ビュー行列の更新
 	Matrix4x4 matTrans = MakeTranslateMatrix(translation_);
 	Matrix4x4 matWorld = Multiply(matRot_, matTrans);
 	matView_ = Inverse(matWorld);
-
 }

@@ -3,6 +3,7 @@
 #include <cassert>
 #include "Transform.h"
 #include "Matrix4x4.h"
+#include "2D/TextureManager.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -11,9 +12,30 @@
 #endif
 #include "Object3d.h"
 
-void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU) {
+
+DirectXCommon* Sprite::sDxCommon_ = nullptr;
+
+void Sprite::StaticInitialize(DirectXCommon* dxCommon) {
+    sDxCommon_ = dxCommon;
+}
+
+Sprite* Sprite::Create(uint32_t textureHandle, Vector2 position) {
+    // メモリを確保
+    Sprite* sprite = new Sprite();
+
+    // クラスが記憶しているdxCommonを使って初期化
+    sprite->Initialize(sDxCommon_, textureHandle);
+
+    //  座標をセット
+    sprite->SetPosition(position);
+
+    // 4. 完成品を返す
+    return sprite;
+}
+
+void Sprite::Initialize(DirectXCommon* dxCommon, uint32_t textureHandle) {
     dxCommon_ = dxCommon;
-    textureSrvHandleGPU_ = textureSrvHandleGPU;
+    textureHandle_ = textureHandle;
     ID3D12Device* device = dxCommon_->GetDevice();
 
     // ==========================================
@@ -87,6 +109,8 @@ void Sprite::Initialize(DirectXCommon* dxCommon, D3D12_GPU_DESCRIPTOR_HANDLE tex
     materialData_->enableLighting = 0;
 
     materialData_->uvTransform = MakeIdentity4x4();
+
+
 
 }
 
@@ -168,13 +192,13 @@ void Sprite::Draw() {
     // インデックスデータをセット
     commandList->IASetIndexBuffer(&indexBufferViewSprite_);
     commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
 
     // 行列データをセット
     commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
 
     // テクスチをセット
-    commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU_);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle_);
+    commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
 
 
     commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -195,4 +219,10 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Sprite::CreateBufferResource(ID3D12Device
     Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
     device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&resource));
     return resource;
+}
+
+void Sprite::SetPosition(const Vector2& position) {
+    transform_.translate.x = position.x;
+    transform_.translate.y = position.y;
+    //  transform_.translate.z = 0.0f; 
 }

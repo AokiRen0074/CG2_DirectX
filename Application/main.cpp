@@ -6,6 +6,7 @@
 #include "GameScene.h" 
 #include <format>
 #include <dxgidebug.h>
+#include "2D/TextureManager.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -38,9 +39,17 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
     DirectXCommon* dxCommon = new DirectXCommon();
     dxCommon->Initialize(winApp);
 
+    // Spriteクラスに共通のdxCommonを教える
+    Sprite::StaticInitialize(dxCommon);
+
+
+    TextureManager::StaticInitialize(dxCommon);
+
     Input::GetInstance()->Initialize(winApp->GetHInstance(), winApp->GetHwnd());
 
     Audio::GetInstance()->Initialize();
+
+
 
     // ==========================================
     // ゲームシーンの初期化

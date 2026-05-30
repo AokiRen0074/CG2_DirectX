@@ -1,6 +1,71 @@
 #include "TextureManager.h"
 #include "Logger.h"
 #include <cassert>
+#include "Base/DirectXCommon.h"
+
+
+void TextureManager::StaticInitialize(DirectXCommon* dxCommon) {
+    GetInstance()->dxCommon_ = dxCommon;
+}
+
+TextureManager* TextureManager::GetInstance() {
+    static TextureManager instance;
+    return &instance;
+}
+
+uint32_t TextureManager::Load(const std::string& filePath) {
+    return GetInstance()->LoadInternal(filePath);
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureHandle) {
+    assert(textureHandle < srvHandles_.size()); // 範囲外アクセス防止
+    return srvHandles_[textureHandle];
+}
+
+uint32_t TextureManager::LoadInternal(const std::string& filePath) {
+    // 画像ファイルを読み込んでミップマップを生成
+    DirectX::ScratchImage mipImages = LoadTexture(filePath);
+    const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
+
+    // テクスチャリソースの作成
+    Microsoft::WRL::ComPtr<ID3D12Resource> textureResource = CreateTextureResource(dxCommon_->GetDevice(), metadata);
+
+    // データをVRAMに転送
+    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(
+      
+     textureResource.Get(), mipImages, dxCommon_->GetDevice(), dxCommon_->GetCommandList());
+    dxCommon_->FlushCommandList();
+
+ 
+    //  管理用配列に保存
+    textureResources_.push_back(textureResource);
+
+    // ==========================================
+    // SRVの作成
+    // ==========================================
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Format = metadata.format;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+    ID3D12Device* device = dxCommon_->GetDevice();
+
+    ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
+    uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
+    uint32_t srvIndex = static_cast<uint32_t>(srvHandles_.size()) + 1;
+
+    // CPUとGPUのハンドル（場所）を計算
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, srvIndex);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, srvIndex);
+
+    // SRVを作成！
+    device->CreateShaderResourceView(textureResource.Get(), &srvDesc, cpuHandle);
+
+    srvHandles_.push_back(gpuHandle);
+    return static_cast<uint32_t>(srvHandles_.size() - 1);
+
+}
 
 /*---------------------------------
 テクスチャデータを読む関数

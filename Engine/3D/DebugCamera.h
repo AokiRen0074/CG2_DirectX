@@ -26,4 +26,7 @@ private:
 
 	// 射影行列 
 	Matrix4x4 matProjection_;
+
+	float rotX_ = 0.0f;
+	float rotY_ = 0.0f;
 };
