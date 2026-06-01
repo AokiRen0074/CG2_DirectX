@@ -274,7 +274,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// ==========================================
 	//  メッシュの数だけバッファを作るループ
 	// ==========================================
-	for (auto& mesh : modelData.meshes) {
+		/*for (auto& mesh : modelData.meshes) {
 		MeshResource meshRes;
 		meshRes.vertexCount = UINT(mesh.vertices.size());
 
@@ -329,6 +329,34 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 		// 完成したパーツを配列に追加！
 		meshResources_.push_back(meshRes);
 	}
+	*/
+
+	MeshResource meshRes;
+	meshRes.vertexCount = 3; // 三角形
+
+	meshRes.vertexResource = CreateBufferResource(device, sizeof(VertexData) * meshRes.vertexCount);
+	meshRes.vertexBufferView.BufferLocation = meshRes.vertexResource->GetGPUVirtualAddress();
+	meshRes.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * meshRes.vertexCount);
+	meshRes.vertexBufferView.StrideInBytes = sizeof(VertexData);
+
+	VertexData* vertexData = nullptr;
+	meshRes.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+
+	// 三角形の頂点座標とUV（テクスチャの貼る位置）
+	vertexData[0] = { {  0.0f,  1.0f, 0.0f, 1.0f }, { 0.5f, 0.0f }, { 0.0f, 0.0f, -1.0f } }; // 上
+	vertexData[1] = { {  1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } }; // 右下
+	vertexData[2] = { { -1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } }; // 左下
+
+	uint32_t materialSize = sizeof(Material);
+	materialSize = (materialSize + 255) & ~255;
+	meshRes.materialResource = CreateBufferResource(device, materialSize);
+	meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
+
+	meshRes.materialData->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	meshRes.materialData->enableLighting = 1;
+	meshRes.materialData->uvTransform = MakeIdentity4x4();
+
+	meshResources_.push_back(meshRes);
 
 
 	// ==========================================
@@ -354,7 +382,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 // 更新
 // ==========================================
 void Object3d::Update() {
-	transform_.rotate.y += 0.03f;
+	//transform_.rotate.y += 0.03f;
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
@@ -425,18 +453,18 @@ void Object3d::Draw() {
 	// パーツの数だけループして描画する！
 	// ==========================================
 	for (const auto& meshRes : meshResources_) {
-		// そのパーツの頂点データ
 		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
-
-		// そのパーツのマテリアルデータ（色やUV）
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
 
-		// そのパーツのテクスチャ
-		commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+	
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle_);
+		commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
 
-		// 描画
 		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);
 	}
+
+
+
 }
 
 // ==========================================

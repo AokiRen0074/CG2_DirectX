@@ -56,6 +56,12 @@ public:
 	void Update();
 	void Draw();
 
+
+	void SetTextureHandle(uint32_t handle) { textureHandle_ = handle; }
+
+	
+	Transform& GetTransform() { return transform_; }
+
 	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
 		viewMatrix_ = view;
 		projectionMatrix_ = projection;
@@ -113,4 +119,7 @@ private:
 
 	Matrix4x4 viewMatrix_ = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix_ = MakeIdentity4x4();
+
+
+	uint32_t textureHandle_ = 0;
 };
