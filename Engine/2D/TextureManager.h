@@ -19,6 +19,8 @@ public:
 
     static void StaticInitialize(DirectXCommon* dxCommon);
 
+    static void Finalize();
+
 	static DirectX::ScratchImage LoadTexture(const std::string& filePath);
 
 	static Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata);

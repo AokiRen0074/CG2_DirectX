@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Input/Input.h"
+#include "2D/TextureManager.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -24,9 +25,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     object3d_->Initialize(dxCommon);
 
     // スプライトの生成と初期化
-    D3D12_GPU_DESCRIPTOR_HANDLE sharedTextureHandle = object3d_->GetTextureSrvHandleGPU();
-    sprite_ = new Sprite();
-    sprite_->Initialize(dxCommon, sharedTextureHandle);
+    uint32_t textureHandle = TextureManager::Load("Resources/uvChecker.png"); 
+
+    sprite_ = Sprite::Create(textureHandle, { 100.0f, 50.0f });
 
     // 音の読み込み
     soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");

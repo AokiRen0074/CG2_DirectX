@@ -96,7 +96,7 @@
     <ClCompile Include="Application\main.cpp">
       <Filter>Applicaation</Filter>
     </ClCompile>
-    <ClCompile Include="GameScene.cpp">
+    <ClCompile Include="Application\GameScene.cpp">
       <Filter>Applicaation</Filter>
     </ClCompile>
   </ItemGroup>
@@ -170,7 +170,7 @@
     <ClInclude Include="Vector4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="GameScene.h">
+    <ClInclude Include="Application\GameScene.h">
       <Filter>Applicaation</Filter>
     </ClInclude>
   </ItemGroup>

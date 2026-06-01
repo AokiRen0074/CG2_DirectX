@@ -13,6 +13,12 @@ TextureManager* TextureManager::GetInstance() {
     return &instance;
 }
 
+void TextureManager::Finalize() {
+
+    GetInstance()->textureResources_.clear();
+    GetInstance()->srvHandles_.clear();
+}
+
 uint32_t TextureManager::Load(const std::string& filePath) {
     return GetInstance()->LoadInternal(filePath);
 }
