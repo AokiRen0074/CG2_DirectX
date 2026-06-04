@@ -23,6 +23,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	DirectXCommon* dxCommon = new DirectXCommon();
 	Object3d* object3d = new Object3d();
 
+
 	// 初期化処理
 	Logger::Initialize();
 	Logger::Log("Hello DirectX!\n");
