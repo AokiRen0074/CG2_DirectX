@@ -127,12 +127,9 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
-	// 裏面は表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 
-	// 三角形の中を塗りつぶす
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.VS.hlsl",
 		L"vs_6_0", dxCommon_->GetDxcUtils(),
@@ -353,6 +350,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
 
 	meshRes.materialData->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	
 	meshRes.materialData->enableLighting = 1;
 	meshRes.materialData->uvTransform = MakeIdentity4x4();
 

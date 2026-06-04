@@ -74,6 +74,8 @@ public:
 	ID3D12PipelineState* GetGraphicsPipelineState()const { return graphicsPipelineState_.Get(); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU2() const { return textureSrvHandleGPU2_; }
 
+	Material* GetMaterialData() { return meshResources_[0].materialData; }
+
 private:
 	DirectXCommon* dxCommon_ = nullptr;
 
