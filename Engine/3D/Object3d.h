@@ -52,7 +52,11 @@ public:
 		D3D12_GPU_DESCRIPTOR_HANDLE textureHandleGPU{}; // このパーツが使うテクスチャのハンドル
 	};
 
-	void Initialize(DirectXCommon* dxCommon);
+	static void StaticInitialize(DirectXCommon* dxCommon);
+
+	static Object3d* Create(const std::string& directoryPath, const std::string& filename);
+
+	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
 	void Draw();
 
@@ -113,4 +117,7 @@ private:
 
 	Matrix4x4 viewMatrix_ = MakeIdentity4x4();
 	Matrix4x4 projectionMatrix_ = MakeIdentity4x4();
+
+	// クラス全体で共有するdxCommon
+	static DirectXCommon* sDxCommon_;
 };

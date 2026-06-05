@@ -22,15 +22,17 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
     // 3Dオブジェクトの生成と初期化
     object3d_ = new Object3d();
-    object3d_->Initialize(dxCommon);
+    Object3d::StaticInitialize(dxCommon);
+
+    object3d_ = Object3d::Create("Resources", "axis.obj");
 
     // スプライトの生成と初期化
-    uint32_t textureHandle = TextureManager::Load("Resources/uvChecker.png"); 
+   // uint32_t textureHandle = TextureManager::Load("Resources/uvChecker.png"); 
 
-    sprite_ = Sprite::Create(textureHandle, { 100.0f, 50.0f });
+  //  sprite_ = Sprite::Create(textureHandle, { 100.0f, 50.0f });
 
     // 音の読み込み
-    soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
+  //  soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
 }
 
 void GameScene::Update() {
@@ -44,7 +46,7 @@ void GameScene::Update() {
     // オブジェクトの更新
     object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
     object3d_->Update();
-    sprite_->Update();
+   // sprite_->Update();
 
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();

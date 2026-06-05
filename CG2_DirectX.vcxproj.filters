@@ -25,14 +25,17 @@
     <Filter Include="Engine\Math">
       <UniqueIdentifier>{6bb19ed3-cf9a-4030-a3db-a3ab0f73c032}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Applicaation">
-      <UniqueIdentifier>{135c9144-ba1c-4dd7-bb97-a05fc0955eec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{8375ed75-90ee-47b4-ab57-083effc1e413}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resources\Shader">
       <UniqueIdentifier>{242873a3-8f4c-401a-9719-6d0c568ee72f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{135c9144-ba1c-4dd7-bb97-a05fc0955eec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character">
+      <UniqueIdentifier>{89acfc04-419f-473b-a228-fbbc2fcb519a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -94,10 +97,10 @@
       <Filter>Engine\Math</Filter>
     </ClCompile>
     <ClCompile Include="Application\main.cpp">
-      <Filter>Applicaation</Filter>
+      <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="Application\GameScene.cpp">
-      <Filter>Applicaation</Filter>
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -171,7 +174,10 @@
       <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameScene.h">
-      <Filter>Applicaation</Filter>
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Application\Character</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -12,14 +12,30 @@
 #include "externals/imgui/imgui_impl_win32.h"
 #endif
 
+DirectXCommon* Object3d::sDxCommon_ = nullptr;
+
+
+void Object3d::StaticInitialize(DirectXCommon* dxCommon) {
+	sDxCommon_ = dxCommon;
+}
+
+//Create関数
+Object3d* Object3d::Create(const std::string& directoryPath, const std::string& filename) {
+	// メモリを確保
+	Object3d* object3d = new Object3d();
+
+	// 初期化処理
+	object3d->Initialize(directoryPath, filename);
+
+	return object3d;
+}
 
 /*--------------------------
 初期化
 -----------------------------------*/
-void Object3d::Initialize(DirectXCommon* dxCommon) {
+void Object3d::Initialize(const std::string& directoryPath, const std::string& filename) {
 
-	dxCommon_ = dxCommon;
-
+	dxCommon_ = sDxCommon_;
 	ID3D12Device* device = dxCommon_->GetDevice();
 
 	// RootSignature作成
@@ -263,7 +279,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	// OBJモデルデータの読み込み
 	// ==========================================
 
-	ModelData modelData = LoadObjectFile("Resources", "multiMaterial.obj");
+	ModelData modelData = LoadObjectFile(directoryPath, filename);
 
 	// SRVの割り当て用インデックス
 	uint32_t srvIndex = 1;
@@ -354,7 +370,7 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 // 更新
 // ==========================================
 void Object3d::Update() {
-	transform_.rotate.y += 0.03f;
+	//transform_.rotate.y += 0.03f;
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
