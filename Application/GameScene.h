@@ -15,6 +15,12 @@ public:
     ~GameScene();
 
 private:
+
+
+    // ★追加：背景用の超巨大な三角形（床と天井）
+    Object3d* bgFloor_ = nullptr;
+    Object3d* bgCeiling_ = nullptr;
+
     DebugCamera* debugCamera_ = nullptr;
     Sprite* sprite_ = nullptr;
 
@@ -29,6 +35,9 @@ private:
     uint32_t texture1_ = 0;
     uint32_t texture2_ = 0;
 
+    //Object3d* bgFloor_ = nullptr;
+   // Object3d* bgCeiling_ = nullptr;
+
     // ===================================
     //評価用の変数
     // ===================================
@@ -39,6 +48,10 @@ private:
 
     // ===================================
     //映像演出用の変数
+    // ===================================
+
+    // ===================================
+    // 映像演出用の変数
     // ===================================
     struct TriangleParticle {
         Object3d* obj;

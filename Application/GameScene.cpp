@@ -2,6 +2,7 @@
 #include "Input/Input.h"
 #include "2D/TextureManager.h"
 #include <cstdlib>
+#include "3D/Object3d.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -11,6 +12,8 @@ GameScene::~GameScene() {
     delete sprite_;
     delete triangle1_;
     delete triangle2_;
+    delete bgFloor_; 
+    delete bgCeiling_;
     for (int i = 0; i < kNumParticles; i++) {
         delete particles_[i].obj;
     }
@@ -56,6 +59,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
         particles_[i].velocity = { 0.0f, 0.0f, -0.1f - (RandFloat() * 0.2f) };
         particles_[i].rotSpeed = { (RandFloat() - 0.5f) * 0.1f, (RandFloat() - 0.5f) * 0.1f, (RandFloat() - 0.5f) * 0.1f };
     }
+
+
+
 }
 
 void GameScene::Update() {
@@ -83,19 +89,39 @@ void GameScene::Update() {
         const char* texNames[] = { "Texture 1", "Texture 2" };
 
         ImGui::Text("Triangle 1 (Front)");
+
+        // SRTの変更
+
         ImGui::DragFloat3("Pos 1", &triangle1_->GetTransform().translate.x, 0.01f);
         ImGui::DragFloat3("Rot 1", &triangle1_->GetTransform().rotate.x, 0.01f);
+        ImGui::DragFloat3("Scale 1", &triangle1_->GetTransform().scale.x, 0.01f);
+
+
+
+        // 色の変更）
+        ImGui::ColorEdit4("Color 1", &triangle1_->GetMaterialData()->color.x);
+
         if (ImGui::Combo("Tex 1", &texIndex1_, texNames, 2)) {
             triangle1_->SetTextureHandle(texIndex1_ == 0 ? texture1_ : texture2_);
         }
 
         ImGui::Separator();
+
         ImGui::Text("Triangle 2 (Back - Test Depth)");
+
+        // SRT
         ImGui::DragFloat3("Pos 2", &triangle2_->GetTransform().translate.x, 0.01f);
         ImGui::DragFloat3("Rot 2", &triangle2_->GetTransform().rotate.x, 0.01f);
+        ImGui::DragFloat3("Scale 2", &triangle2_->GetTransform().scale.x, 0.01f);
+
+
+        // 色の変更）
+        ImGui::ColorEdit4("Color 2", &triangle2_->GetMaterialData()->color.x);
+
         if (ImGui::Combo("Tex 2", &texIndex2_, texNames, 2)) {
             triangle2_->SetTextureHandle(texIndex2_ == 0 ? texture1_ : texture2_);
         }
+
         ImGui::End();
 #endif
         triangle1_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
@@ -113,6 +139,11 @@ void GameScene::Update() {
         ImGui::Text("Press [Enter] to switch to Evaluation Mode");
         ImGui::End();
 #endif
+
+
+        // ==================================================
+        // 破片のパーティクル処理
+        // ==================================================
         auto RandFloat = []() { return (float)rand() / RAND_MAX; };
         for (int i = 0; i < kNumParticles; i++) {
             auto& transform = particles_[i].obj->GetTransform();
@@ -123,8 +154,8 @@ void GameScene::Update() {
             transform.rotate.y += particles_[i].rotSpeed.y;
             transform.rotate.z += particles_[i].rotSpeed.z;
 
-            // 奥にワープさせるループ処理
-            if (transform.translate.z < -5.0f) {
+            // ★前回お伝えした「カメラのレンズにぶつかる前にワープさせる」処理
+            if (transform.translate.z < 0.0f) {
                 transform.translate.z = 50.0f;
                 transform.translate.x = (RandFloat() - 0.5f) * 30.0f;
                 transform.translate.y = (RandFloat() - 0.5f) * 30.0f;
@@ -142,6 +173,11 @@ void GameScene::Draw() {
         triangle2_->Draw();
     }
     else if (currentMode_ == SceneMode::Presentation) {
+
+
+
+
+
         for (int i = 0; i < kNumParticles; i++) {
             particles_[i].obj->Draw();
         }

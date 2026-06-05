@@ -118,6 +118,7 @@ void Sprite::Update() {
 
 
 
+    /*
 #ifdef USE_IMGUI
     ImGui::Begin("Settings");
 
@@ -140,6 +141,7 @@ void Sprite::Update() {
 
     ImGui::End();
 #endif
+*/
 
     //UVTransform行列の計算
     Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite_.scale);

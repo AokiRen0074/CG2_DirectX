@@ -339,11 +339,9 @@ void Object3d::Initialize(DirectXCommon* dxCommon) {
 	VertexData* vertexData = nullptr;
 	meshRes.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
-	// 三角形の頂点座標とUV（テクスチャの貼る位置）
 	vertexData[0] = { {  0.0f,  1.0f, 0.0f, 1.0f }, { 0.5f, 0.0f }, { 0.0f, 0.0f, -1.0f } }; // 上
 	vertexData[1] = { {  1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } }; // 右下
 	vertexData[2] = { { -1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f } }; // 左下
-
 	uint32_t materialSize = sizeof(Material);
 	materialSize = (materialSize + 255) & ~255;
 	meshRes.materialResource = CreateBufferResource(device, materialSize);
@@ -389,6 +387,7 @@ void Object3d::Update() {
 	wvpData_->WVP = worldViewProjectionMatrix;
 	wvpData_->World = worldMatrix;
 
+	/*
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
 	if (ImGui::TreeNode("Camera")) {
@@ -413,6 +412,8 @@ void Object3d::Update() {
 	}
 	ImGui::End();
 #endif
+
+*/
 	
 }
 

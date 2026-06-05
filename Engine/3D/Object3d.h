@@ -58,7 +58,7 @@ public:
 
 
 	void SetTextureHandle(uint32_t handle) { textureHandle_ = handle; }
-
+	Transform& GetUVTransform() { return uvTransform_; }
 	
 	Transform& GetTransform() { return transform_; }
 
@@ -124,4 +124,11 @@ private:
 
 
 	uint32_t textureHandle_ = 0;
+
+	// 自分の位置 回転スケールを持つ変数
+//	Transform transform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	//Transform cameraTransform_ = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -5.0f} };
+
+	//Transform& GetTransform() { return transform_; }
+	//Transform& GetUVTransform() { return uvTransform_; }
 };
