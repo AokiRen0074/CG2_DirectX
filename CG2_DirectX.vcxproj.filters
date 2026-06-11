@@ -7,9 +7,6 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{12f76924-9735-4091-8abd-3f46eccb6e50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\3D">
-      <UniqueIdentifier>{5fcc2978-cb4a-4fc1-b77d-788ce52d59bf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\2D">
       <UniqueIdentifier>{79672d2b-602e-4fac-8450-5cb2194b7f0c}</UniqueIdentifier>
     </Filter>
@@ -37,6 +34,9 @@
     <Filter Include="Application\Character">
       <UniqueIdentifier>{89acfc04-419f-473b-a228-fbbc2fcb519a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\3D">
+      <UniqueIdentifier>{bf76dfd0-53b6-4729-9e85-ea724f06ce9d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -59,15 +59,6 @@
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\DebugCamera.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Object3d.cpp">
-      <Filter>Engine\3D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\2D\Sprite.cpp">
       <Filter>Engine\2D</Filter>
@@ -102,6 +93,24 @@
     <ClCompile Include="Application\GameScene.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3D\DebugCamera.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Object3d.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewProjection.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldTransform.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Application\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -127,15 +136,6 @@
     </ClInclude>
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\DebugCamera.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Object3d.h">
-      <Filter>Engine\3D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\2D\Sprite.h">
       <Filter>Engine\2D</Filter>
@@ -175,6 +175,21 @@
     </ClInclude>
     <ClInclude Include="Application\GameScene.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\DebugCamera.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Object3d.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewProjection.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldTransform.h">
+      <Filter>Engine\3D</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Application\Character</Filter>

@@ -139,6 +139,9 @@
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="ViewProjection.cpp" />
+    <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\GameScene.h" />
@@ -166,6 +169,8 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector4.h" />
+    <ClInclude Include="ViewProjection.h" />
+    <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
