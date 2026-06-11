@@ -12,8 +12,6 @@ GameScene::~GameScene() {
     delete sprite_;
     delete triangle1_;
     delete triangle2_;
-    delete bgFloor_; 
-    delete bgCeiling_;
     for (int i = 0; i < kNumParticles; i++) {
         delete particles_[i].obj;
     }
@@ -39,10 +37,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     triangle2_ = new Object3d();
     triangle2_->Initialize(dxCommon);
     triangle2_->SetTextureHandle(texture2_);
-    triangle2_->GetTransform().translate = { 1.0f, 0.0f, 2.0f }; // 少し奥に配置
+    triangle2_->GetTransform().translate = { 1.0f, 0.0f, 2.0f }; 
 
     // ===================================
-    // モード2：映像演出用の初期化
+    // 映像演出用の初期化
     // ===================================
     auto RandFloat = []() { return (float)rand() / RAND_MAX; };
     for (int i = 0; i < kNumParticles; i++) {
@@ -67,7 +65,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 void GameScene::Update() {
     debugCamera_->Update();
 
-    // ★ Enterキーでモード切り替え！
+    // Enterキーでモード切り替え！
     if (Input::GetInstance()->TriggerKey(DIK_RETURN)) {
         if (currentMode_ == SceneMode::Evaluation) {
             currentMode_ = SceneMode::Presentation;
@@ -78,7 +76,7 @@ void GameScene::Update() {
     }
 
     // ===================================
-    // モード1：評価用の更新処理
+    //評価用の更新処理
     // ===================================
     if (currentMode_ == SceneMode::Evaluation) {
 #ifdef USE_IMGUI
@@ -98,7 +96,7 @@ void GameScene::Update() {
 
 
 
-        // 色の変更）
+        // 色の変更
         ImGui::ColorEdit4("Color 1", &triangle1_->GetMaterialData()->color.x);
 
         if (ImGui::Combo("Tex 1", &texIndex1_, texNames, 2)) {
@@ -115,7 +113,7 @@ void GameScene::Update() {
         ImGui::DragFloat3("Scale 2", &triangle2_->GetTransform().scale.x, 0.01f);
 
 
-        // 色の変更）
+        // 色の変更
         ImGui::ColorEdit4("Color 2", &triangle2_->GetMaterialData()->color.x);
 
         if (ImGui::Combo("Tex 2", &texIndex2_, texNames, 2)) {
@@ -131,7 +129,7 @@ void GameScene::Update() {
         triangle2_->Update();
     }
     // ===================================
-    // モード2：映像演出用の更新処理
+    //映像演出用の更新処理
     // ===================================
     else if (currentMode_ == SceneMode::Presentation) {
 #ifdef USE_IMGUI
@@ -154,7 +152,7 @@ void GameScene::Update() {
             transform.rotate.y += particles_[i].rotSpeed.y;
             transform.rotate.z += particles_[i].rotSpeed.z;
 
-            // ★前回お伝えした「カメラのレンズにぶつかる前にワープさせる」処理
+   
             if (transform.translate.z < 0.0f) {
                 transform.translate.z = 50.0f;
                 transform.translate.x = (RandFloat() - 0.5f) * 30.0f;
