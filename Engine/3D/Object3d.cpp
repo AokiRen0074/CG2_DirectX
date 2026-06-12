@@ -434,6 +434,11 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 	commandList->SetDescriptorHeaps(1, descriptorHeaps);
 
 	// 全体で共有する WVP と ライト は先にセットしておく
+	Matrix4x4 wvpMatrix = Multiply(worldTransform.matWorld_, Multiply(viewProjection.matView, viewProjection.matProjection));
+	wvpData_->WVP = wvpMatrix;
+	wvpData_->World = worldTransform.matWorld_;
+
+	// 全体で共有する WVP と ライト は先にセットしておく
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 
