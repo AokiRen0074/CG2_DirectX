@@ -2,7 +2,11 @@
 #include <cassert>
 #include <cstdint>
 
-void WorldTransform::Initialize(ID3D12Device* device) {
+ID3D12Device* WorldTransform::sDevice = nullptr;
+
+void WorldTransform::Initialize() {
+
+    assert(sDevice);
     // 定数バッファの作成 
     uint32_t size = sizeof(ConstBufferDataWorldTransform);
     size = (size + 255) & ~255;
@@ -19,7 +23,7 @@ void WorldTransform::Initialize(ID3D12Device* device) {
     resourceDesc.SampleDesc.Count = 1;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    HRESULT hr = device->CreateCommittedResource(
+    HRESULT hr=sDevice->CreateCommittedResource(
         &heapProps, D3D12_HEAP_FLAG_NONE,
         &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
         IID_PPV_ARGS(&constBuff_)

@@ -1,6 +1,6 @@
 #pragma once
 #include "Vector3.h"
-#include "Matrix4x4.h"]
+#include "Matrix4x4.h"
 #include "ViewProjection.h"
 #include <d3d12.h>
 #include <wrl.h>
@@ -26,8 +26,14 @@ struct WorldTransform {
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
 	ConstBufferDataWorldTransform* constMap_ = nullptr;
 
+	static ID3D12Device* sDevice;
+
+	static void SetDvice(ID3D12Device* device) {
+		sDevice = device;
+	}
+
 	// 初期化
-	void Initialize(ID3D12Device* device);
+	void Initialize();
 
 
 	// 行列の更新と定数バッファへの転送

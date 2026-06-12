@@ -17,6 +17,11 @@ GameScene::~GameScene() {
 }
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
+
+    
+
+
+
     // カメラの生成と初期化
     debugCamera_ = new DebugCamera();
     debugCamera_->Initialize();
@@ -70,9 +75,9 @@ void GameScene::Update() {
 
 
     // オブジェクトの更新
-    object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
-    object3d_->Update();
-    sprite_->Update();
+ // object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  //object3d_->Update();
+   //prite_->Update();
 
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();
@@ -87,8 +92,8 @@ void GameScene::Draw() {
     player_->Draw();
 
     // 3Dモデル描画
-    object3d_->Draw();
+  //object3d_->Draw();
 
     // 2Dスプライト描画
-     sprite_->Draw();
+     //rite_->Draw();
 }
