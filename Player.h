@@ -7,13 +7,13 @@ class Player {
 public:
 
 	// 初期化
-	void Initialize(ModelData* model, uint32_t textureHandle);
+	void Initialize(Object3d* model, uint32_t textureHandle);
 
 	// 更新処理
 	void Update();
 
 	// 描画処理
-	void Draw();
+	void Draw(const ViewProjection& viewProjection);
 
 
 private:
@@ -21,7 +21,7 @@ private:
 	WorldTransform worldTransform_;
 
 	// モデル
-	ModelData *model_ = nullptr;
+	Object3d* model_ = nullptr;
 
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;

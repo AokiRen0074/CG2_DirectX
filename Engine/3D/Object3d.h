@@ -6,6 +6,7 @@
 #include "Matrix4x4.h"
 #include "Vector4.h"
 #include "Vector3.h"
+#include "WorldTransform.h"
 
 
 
@@ -58,7 +59,7 @@ public:
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
-	void Draw();
+	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle);
 
 	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
 		viewMatrix_ = view;

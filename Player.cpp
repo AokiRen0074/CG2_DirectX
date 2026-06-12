@@ -6,14 +6,14 @@
 /*----------------
 初期化
 -----------------------*/
-void Player::Initialize(ModelData* model, uint32_t textureHandle) {
+void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 	assert(model);
 
 	model_ = model;
 
 	textureHandle_ = textureHandle;
 
-	worldTransform_.Initialize(DirectXCommon:
+	worldTransform_.Initialize();
 
 
 }
@@ -22,13 +22,15 @@ void Player::Initialize(ModelData* model, uint32_t textureHandle) {
 更新処理
 ----------------------------*/
 void Player::Update() {
-
+	worldTransform_.TransferMatrix();
 }
 
 
 /*--------------------------
 描画処理
 --------------------*/
-void Player::Draw() {
+void Player::Draw(const ViewProjection& viewProjection) {
+
+	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 }

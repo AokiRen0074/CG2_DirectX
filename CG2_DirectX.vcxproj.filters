@@ -7,9 +7,6 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{12f76924-9735-4091-8abd-3f46eccb6e50}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\2D">
-      <UniqueIdentifier>{79672d2b-602e-4fac-8450-5cb2194b7f0c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Audio">
       <UniqueIdentifier>{03c38c21-ff86-424b-b948-80f3d4e799d4}</UniqueIdentifier>
     </Filter>
@@ -37,6 +34,9 @@
     <Filter Include="Engine\3D">
       <UniqueIdentifier>{bf76dfd0-53b6-4729-9e85-ea724f06ce9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\3D\2D">
+      <UniqueIdentifier>{79672d2b-602e-4fac-8450-5cb2194b7f0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -61,10 +61,10 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\2D\Sprite.cpp">
-      <Filter>Engine\2D</Filter>
+      <Filter>Engine\3D\2D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\2D\TextureManager.cpp">
-      <Filter>Engine\2D</Filter>
+      <Filter>Engine\3D\2D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
@@ -138,10 +138,10 @@
       <Filter>imgui</Filter>
     </ClInclude>
     <ClInclude Include="Engine\2D\Sprite.h">
-      <Filter>Engine\2D</Filter>
+      <Filter>Engine\3D\2D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\2D\TextureManager.h">
-      <Filter>Engine\2D</Filter>
+      <Filter>Engine\3D\2D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>

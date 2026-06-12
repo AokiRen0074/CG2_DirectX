@@ -28,7 +28,7 @@ struct WorldTransform {
 
 	static ID3D12Device* sDevice;
 
-	static void SetDvice(ID3D12Device* device) {
+	static void SetDevice(ID3D12Device* device) {
 		sDevice = device;
 	}
 
@@ -38,5 +38,7 @@ struct WorldTransform {
 
 	// 行列の更新と定数バッファへの転送
 	void UpdateMatrix(const ViewProjection& viewProjection);
+
+	void TransferMatrix();
 
 };

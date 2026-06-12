@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstdint>
 
+
 ID3D12Device* WorldTransform::sDevice = nullptr;
 
 void WorldTransform::Initialize() {
@@ -53,5 +54,9 @@ void WorldTransform::UpdateMatrix(const ViewProjection& viewProjection) {
 
     // 定数バッファに書き込んでGPUに転送
     constMap_->WVP = wvp;
+
+}
+
+void WorldTransform::TransferMatrix() {
     constMap_->World = matWorld_;
 }

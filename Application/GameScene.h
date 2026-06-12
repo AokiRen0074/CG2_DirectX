@@ -25,6 +25,9 @@ private:
     ------------------------*/
     Player* player_ = nullptr;
 
+    ModelData* modelData_ = nullptr;
+    uint32_t textureHandle_=0u;
+
     // ゲームで使うカメラ
     DebugCamera* debugCamera_ = nullptr;
 

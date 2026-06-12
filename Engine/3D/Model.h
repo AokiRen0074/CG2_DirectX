@@ -36,6 +36,7 @@ struct MeshData {
 struct ModelData {
 	std::vector<MeshData> meshes;
 	std::map<std::string, MaterialData> materials;// 複数のマテリアル
+
 };
 
 

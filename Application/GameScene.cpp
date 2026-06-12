@@ -1,11 +1,11 @@
 #include "GameScene.h"
 #include "Input/Input.h"
 #include "2D/TextureManager.h"
+#include "Player.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
 #endif
-
 
 
 
@@ -18,8 +18,10 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
-    
-
+    /*-------------------------------
+    ワールドトランスフォーム
+    ----------------------------------*/
+    WorldTransform::SetDevice(dxCommon->GetDevice());
 
 
     // カメラの生成と初期化
@@ -34,10 +36,17 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     /*-------------------------------
     3Dオブジェクトの生成と初期化
     ----------------------------------*/
+
+
     object3d_ = new Object3d();
     Object3d::StaticInitialize(dxCommon);
+    object3d_->Initialize("Resources","Player.obj");
 
-    object3d_ = Object3d::Create("Resources", "axis.obj");
+
+  //  modelData_ = new ModelData();
+
+  //  *modelData_ = LoadObjectFile("Resources", "Player.obj");
+    textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
 
     /*----------------------
     スプライトの生成と初期化
@@ -49,12 +58,16 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
    /*-------------------------------
    自キャラ生成と初期化
    ----------------------------------*/
+
    // 自キャラの生成
    player_ = new Player();
 
    // 自キャラの初期化
-   player_->Initialize();
+   player_->Initialize(object3d_, textureHandle_);
 
+   /*--------------------------
+   デバッグカメラ
+   ------------------------------*/
 
     // 音の読み込み
   //  soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
@@ -75,7 +88,7 @@ void GameScene::Update() {
 
 
     // オブジェクトの更新
- // object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
   //object3d_->Update();
    //prite_->Update();
 
@@ -89,7 +102,7 @@ void GameScene::Draw() {
     /*-------------------
     自キャラ描画
     --------------------*/
-    player_->Draw();
+    player_->Draw(viewProjection_);
 
     // 3Dモデル描画
   //object3d_->Draw();

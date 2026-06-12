@@ -409,7 +409,7 @@ void Object3d::Update() {
 // ==========================================
 // 描画
 // ==========================================
-void Object3d::Draw() {
+void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;
