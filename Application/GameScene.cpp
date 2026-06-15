@@ -65,17 +65,34 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
    // 自キャラの初期化
    player_->Initialize(object3d_, textureHandle_);
 
-   /*--------------------------
-   デバッグカメラ
-   ------------------------------*/
+
 
     // 音の読み込み
   //  soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
 }
 
 void GameScene::Update() {
-    // カメラの更新
-    debugCamera_->Update();
+    /*-------------------------
+    デバッグカメラ
+    --------------------------*/
+#ifdef _DEBUG 
+    if (Input::GetInstance()->TriggerKey(DIK_P)) {
+        isDebugCameraActive_ = !isDebugCameraActive_;
+    }
+
+
+    if (isDebugCameraActive_) {
+        debugCamera_->Update();
+
+        viewProjection_.matView = debugCamera_->GetViewMatrix();
+        viewProjection_.matProjection = debugCamera_->GetProjectionMatrix();
+    }
+    else {
+        viewProjection_.UpdateMatrix();
+    }
+#endif
+
+
 
     if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
         // Audio::GetInstance()->SoundPlayWave(soundData_);

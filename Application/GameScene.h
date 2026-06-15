@@ -30,6 +30,7 @@ private:
 
     // ゲームで使うカメラ
     DebugCamera* debugCamera_ = nullptr;
+    bool isDebugCameraActive_ = false;
 
     // ゲームで使うオブジェクト達
     Object3d* object3d_ = nullptr;

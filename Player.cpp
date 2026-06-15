@@ -1,7 +1,7 @@
 #include "Player.h"
 #include <cassert>
 #include "DirectXCommon.h"
-
+#include <algorithm>
 
 /*----------------
 初期化
@@ -18,7 +18,7 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
-	worldTransform_.translation_ = { 0.0f, 0.0f, 20.0f };
+	worldTransform_.translation_ = { 0.0f, 0.0f, 0.0f };
 	// シングルトンインスタンスを取得する
 	input_ = Input::GetInstance();
 
@@ -52,17 +52,21 @@ void Player::Update() {
 		move.y -= kCharacterSpeed;
 	}
 
-	// 移動限界座標
-	const float kMoveLimitX = 30.0f;
-	const float kMoveLimitY = 30.0f;
-
-	// 範囲を超えない処理
-	worldTransform_.translation_.x
 
 	// 座標移動
 	worldTransform_.translation_.x += move.x;
 	worldTransform_.translation_.y += move.y;
 	worldTransform_.translation_.z += move.z;
+
+	// 移動限界座標
+	const float kMoveLimitX = 7.0f;
+	const float kMoveLimitY = 4.0f;
+
+	// 範囲を超えない処理
+	worldTransform_.translation_.x = (std::max)(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = (std::min)(worldTransform_.translation_.x, kMoveLimitX);
+	worldTransform_.translation_.y = (std::max)(worldTransform_.translation_.y, -kMoveLimitY);
+	worldTransform_.translation_.y = (std::min)(worldTransform_.translation_.y, kMoveLimitY);
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 

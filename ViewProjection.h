@@ -4,7 +4,7 @@
 
 struct ViewProjection {
 	// カメラ座標と回転
-	Vector3 translation_ = { 0.0f,0.0f,-50.0f };
+	Vector3 translation_ = { 0.0f,0.0f,-15.0f };
 	Vector3 rotation_ = { 0.0f,0.0f,0.0f };
 
 	// ビュー行列とプロジェクション行列
