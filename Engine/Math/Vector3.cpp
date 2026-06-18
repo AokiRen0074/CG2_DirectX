@@ -1,5 +1,6 @@
 #include "Vector3.h"
-#include <math.h>
+#include <cmath>
+
 
 static const int kColumnWidth = 60;
 static const int kRowHeight = 20;
@@ -38,7 +39,7 @@ float Dot(const Vector3& v1, const Vector3& v2) {
 
 // 三次元ベクトルの長さ
 float Length(const Vector3& v) {
-	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+	return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 // 三次元ベクトルの正規化

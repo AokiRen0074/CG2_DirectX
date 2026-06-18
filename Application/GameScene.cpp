@@ -10,8 +10,8 @@
 
 
 GameScene::~GameScene() {
-    delete sprite_;
-    delete object3d_;
+  //  delete sprite_;
+   // delete object3d_;
     delete debugCamera_;
     delete player_;
 }
@@ -38,7 +38,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     ----------------------------------*/
 
 
-    object3d_ = new Object3d();
+   object3d_ = new Object3d();
     Object3d::StaticInitialize(dxCommon);
     object3d_->Initialize("Resources","Player.obj");
 
@@ -51,9 +51,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     /*----------------------
     スプライトの生成と初期化
     -------------------------*/
-   uint32_t textureHandle = TextureManager::Load("Resources/uvChecker.png"); 
+  // uint32_t textureHandle = TextureManager::Load("Resources/uvChecker.png"); 
 
-   sprite_ = Sprite::Create(textureHandle, { 100.0f, 50.0f });
+  // sprite_ = Sprite::Create(textureHandle, { 100.0f, 50.0f });
 
    /*-------------------------------
    自キャラ生成と初期化
@@ -125,5 +125,5 @@ void GameScene::Draw() {
   //object3d_->Draw();
 
     // 2Dスプライト描画
-     //rite_->Draw();
+     //sprite_->Draw();
 }

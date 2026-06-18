@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include "ViewProjection.h"
 #include "WorldTransform.h"
@@ -34,3 +35,4 @@ private:
     // 軸専用のカメラ
     ViewProjection axisViewProjection_;
 };
+*/

@@ -10,7 +10,6 @@ public:
 
 	// 初期化
 	void Initialize(Object3d* model, uint32_t textureHandle);
-
 	// 更新処理
 	void Update();
 

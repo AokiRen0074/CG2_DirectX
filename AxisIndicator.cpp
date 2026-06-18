@@ -1,3 +1,4 @@
+/*
 #include "AxisIndicator.h"
 #include"TextureManager.h"
 
@@ -43,3 +44,4 @@ void AxisIndicator::Draw() {
 
     object3d_->Draw(worldTransform_, axisViewProjection_,textureHandle_);
 }
+*/
