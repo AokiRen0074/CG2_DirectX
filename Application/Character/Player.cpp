@@ -2,6 +2,8 @@
 #include <cassert>
 #include "DirectXCommon.h"
 #include <algorithm>
+#include <externals/nlohmann/json.hpp>
+#include "GlobalValiables.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -26,12 +28,39 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 	// シングルトンインスタンスを取得する
 	input_ = Input::GetInstance();
 
+
+	// デバッガによる確認
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+
+	// グループを追加
+	GlobalVariables::GetInstance()->CreateGroup(groupName);
+
+	globalVariables->AddItem(groupName, "Test", 90);
+
+	globalVariables->AddItem(groupName, "moveSpeed", kCharacterSpeed);
+
+}
+
+/*--------------------
+調整項目の適用
+-------------------------*/
+void Player::RegisterGlobalVariables() {}
+
+void Player::ApplyGlobalVariables() {
+	// 調整項目の適用
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+
+	kCharacterSpeed= globalVariables->GetFloatValue(groupName, "moveSpeed");
 }
 
 /*-------------------------
 更新処理
 ----------------------------*/
 void Player::Update() {
+
+	ApplyGlobalVariables();
 
 #ifdef USE_IMGUI
 
@@ -51,8 +80,6 @@ void Player::Update() {
 	// キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
 
-	// キャラクターの移動の速さ
-	const float kCharacterSpeed = 0.2f;
 
 	// 押した方向へ移動ベクトルを変更(左右)
 	if (input_->PushKey(DIK_LEFT)) {

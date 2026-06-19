@@ -16,6 +16,10 @@ public:
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);
 
+	// 調整項目の運用
+	void ApplyGlobalVariables();
+	// 調整項目を登録
+	static void RegisterGlobalVariables();
 
 private:
 
@@ -29,5 +33,8 @@ private:
 
 	// keyboard入力
 	Input* input_ = nullptr;
+
+	// プレイヤーの速さ
+	static inline float kCharacterSpeed = 0.2f;
 
 };

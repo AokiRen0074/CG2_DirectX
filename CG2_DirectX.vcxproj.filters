@@ -114,6 +114,9 @@
     <ClCompile Include="Application\AxisIndicator.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="GlobalVariables.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -198,6 +201,9 @@
       <Filter>Engine\3D</Filter>
     </ClInclude>
     <ClInclude Include="Application\AxisIndicator.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalValiables.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
