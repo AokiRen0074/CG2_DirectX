@@ -1,7 +1,11 @@
-#include "Player.h"
+#include "Application/Character/Player.h"
 #include <cassert>
 #include "DirectXCommon.h"
 #include <algorithm>
+
+#ifdef USE_IMGUI
+#include "externals/imgui/imgui.h"
+#endif
 
 /*----------------
 初期化
@@ -29,6 +33,20 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 ----------------------------*/
 void Player::Update() {
 
+#ifdef USE_IMGUI
+
+	// キャラクターの座標を画面表示する処理
+
+	ImGui::Begin("Player");
+
+	ImGui::Text("Position: X: %f, Y: %f, Z: %f",
+		worldTransform_.translation_.x,
+		worldTransform_.translation_.y,
+		worldTransform_.translation_.z);
+
+	ImGui::End();
+
+#endif
 
 	// キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
@@ -59,8 +77,8 @@ void Player::Update() {
 	worldTransform_.translation_.z += move.z;
 
 	// 移動限界座標
-	const float kMoveLimitX = 7.0f;
-	const float kMoveLimitY = 4.0f;
+	const float kMoveLimitX = 5.5f;
+	const float kMoveLimitY = 2.7f;
 
 	// 範囲を超えない処理
 	worldTransform_.translation_.x = (std::max)(worldTransform_.translation_.x, -kMoveLimitX);

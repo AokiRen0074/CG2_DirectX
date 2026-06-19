@@ -102,16 +102,16 @@
     <ClCompile Include="Engine\3D\Object3d.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
-    <ClCompile Include="ViewProjection.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldTransform.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="Application\Character\Player.cpp">
       <Filter>Application\Character</Filter>
     </ClCompile>
-    <ClCompile Include="AxisIndicator.cpp">
+    <ClCompile Include="Engine\3D\ViewProjection.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\WorldTransform.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\AxisIndicator.cpp">
       <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
@@ -188,19 +188,16 @@
     <ClInclude Include="Engine\3D\Object3d.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="ViewProjection.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldTransform.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="Application\Character\Player.h">
       <Filter>Application\Character</Filter>
     </ClInclude>
-    <ClInclude Include="math.h">
+    <ClInclude Include="Engine\3D\ViewProjection.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="AxisIndicator.h">
+    <ClInclude Include="Engine\3D\WorldTransform.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\AxisIndicator.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>

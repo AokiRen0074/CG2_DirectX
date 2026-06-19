@@ -4,7 +4,7 @@
 #include "3D/DebugCamera.h"
 #include "Audio/Audio.h"
 #include "ViewProjection.h"
-#include "Player.h"
+#include "Application/Character/Player.h"
 
 
 class DirectXCommon;

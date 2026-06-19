@@ -1,7 +1,8 @@
 #include "GameScene.h"
 #include "Input/Input.h"
 #include "2D/TextureManager.h"
-#include "Player.h"
+#include "Application/Character/Player.h"
+#include "AxisIndicator.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -32,6 +33,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     ビュープロジェクションの初期化
     ---------------------------------*/
     viewProjection_.Initialize();
+
 
     /*-------------------------------
     3Dオブジェクトの生成と初期化
@@ -65,6 +67,18 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
    // 自キャラの初期化
    player_->Initialize(object3d_, textureHandle_);
 
+
+
+   /*-----------------------
+   軸表示
+   ------------------------*/
+   AxisIndicator::GetInstance()->Initialize();
+
+   // 軸方向の表示を有効にする
+   AxisIndicator::GetInstance()->SetVisible(true);
+
+   // 軸方向表示が参照するビュープロジェクションの指定
+   AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 
 
     // 音の読み込み
@@ -105,7 +119,15 @@ void GameScene::Update() {
 
 
     // オブジェクトの更新
-  object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+    if (isDebugCameraActive_ && debugCamera_ != nullptr) {
+        debugCamera_->Update();
+
+        // ここで安全に取得する
+        object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+    }
+
+    AxisIndicator::GetInstance()->Update();
+
   //object3d_->Update();
    //prite_->Update();
 
@@ -115,6 +137,9 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
+
+    // 軸方向描画
+    AxisIndicator::GetInstance()->Draw();
 
     /*-------------------
     自キャラ描画
