@@ -26,6 +26,8 @@ public:
 	// ファイルに書き出し
 	void SaveFile(const std::string& groupName);
 
+
+
 	// ディレクトリの全ファイル読み込み
 	void LoadFiles();
 
