@@ -4,7 +4,7 @@
 #include "Input.h"
 #include "Vector3.h"
 #include "PlayerBullet.h"
-
+#include <list>
 
 class Player {
 public:
@@ -37,6 +37,11 @@ public:
 	// 調整項目を登録
 	static void RegisterGlobalVariables();
 
+	/*------------------
+	デストラクタ
+	----------------------------*/
+	~Player();
+
 private:
 
 	WorldTransform worldTransform_;
@@ -61,6 +66,6 @@ private:
 	弾
 	-----------------------------*/
 	PlayerBullet* bullet_ = nullptr;
-	//Object3d* bulletModel_ = nullptr;
+	std::list<PlayerBullet*>bullets_;
 
 };

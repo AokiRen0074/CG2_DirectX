@@ -9,6 +9,16 @@
 #include "externals/imgui/imgui.h"
 #endif
 
+/*---------------------
+デストラクタ
+------------------------*/
+Player::~Player() {
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet_;
+
+	}
+}
+
 /*----------------
 初期化
 -----------------------*/
@@ -88,7 +98,7 @@ void Player::Attack() {
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		// 弾を登録する
-		bullet_ = newBullet;
+		bullets_.push_back(newBullet);
 	}
 }
 
@@ -158,8 +168,9 @@ void Player::Update() {
 	Attack();
 
 	// 弾更新
-	if (bullet_) {
-		bullet_->Update();
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Update();
+
 	}
 
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
@@ -177,8 +188,9 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 	// 弾描画
-	if (bullet_) {
-		bullet_->Draw(viewProjection);
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->Draw(viewProjection);
+
 	}
 
 }
