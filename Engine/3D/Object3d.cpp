@@ -452,8 +452,17 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 		// そのパーツのマテリアルデータ（色やUV）
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
 
-		// そのパーツのテクスチャ
-		commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+		if (textureHandle == 0) {
+			// テクスチャの指定がない場合（0）は、モデル本来の画像を使う
+			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+		}
+		else {
+			// 引数で弾の画像(textureHandle)が渡された場合は、そっちを強制的に使う！
+			ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
+			uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
+			D3D12_GPU_DESCRIPTOR_HANDLE handle = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, textureHandle);
+			commandList->SetGraphicsRootDescriptorTable(2, handle);
+		}
 
 		// 描画
 		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);

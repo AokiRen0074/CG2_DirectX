@@ -21,6 +21,9 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 
 	worldTransform_.Initialize();
 
+	// テクスチャ読み込み
+	textureHandle_ = TextureManager::Load("Resources/ring.png");
+
 
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
@@ -82,7 +85,7 @@ void Player::Attack() {
 
 		// 弾を生成し初期イカ
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(bulletModel_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		// 弾を登録する
 		bullet_ = newBullet;

@@ -14,7 +14,7 @@
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
-	delete bulletModel_;
+	//delete bulletModel_;
 }
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
@@ -42,7 +42,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	object3d_ = new Object3d();
 	Object3d::StaticInitialize(dxCommon);
-	object3d_->Initialize("Resources", "Player.obj");
+	object3d_->Initialize("Resources", "block.obj");
 
 	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
 
@@ -64,10 +64,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	/*-------------------------
 	弾
 	------------------------------*/
-	bulletModel_ = new Object3d();
-	bulletModel_->Initialize("Resources", "ringset.obj");
 
-	player_->SetBulletModel(bulletModel_);
 
 	/*-----------------------
 	軸表示

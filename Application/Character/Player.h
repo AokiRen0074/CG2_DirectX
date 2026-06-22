@@ -21,7 +21,7 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 
 	// 弾のモデルのセット
-	void SetBulletModel(Object3d* bulletModel) { bulletModel_ = bulletModel; }
+//	void SetBulletModel(Object3d* bulletModel) { bulletModel_ = bulletModel; }
 
 	// 旋回処理
 	void Rotate();
@@ -61,6 +61,6 @@ private:
 	弾
 	-----------------------------*/
 	PlayerBullet* bullet_ = nullptr;
-	Object3d* bulletModel_ = nullptr;
+	//Object3d* bulletModel_ = nullptr;
 
 };
