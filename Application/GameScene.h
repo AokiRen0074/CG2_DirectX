@@ -41,4 +41,6 @@ private:
 
     // 音声データ
     SoundData soundData_;
+
+    Object3d* bulletModel_ = nullptr;
 };

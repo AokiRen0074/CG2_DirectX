@@ -14,6 +14,7 @@
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
+	delete bulletModel_;
 }
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
@@ -60,7 +61,13 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	// 自キャラの初期化
 	player_->Initialize(object3d_, textureHandle_);
 
+	/*-------------------------
+	弾
+	------------------------------*/
+	bulletModel_ = new Object3d();
+	bulletModel_->Initialize("Resources", "ringset.obj");
 
+	player_->SetBulletModel(bulletModel_);
 
 	/*-----------------------
 	軸表示

@@ -100,6 +100,7 @@
     <ClCompile Include="Application\Character\Player.cpp" />
     <ClCompile Include="Application\GameScene.cpp" />
     <ClCompile Include="Application\main.cpp" />
+    <ClCompile Include="BaseCharacter.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\2D\TextureManager.cpp" />
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
@@ -150,11 +151,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="PlayerBullet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\AxisIndicator.h" />
     <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
+    <ClInclude Include="BaseCharacter.h" />
+    <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />
     <ClInclude Include="Engine\3D\DebugCamera.h" />

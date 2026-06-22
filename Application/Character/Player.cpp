@@ -55,12 +55,50 @@ void Player::ApplyGlobalVariables() {
 	kCharacterSpeed= globalVariables->GetFloatValue(groupName, "moveSpeed");
 }
 
+/*----------------------
+旋回処理
+------------------------------*/
+void Player::Rotate() {
+
+// 回転の速さ
+	const float kRotaSpeed = 0.02f;
+
+	// 押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_A)) {
+		worldTransform_.rotation_.y -= kRotaSpeed;
+	}
+	else if (input_->PushKey(DIK_D)) {
+		worldTransform_.rotation_.y += kRotaSpeed;
+	}
+
+}
+
+/*------------------------
+攻撃
+----------------------------*/
+void Player::Attack() {
+
+	if (input_->TriggerKey(DIK_SPACE)) {
+
+		// 弾を生成し初期イカ
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(bulletModel_, worldTransform_.translation_);
+
+		// 弾を登録する
+		bullet_ = newBullet;
+	}
+}
+
 /*-------------------------
 更新処理
 ----------------------------*/
 void Player::Update() {
 
+	// 機能の調整
 	ApplyGlobalVariables();
+
+	//　旋回処理
+	Rotate();
 
 #ifdef USE_IMGUI
 
@@ -113,6 +151,14 @@ void Player::Update() {
 	worldTransform_.translation_.y = (std::max)(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = (std::min)(worldTransform_.translation_.y, kMoveLimitY);
 
+	// 攻撃処理
+	Attack();
+
+	// 弾更新
+	if (bullet_) {
+		bullet_->Update();
+	}
+
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
 	worldTransform_.TransferMatrix();
@@ -126,5 +172,10 @@ void Player::Update() {
 void Player::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	// 弾描画
+	if (bullet_) {
+		bullet_->Draw(viewProjection);
+	}
 
 }
