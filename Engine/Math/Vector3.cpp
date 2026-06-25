@@ -54,3 +54,5 @@ Vector3 Normalize(const Vector3& v) {
 	return result;
 }
 
+
+

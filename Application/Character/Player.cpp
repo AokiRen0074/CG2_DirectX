@@ -93,9 +93,16 @@ void Player::Attack() {
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
+		// 弾の速度 
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		// 速度ベクトルを自機の向きに合わせて回転させる
+		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+
 		// 弾を生成し初期イカ
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -127,6 +134,21 @@ void Player::Update() {
 	ImGui::End();
 
 #endif
+
+	/*------------------------------
+	弾
+	-------------------------------*/
+	// デスフラグの立った弾を削除
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			return true;
+		}
+		return false;
+		});
+
+	/*-------------------------------
+	キャラクター移動処理
+	------------------------------*/
 
 	// キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };

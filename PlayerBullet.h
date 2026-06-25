@@ -18,14 +18,27 @@ public:
 	---------------------*/
 
 	// 更新処理
-	void Initialize(Object3d* model, const Vector3& position);
+	void Initialize(Object3d* model, const Vector3& position, const Vector3& velocity);
 
 	// 更新処理
 	void Update();
 
+	// デスフラグのゲッター
+	bool IsDead() const { return isDead_; }
+
 private:
+	Vector3 velocity_;
 
+	/*----------------------
+	弾
+	-----------------------*/
+	// 寿命
+	static const int32_t kLifeTime = 60 * 5;
 
+	// デスタイマー
+	int32_t deathTimer_ = kLifeTime;
 
+	// デスフラグ
+	bool isDead_ = false;
 
 };

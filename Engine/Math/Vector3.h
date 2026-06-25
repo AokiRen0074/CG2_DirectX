@@ -30,3 +30,5 @@ float Length(const Vector3& v);
 
 // 三次元ベクトルの正規化
 Vector3 Normalize(const Vector3& v);
+
+
