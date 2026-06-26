@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "EnemyStateApproach.h"
 #include <cassert>
 
 
@@ -24,32 +25,14 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
 	worldTransform_.translation_ = { 0.0f, 0.0f, 50.0f };
 
-}
+	// 最初の状態
+	state_ = new EnemyStateApproach();
+	state_->SetEnemy(this);
 
-/*-------------------------------
-フェーズの管理
--------------------------------*/
-// 接近フェーズ
-void Enemy::ApproachPhase() {
-	// 移動
-	worldTransform_.translation_.z += approachVelocity_.z;
 
-	if (worldTransform_.translation_.z < 0.0f) {
-		phase_=Phase::Leave;
-	}
-}
-
-// 離脱フェーズ
-void Enemy::LeavePhase() {
-	// 移動
-	worldTransform_.translation_.z += leaveVelocity_.z;
 }
 
 
-void(Enemy::* Enemy::phaseTable[])() = {
-	&Enemy::ApproachPhase,// 要素番号0
-	&Enemy::LeavePhase,// 要素番号1
-};
 
 /*--------------------------
 更新処理
@@ -58,9 +41,9 @@ void Enemy::Update() {
 
 
 	// 状態遷移
-	// メンバ関数ポインタに入っている関数を呼び出す
-
-	(this->*phaseTable[static_cast<size_t>(phase_)])();
+	if (state_) {
+		state_->Update();
+	}
 
 
 
@@ -98,4 +81,27 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 
+}
+
+// 状態を切り替える関数
+void Enemy::ChangeState(BaseEnemyState* newState) {
+	// いあの状態を消して、新しい状態を入れる
+	if (state_) {
+		delete state_;
+	}
+
+	state_ = newState;
+	state_->SetEnemy(this);
+}
+
+// 移動関数
+void Enemy::Move(const Vector3& velocity) {
+	worldTransform_.translation_.x += velocity.x;
+	worldTransform_.translation_.y += velocity.y;
+	worldTransform_.translation_.z += velocity.z;
+}
+
+// 座標のゲッター
+Vector3 Enemy::GetTranslation() const {
+	return worldTransform_.translation_;
 }

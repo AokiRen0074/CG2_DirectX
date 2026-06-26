@@ -108,9 +108,6 @@
     <ClCompile Include="Engine\3D\Object3d.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Character\Player.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\3D\ViewProjection.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
@@ -130,6 +127,15 @@
       <Filter>Application\Character</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Player.cpp">
+      <Filter>Application\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateApproach.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateLeave.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,9 +212,6 @@
     <ClInclude Include="Engine\3D\Object3d.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Character\Player.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\3D\ViewProjection.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
@@ -228,6 +231,18 @@
       <Filter>Application\Character</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Player.h">
+      <Filter>Application\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEnemyState.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateApproach.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateLeave.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
   </ItemGroup>

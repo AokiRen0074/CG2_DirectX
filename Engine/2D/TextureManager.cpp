@@ -6,6 +6,8 @@
 
 void TextureManager::StaticInitialize(DirectXCommon* dxCommon) {
     GetInstance()->dxCommon_ = dxCommon;
+    D3D12_GPU_DESCRIPTOR_HANDLE dummy{};
+    GetInstance()->srvHandles_.push_back(dummy);
 }
 
 TextureManager* TextureManager::GetInstance() {

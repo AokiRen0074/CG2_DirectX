@@ -102,6 +102,8 @@
     <ClCompile Include="Application\main.cpp" />
     <ClCompile Include="BaseCharacter.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyStateApproach.cpp" />
+    <ClCompile Include="EnemyStateLeave.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\2D\TextureManager.cpp" />
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
@@ -159,7 +161,10 @@
     <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
     <ClInclude Include="BaseCharacter.h" />
+    <ClInclude Include="BaseEnemyState.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyStateApproach.h" />
+    <ClInclude Include="EnemyStateLeave.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />

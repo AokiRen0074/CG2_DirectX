@@ -3,6 +3,8 @@
 #include "Object3d.h"
 #include "TextureManager.h"
 
+class BaseEnemyState;
+
 class Enemy {
 public:
 
@@ -21,11 +23,15 @@ public:
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);
 
-	// 接近フェーズ
-	void ApproachPhase();
 
-	// 離脱フェーズ
-	void LeavePhase();
+	// シーンを切り替える関数
+	void ChangeState(BaseEnemyState* newState);
+
+	// 指定した移動量だけ座標を変更する　カプセル化用
+	void Move(const Vector3& velocity);
+
+	// 座標のゲッター
+	Vector3 GetTranslation() const;
 
 private:
 
@@ -37,18 +43,8 @@ private:
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
-	// フェーズ
-	Phase phase_ = Phase::Approach;
+	// 状態を管理するポインタ
+	BaseEnemyState* state_ = nullptr;
 
 
-	// メンバ関数ポインタのテーブル
-	static void(Enemy::* phaseTable[])();
-
-
-
-	// 接近速度
-	static inline Vector3 approachVelocity_ = { 0.0f, 0.0f, -0.1f };
-
-	// 離脱速度
-	static inline Vector3 leaveVelocity_ = { 0.0f,0.0f,0.1f };
 };

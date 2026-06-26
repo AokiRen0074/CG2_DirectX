@@ -321,25 +321,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 
 		// このパーツ専用のテクスチャを読み込んでSRVを作成
 		if (!matData.textureFilePath.empty()) {
-			DirectX::ScratchImage mipImages = TextureManager::LoadTexture(matData.textureFilePath);
-			const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-			meshRes.textureResource = TextureManager::CreateTextureResource(device, metadata);
-
-			Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = TextureManager::UploadTextureData(meshRes.textureResource.Get(), mipImages, device, dxCommon_->GetCommandList());
-			dxCommon_->FlushCommandList(); // コマンドを実行して転送を待つ
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-			srvDesc.Format = metadata.format;
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-			// SRVを空いている場所に作る
-			D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			meshRes.textureHandleGPU = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			device->CreateShaderResourceView(meshRes.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-
-			srvIndex++; // 次のテクスチャが来たら被らないように+1する
+			uint32_t handle = TextureManager::Load(matData.textureFilePath);
+			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(handle);
 		}
 
 		// 完成したパーツを配列に追加！
@@ -453,16 +436,13 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
 
 		// そのパーツのテクスチャ
-		if (textureHandle > 0) {
-			// 引数でテクスチャが渡された場合は、そっちを優先して着せ替える
-			ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
-			uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
-			D3D12_GPU_DESCRIPTOR_HANDLE handle = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, textureHandle);
-			commandList->SetGraphicsRootDescriptorTable(2, handle);
+		if (textureHandle == 0) {
+			// 0（指定なし）の場合は、モデル本来のテクスチャを使う（これで右上の軸の表示も守られます！）
+			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
 		}
 		else {
-
-			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+			// 弾や敵など、着せ替えテクスチャ（1番以降）が渡されたら上書きする！
+			commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle));
 		}
 
 		// 描画
