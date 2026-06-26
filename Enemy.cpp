@@ -35,7 +35,7 @@ void Enemy::ApproachPhase() {
 	worldTransform_.translation_.z += approachVelocity_.z;
 
 	if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
+		phase_=Phase::Leave;
 	}
 }
 
@@ -45,10 +45,34 @@ void Enemy::LeavePhase() {
 	worldTransform_.translation_.z += leaveVelocity_.z;
 }
 
+
+void(Enemy::* Enemy::phaseTable[])() = {
+	&Enemy::ApproachPhase,// 要素番号0
+	&Enemy::LeavePhase,// 要素番号1
+};
+
 /*--------------------------
 更新処理
 ------------------------------------*/
 void Enemy::Update() {
+
+
+	// 状態遷移
+	// メンバ関数ポインタに入っている関数を呼び出す
+
+	(this->*phaseTable[static_cast<size_t>(phase_)])();
+
+
+
+
+	// 行列の更新
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+
+	worldTransform_.TransferMatrix();
+
+
+
+
 
 #ifdef USE_IMGUI
 
@@ -64,25 +88,6 @@ void Enemy::Update() {
 	ImGui::End();
 
 #endif
-
-
-	// 状態遷移
-	switch (phase_) {
-	case Phase::Approach:
-	default:
-		ApproachPhase();
-		break;
-
-	case Phase::Leave:
-		LeavePhase();
-		break;
-
-	}
-
-	// 行列の更新
-	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-
-	worldTransform_.TransferMatrix();
 }
 
 

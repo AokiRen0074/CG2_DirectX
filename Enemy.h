@@ -40,6 +40,12 @@ private:
 	// フェーズ
 	Phase phase_ = Phase::Approach;
 
+
+	// メンバ関数ポインタのテーブル
+	static void(Enemy::* phaseTable[])();
+
+
+
 	// 接近速度
 	static inline Vector3 approachVelocity_ = { 0.0f, 0.0f, -0.1f };
 
