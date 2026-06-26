@@ -282,7 +282,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	ModelData modelData = LoadObjectFile(directoryPath, filename);
 
 	// SRVの割り当て用インデックス
-	uint32_t srvIndex = 1;
+	static uint32_t srvIndex = 50;
 	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
 	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
 
@@ -452,16 +452,17 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 		// そのパーツのマテリアルデータ（色やUV）
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
 
-		if (textureHandle == 0) {
-			// テクスチャの指定がない場合（0）は、モデル本来の画像を使う
-			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
-		}
-		else {
-			// 引数で弾の画像(textureHandle)が渡された場合は、そっちを強制的に使う！
+		// そのパーツのテクスチャ
+		if (textureHandle > 0) {
+			// 引数でテクスチャが渡された場合は、そっちを優先して着せ替える
 			ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
 			uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
 			D3D12_GPU_DESCRIPTOR_HANDLE handle = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, textureHandle);
 			commandList->SetGraphicsRootDescriptorTable(2, handle);
+		}
+		else {
+
+			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
 		}
 
 		// 描画

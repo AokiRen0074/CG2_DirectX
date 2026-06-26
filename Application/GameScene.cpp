@@ -14,6 +14,7 @@
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
+	delete enemy_;
 	//delete bulletModel_;
 }
 
@@ -39,12 +40,19 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	3Dオブジェクトの生成と初期化
 	----------------------------------*/
 
-
+	// プレイヤー
 	object3d_ = new Object3d();
 	Object3d::StaticInitialize(dxCommon);
-	object3d_->Initialize("Resources", "block.obj");
+	object3d_->Initialize("Resources", "player.obj");
 
 	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
+
+	// エネミー
+	enemyObject_ = new Object3d();
+	enemyObject_->Initialize("Resources", "player.obj");
+	enemyTex_ = TextureManager::Load("Resources/monsterBall.png");
+
+
 
 	/*----------------------
 	スプライトの生成と初期化
@@ -60,6 +68,13 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	// 自キャラの初期化
 	player_->Initialize(object3d_, textureHandle_);
+
+
+	// 敵キャラの生成
+	enemy_ = new Enemy();
+
+	// 敵キャラの生成
+	enemy_->Initialize(enemyObject_, enemyTex_);
 
 	/*-------------------------
 	弾
@@ -107,6 +122,13 @@ void GameScene::Update() {
 
 	player_->Update();
 
+	/*------------------
+	敵キャラ更新
+	------------------*/
+	if (enemy_) {
+		enemy_->Update();
+	}
+
 
 	// オブジェクトの更新
 	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
@@ -133,7 +155,13 @@ void GameScene::Draw() {
 	/*-------------------
 	自キャラ描画
 	--------------------*/
+
+	if (enemy_) {
+		enemy_->Draw(viewProjection_);
+	}
+
 	player_->Draw(viewProjection_);
+
 
 
 }

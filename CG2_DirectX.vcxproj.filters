@@ -40,6 +40,9 @@
     <Filter Include="Application\Character\Player">
       <UniqueIdentifier>{c30c8824-6ca1-4695-87a4-653b7eca2565}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Character\Enemy">
+      <UniqueIdentifier>{2fbed0aa-8e59-4f01-8c29-b12e7fbad36b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -125,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="BaseCharacter.cpp">
       <Filter>Application\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="BaseCharacter.h">
       <Filter>Application\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

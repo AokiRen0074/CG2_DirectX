@@ -32,7 +32,7 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 
 	// テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("Resources/ring.png");
+	//textureHandle_ = TextureManager::Load("Resources/block.png");
 
 
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
@@ -195,6 +195,7 @@ void Player::Update() {
 
 	}
 
+	// 行列の更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
 	worldTransform_.TransferMatrix();

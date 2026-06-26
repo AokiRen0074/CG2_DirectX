@@ -5,6 +5,7 @@
 #include "Audio/Audio.h"
 #include "ViewProjection.h"
 #include "Application/Character/Player.h"
+#include "Enemy.h"
 
 
 class DirectXCommon;
@@ -25,8 +26,17 @@ private:
     ------------------------*/
     Player* player_ = nullptr;
 
-    ModelData* modelData_ = nullptr;
+    //ModelData* modelData_ = nullptr;
     uint32_t textureHandle_=0u;
+
+    /*---------------------
+    敵キャラ
+    -----------------------------*/
+    Enemy* enemy_ = nullptr;
+    Object3d* enemyObject_ = nullptr;
+    uint32_t enemyTex_ = 0u;
+
+   
 
     // ゲームで使うカメラ
     DebugCamera* debugCamera_ = nullptr;
