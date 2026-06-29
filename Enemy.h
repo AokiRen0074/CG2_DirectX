@@ -4,6 +4,7 @@
 #include "TextureManager.h"
 #include "EnemyBullet.h"
 #include <list>
+#include "TimedCall.h"
 
 class BaseEnemyState;
 
@@ -49,6 +50,12 @@ public:
 	// 弾の発射
 	void Fire();
 
+	//　弾を発射し、タイマーをリセットする
+	void FireAndReset();
+
+	// フェーズ移行時にタイマーを消す
+	void ClearTimedCalls();
+
 private:
 
 	WorldTransform worldTransform_;
@@ -71,7 +78,14 @@ private:
 
 	bool isFired_ = false;
 
-	// 発射タイマー
-	int32_t fireTimer = 0;
+
+	
+
+
+	/*---------------------------------------
+	
+	*/
+	// 時限発動のリスト
+	std::list<TimedCall*> timedCalls_;
 
 };

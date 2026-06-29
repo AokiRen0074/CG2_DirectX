@@ -156,6 +156,7 @@
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\AxisIndicator.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="GlobalValiables.h" />
+    <ClInclude Include="TimedCall.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector4.h" />
   </ItemGroup>

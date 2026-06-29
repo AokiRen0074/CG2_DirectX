@@ -13,6 +13,10 @@ Enemy::~Enemy() {
 		delete bullet;
 
 	}
+
+	for (TimedCall* timedCall : timedCalls_) {
+		delete timedCall;
+	}
 }
 
 void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
@@ -43,23 +47,24 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 
 // 接近フェーズ初期化
 void Enemy::ApproachPhaseInitialize() {
-	// 発射タイマーを初期化
-	fireTimer = kFireInterval;
+	// 最初の発射を予約
+	FireAndReset();
 
 }
 
-void Enemy::UpdateFireTimer() {
-	// 発射タイマーカウントダウン
-	fireTimer--;
+// 発射してリセット
+void Enemy::FireAndReset() {
 
-	// 指定時間に達した
-	if (fireTimer <= 0) {
-		// 弾を発射
-		Fire();
-		// 発射タイマーを初期化
-		fireTimer = kFireInterval;
-	}
+	// 弾を発射
+	Fire();
+
+	timedCalls_.push_back(
+		new TimedCall(std::bind(&Enemy::FireAndReset, this), kFireInterval)
+	);
+
 }
+
+
 
 void Enemy::Fire() {
 
@@ -84,6 +89,20 @@ void Enemy::Fire() {
 更新処理
 ------------------------------------*/
 void Enemy::Update() {
+
+	// 終了したイベントを削除
+	timedCalls_.remove_if([](TimedCall* timedCall) {
+		if (timedCall->isFinished()) {
+			delete timedCall;
+			return true;
+		}
+		return false;
+		});
+
+
+	for (TimedCall* timedCall : timedCalls_) {
+		timedCall->Update();
+	}
 
 
 	for (EnemyBullet* bullet : bullets_) {
@@ -166,4 +185,12 @@ void Enemy::Move(const Vector3& velocity) {
 // 座標のゲッター
 Vector3 Enemy::GetTranslation() const {
 	return worldTransform_.translation_;
+}
+
+// 時限発動イベントのクリア
+void Enemy::ClearTimedCalls() {
+	for (TimedCall* timedCall : timedCalls_) {
+		delete timedCall;
+	}
+	timedCalls_.clear();
 }

@@ -141,6 +141,9 @@
     <ClCompile Include="EnemyBullet.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="TimedCall.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -250,6 +253,9 @@
     </ClInclude>
     <ClInclude Include="EnemyBullet.h">
       <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="TimedCall.h">
+      <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
