@@ -7,6 +7,7 @@
 #include "TimedCall.h"
 
 class BaseEnemyState;
+class Player;
 
 class Enemy {
 public:
@@ -56,6 +57,8 @@ public:
 	// フェーズ移行時にタイマーを消す
 	void ClearTimedCalls();
 
+	void SetPlayer(Player* player) { player_ = player; }
+
 private:
 
 	WorldTransform worldTransform_;
@@ -78,6 +81,10 @@ private:
 
 	bool isFired_ = false;
 
+	/*----------------
+	自キャラ
+	---------------------------*/
+	Player* player_ = nullptr;
 
 	
 

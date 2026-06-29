@@ -14,7 +14,7 @@
 ------------------------*/
 Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
-		delete bullet_;
+		delete bullet;
 
 	}
 }
@@ -217,3 +217,11 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	}
 
 }
+
+/*
+Vector3 GetWorldPosition() {
+	Vector3 worldPos;
+	// ワールド座標の平行移動成分を取得
+
+}
+*/
