@@ -2,6 +2,8 @@
 #include "WorldTransform.h"
 #include "Object3d.h"
 #include "TextureManager.h"
+#include "EnemyBullet.h"
+#include <list>
 
 class BaseEnemyState;
 
@@ -23,6 +25,8 @@ public:
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);
 
+	// デストラクタ
+	~Enemy();
 
 	// シーンを切り替える関数
 	void ChangeState(BaseEnemyState* newState);
@@ -32,6 +36,9 @@ public:
 
 	// 座標のゲッター
 	Vector3 GetTranslation() const;
+
+	// 弾の発射
+	void Fire();
 
 private:
 
@@ -46,5 +53,13 @@ private:
 	// 状態を管理するポインタ
 	BaseEnemyState* state_ = nullptr;
 
+	/*---------------------------------------
+	弾
+	-----------------------------------*/
+	EnemyBullet* bullet_ = nullptr;
+	std::list<EnemyBullet*> bullets_;
+	Enemy* enemy_ = nullptr;
+
+	bool isFired_ = false;
 
 };

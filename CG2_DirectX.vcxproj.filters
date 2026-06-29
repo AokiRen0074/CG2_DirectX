@@ -138,6 +138,9 @@
     <ClCompile Include="EnemyStateLeave.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyBullet.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -243,6 +246,9 @@
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyStateLeave.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBullet.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
   </ItemGroup>

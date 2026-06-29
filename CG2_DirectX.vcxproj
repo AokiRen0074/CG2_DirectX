@@ -102,6 +102,7 @@
     <ClCompile Include="Application\main.cpp" />
     <ClCompile Include="BaseCharacter.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="EnemyStateApproach.cpp" />
     <ClCompile Include="EnemyStateLeave.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="BaseCharacter.h" />
     <ClInclude Include="BaseEnemyState.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
     <ClInclude Include="PlayerBullet.h" />

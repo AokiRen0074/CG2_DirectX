@@ -49,7 +49,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	// エネミー
 	enemyObject_ = new Object3d();
-	enemyObject_->Initialize("Resources", "player.obj");
+	enemyObject_->Initialize("Resources", "block.obj");
 	enemyTex_ = TextureManager::Load("Resources/monsterBall.png");
 
 

@@ -7,6 +7,14 @@
 #include "externals/imgui/imgui.h"
 #endif
 
+// デストラクタ
+Enemy::~Enemy() {
+	for (EnemyBullet* bullet : bullets_) {
+		delete bullet;
+
+	}
+}
+
 void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 
 	assert(model);
@@ -32,6 +40,24 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 
 }
 
+void Enemy::Fire() {
+	if (!isFired_) {
+
+		// 弾の速度
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		EnemyBullet* newBullet = new EnemyBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+
+		// 弾を登録する
+		bullets_.push_back(newBullet);
+
+		isFired_ = true;
+	}
+
+	
+}
 
 
 /*--------------------------
@@ -39,7 +65,11 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 ------------------------------------*/
 void Enemy::Update() {
 
+	Fire();
 
+	for (EnemyBullet* bullet : bullets_) {
+		bullet->Update();
+	}
 	// 状態遷移
 	if (state_) {
 		state_->Update();
@@ -80,6 +110,10 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 	// 敵の描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
+	// 弾の描画
+	for (EnemyBullet* bullet : bullets_) {
+		bullet->Draw(viewProjection);
+}
 
 }
 

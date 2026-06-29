@@ -1,0 +1,41 @@
+#include "EnemyBullet.h"
+#include "cassert"
+#include "TextureManager.h"
+
+void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vector3& velocity){
+	assert(model);
+
+	model_ = model;
+
+	velocity_ = velocity;
+
+	// モデル読み込み
+	textureHandle_ = TextureManager::Load("Resources/block.png");
+
+	// ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
+
+	worldTransform_.scale_ = { 0.5f, 0.5f, 0.5f };
+
+	// 引数で受け取った初期座標をセット
+	worldTransform_.translation_ = position;
+
+}
+
+void EnemyBullet::Update() {
+
+	worldTransform_.translation_.x -= velocity_.x;
+	worldTransform_.translation_.y -= velocity_.y;
+	worldTransform_.translation_.z -= velocity_.z;
+
+
+	// ワールドトランスフォームの更新
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+
+	worldTransform_.TransferMatrix();
+}
+
+void EnemyBullet::Draw(const ViewProjection& camera) {
+	
+	model_->Draw(worldTransform_, camera, textureHandle_);
+}
