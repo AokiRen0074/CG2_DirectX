@@ -10,7 +10,7 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 	velocity_ = velocity;
 
 	// モデル読み込み
-	textureHandle_ = TextureManager::Load("Resources/block.png");
+	//textureHandle_ = TextureManager::Load("Resources/block.png");
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -28,6 +28,10 @@ void EnemyBullet::Update() {
 	worldTransform_.translation_.y -= velocity_.y;
 	worldTransform_.translation_.z -= velocity_.z;
 
+	// 時間経過でデス
+	if (--deathTimer_ <= 0) {
+		isDead_ = true;
+	}
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);

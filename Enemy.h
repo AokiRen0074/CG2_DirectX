@@ -16,6 +16,9 @@ public:
 		Leave,// 離脱
 	};
 
+	// 発射間隔
+	static const int kFireInterval = 60;
+
 	// 初期化
 	void Initialize(Object3d* model, uint32_t textureHandle);
 
@@ -27,6 +30,12 @@ public:
 
 	// デストラクタ
 	~Enemy();
+
+	// 接近フェーズ初期化
+	void ApproachPhaseInitialize();
+
+	// タイマー更新
+	void UpdateFireTimer();
 
 	// シーンを切り替える関数
 	void ChangeState(BaseEnemyState* newState);
@@ -61,5 +70,8 @@ private:
 	Enemy* enemy_ = nullptr;
 
 	bool isFired_ = false;
+
+	// 発射タイマー
+	int32_t fireTimer = 0;
 
 };

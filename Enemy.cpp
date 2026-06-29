@@ -37,26 +37,46 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	state_ = new EnemyStateApproach();
 	state_->SetEnemy(this);
 
+	ApproachPhaseInitialize();
 
 }
 
-void Enemy::Fire() {
-	if (!isFired_) {
+// 接近フェーズ初期化
+void Enemy::ApproachPhaseInitialize() {
+	// 発射タイマーを初期化
+	fireTimer = kFireInterval;
 
-		// 弾の速度
-		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
+}
 
-		EnemyBullet* newBullet = new EnemyBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+void Enemy::UpdateFireTimer() {
+	// 発射タイマーカウントダウン
+	fireTimer--;
 
-		// 弾を登録する
-		bullets_.push_back(newBullet);
-
-		isFired_ = true;
+	// 指定時間に達した
+	if (fireTimer <= 0) {
+		// 弾を発射
+		Fire();
+		// 発射タイマーを初期化
+		fireTimer = kFireInterval;
 	}
+}
 
-	
+void Enemy::Fire() {
+
+
+	// 弾の速度
+	const float kBulletSpeed = 1.0f;
+	Vector3 velocity(0, 0, kBulletSpeed);
+
+	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+
+	// 弾を登録する
+	bullets_.push_back(newBullet);
+
+
+
+
 }
 
 
@@ -65,7 +85,6 @@ void Enemy::Fire() {
 ------------------------------------*/
 void Enemy::Update() {
 
-	Fire();
 
 	for (EnemyBullet* bullet : bullets_) {
 		bullet->Update();
@@ -75,6 +94,14 @@ void Enemy::Update() {
 		state_->Update();
 	}
 
+	// デスフラグの立った弾を削除
+	bullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+		});
 
 
 
@@ -113,7 +140,7 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 	// 弾の描画
 	for (EnemyBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
-}
+	}
 
 }
 
