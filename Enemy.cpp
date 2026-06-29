@@ -132,6 +132,7 @@ void Enemy::Update() {
 
 
 // 描画処理
+
 void Enemy::Draw(const ViewProjection& viewProjection) {
 
 	// 敵の描画
