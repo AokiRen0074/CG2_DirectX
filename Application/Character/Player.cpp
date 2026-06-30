@@ -14,7 +14,7 @@
 ------------------------*/
 Player::~Player() {
 	for (PlayerBullet* bullet : bullets_) {
-		delete bullet_;
+		delete bullet;
 
 	}
 }
