@@ -195,6 +195,15 @@ void Player::Update() {
 
 	}
 
+// メモリの開放
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true; 
+		}
+		return false;
+		});
+
 	// 行列の更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
