@@ -138,13 +138,7 @@ void Player::Update() {
 	/*------------------------------
 	弾
 	-------------------------------*/
-	// デスフラグの立った弾を削除
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			return true;
-		}
-		return false;
-		});
+
 
 	/*-------------------------------
 	キャラクター移動処理
