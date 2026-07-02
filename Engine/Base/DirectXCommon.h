@@ -22,6 +22,9 @@ public:
     // コマンドを実行してGPUを待つ関数
     void FlushCommandList();
 
+    // 描画先をメインの画面に戻す関数
+    void SetBackBufferRenderTarget();
+
     // ゲッター
     ID3D12Device* GetDevice() const { return device_.Get(); }
     ID3D12CommandQueue* GetCommandQueue() const { return commandQueue_.Get(); }

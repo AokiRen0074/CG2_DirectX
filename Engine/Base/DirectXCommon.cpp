@@ -445,3 +445,10 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
 
 	return descriptorHeap;
 }
+
+void DirectXCommon::SetBackBufferRenderTarget() {
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+	// 描画先をバックバッファと深度バッファに設定
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+}
