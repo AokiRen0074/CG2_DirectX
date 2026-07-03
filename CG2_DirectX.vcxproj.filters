@@ -260,6 +260,9 @@
     <ClInclude Include="Collider.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="CollisionConfig.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

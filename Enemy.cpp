@@ -3,6 +3,7 @@
 #include <cassert>
 #include "cmath"
 #include "Application/Character/Player.h"
+#include "CollisionConfig.h"
 
 
 #ifdef USE_IMGUI
@@ -45,6 +46,12 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	// 最初の状態
 	state_ = new EnemyStateApproach();
 	state_->SetEnemy(this);
+
+
+	// 自分の属性を敵に設定
+	SetCollisionAttribute(kCollisionAttributeEnemy);
+	//当たる相手を敵に設定
+	SetCollisionMask(~kCollisionAttributeEnemy);
 
 	ApproachPhaseInitialize();
 

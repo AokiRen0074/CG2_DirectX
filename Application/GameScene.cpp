@@ -106,6 +106,12 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 
 void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
+
+	if ((colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) == 0 ||
+		(colliderB->GetCollisionAttribute() & colliderA->GetCollisionMask()) == 0) {
+		return;
+	}
+
 	Vector3 posA = colliderA->GetWorldPosition();
 	Vector3 posB = colliderB->GetWorldPosition();
 
@@ -124,37 +130,47 @@ void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
 void GameScene::CheckAllCollision() {
 	if (!player_ || !enemy_) return;
 
+	// すべてのコライダーを1つのリストに集める
+	std::list<Collider*> colliders_;
+
+	// キャラクターをリストに登録
+	colliders_.push_back(player_);
+	colliders_.push_back(enemy_);
+
+	// 自弾をリストに登録
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	for (PlayerBullet* pBullet : playerBullets) {
+		if (!pBullet->IsDead()) {
+			colliders_.push_back(pBullet);
+		}
+	}
+
+	// 敵弾をリストに登録
 	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
-
-	// ===============================================
-	// 自キャラと敵弾の当たり判定
-	// ===============================================
-	for (EnemyBullet* bullet : enemyBullets) {
-		if (bullet->IsDead()) continue;
-		CheckCollisionPair(player_, bullet);
+	for (EnemyBullet* eBullet : enemyBullets) {
+		if (!eBullet->IsDead()) {
+			colliders_.push_back(eBullet);
+		}
 	}
 
-	// ===============================================
-	// 自弾と敵キャラの当たり判定
-	// ===============================================
-	for (PlayerBullet* pBullet : playerBullets) {
-		if (pBullet->IsDead()) continue;
-		CheckCollisionPair(pBullet, enemy_);
-	}
+	// リスト内のペアを総当たり
+	std::list<Collider*>::iterator itrA = colliders_.begin();
+	for (; itrA != colliders_.end(); ++itrA) {
+		// イテレータAからコライダーAを取得する
+		Collider* colliderA = *itrA;
+		std::list<Collider*>::iterator itrB = itrA;
+		itrB++;
 
-	// ===============================================
-	// 自弾と敵弾の当たり判定
-	// ===============================================
-	for (PlayerBullet* pBullet : playerBullets) {
-		if (pBullet->IsDead()) continue;
+		for (; itrB != colliders_.end(); ++itrB) {
+			// イテレータBからコライダーBを取得する
+			Collider* colliderB = *itrB;
 
-		for (EnemyBullet* eBullet : enemyBullets) {
-			if (eBullet->IsDead()) continue;
-			CheckCollisionPair(pBullet, eBullet);
+			// ペアの当たり判定
+			CheckCollisionPair(colliderA, colliderB);
 		}
 	}
 }
+
 void GameScene::Update() {
 	/*-------------------------
 	デバッグカメラ

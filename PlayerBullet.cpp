@@ -1,5 +1,6 @@
 #include "PlayerBullet.h"
 #include <cassert>
+#include "CollisionConfig.h"
 
 // 初期化
 void PlayerBullet::Initialize(Object3d* model, const Vector3& position, const Vector3& velocity) {
@@ -20,6 +21,11 @@ void PlayerBullet::Initialize(Object3d* model, const Vector3& position, const Ve
 
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ =position;
+
+	// 自分の属性をプレイヤーに設定
+	SetCollisionAttribute(kCollisionAttributePlayer);
+	// 当たる相手をプレイヤー以外」に設定
+	SetCollisionMask(~kCollisionAttributePlayer);
 }
 
 /*----------------------------------

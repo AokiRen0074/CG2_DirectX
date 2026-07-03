@@ -1,6 +1,7 @@
 #include "EnemyBullet.h"
 #include "cassert"
 #include "TextureManager.h"
+#include "CollisionConfig.h"
 #include "Application/Character/Player.h"
 
 void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vector3& velocity){
@@ -33,6 +34,11 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 	// 行列の更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
+
+	// 自分の属性を敵に設定
+	SetCollisionAttribute(kCollisionAttributeEnemy);
+	//当たる相手を敵に設定
+	SetCollisionMask(~kCollisionAttributeEnemy);
 
 }
 

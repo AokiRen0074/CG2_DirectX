@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <externals/nlohmann/json.hpp>
 #include "GlobalValiables.h"
+#include "CollisionConfig.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -53,6 +54,11 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 
 	globalVariables->AddItem(groupName, "moveSpeed", kCharacterSpeed);
 
+
+	// 自分の属性をプレイヤーに設定
+	SetCollisionAttribute(kCollisionAttributePlayer);
+	// 当たる相手をプレイヤー以外」に設定
+	SetCollisionMask(~kCollisionAttributePlayer);
 }
 
 /*--------------------
