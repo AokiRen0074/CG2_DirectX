@@ -36,6 +36,14 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 
 }
 
+/*---------------------------------------
+衝突時コールバック
+------------------------------------------*/
+void EnemyBullet::OnCollision() {
+	isDead_ = true;
+}
+
+
 void EnemyBullet::Update() {
 
 	// ホーミング
@@ -95,4 +103,17 @@ void EnemyBullet::Update() {
 void EnemyBullet::Draw(const ViewProjection& camera) {
 	
 	model_->Draw(worldTransform_, camera, textureHandle_);
+}
+
+/*-----------------------------
+敵弾のワールド座標
+--------------------------------*/
+Vector3 EnemyBullet::GetWorldBulletPosition() {
+	Vector3 worldPos;
+	// ワールド座標の平行移動成分を取得
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
 }

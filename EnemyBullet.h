@@ -22,6 +22,11 @@ public:
 	// 自キャラのポインタを受け取る関数
 	void SetPlayer(Player* player) { player_ = player; }
 
+	// 衝突時コールバック
+	void OnCollision();
+
+	Vector3 GetWorldBulletPosition();
+
 private:
 	WorldTransform worldTransform_;
 	Object3d* model_ = nullptr;

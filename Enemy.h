@@ -62,6 +62,13 @@ public:
 
 	void SetPlayer(Player* player) { player_ = player; }
 
+	// 衝突時コールバック
+	void OnCollision();
+
+	// 弾リストの取得
+		// 弾リストの取得
+	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+
 private:
 
 	WorldTransform worldTransform_;

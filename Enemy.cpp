@@ -37,7 +37,7 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	// 初期座標
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
-	worldTransform_.translation_ = { 0.0f, 0.0f, 50.0f };
+	worldTransform_.translation_ = { 5.0f, 0.0f, 50.0f };
 	
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 	worldTransform_.TransferMatrix();
@@ -113,6 +113,13 @@ void Enemy::Fire() {
 
 
 
+
+}
+
+/*----------------------------------------
+衝突時コールバック
+-----------------------------------*/
+void Enemy::OnCollision() {
 
 }
 

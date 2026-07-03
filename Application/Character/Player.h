@@ -32,6 +32,10 @@ public:
 	// ワールド座標を取得
 	Vector3 GetworldPosition();
 
+
+
+
+
 	/*----------------------------
 	めちゃ便利
 	-----------------------------*/
@@ -39,6 +43,12 @@ public:
 	void ApplyGlobalVariables();
 	// 調整項目を登録
 	static void RegisterGlobalVariables();
+
+	// 衝突を検出したら呼び出される
+	void OnCollision();
+
+	// 弾リストの取得
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
 	/*------------------
 	デストラクタ

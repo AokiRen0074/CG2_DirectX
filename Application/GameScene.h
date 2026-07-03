@@ -7,7 +7,7 @@
 #include "Application/Character/Player.h"
 #include "Enemy.h"
 
-
+class EnemyBullet;
 
 
 class DirectXCommon;
@@ -18,6 +18,9 @@ public:
     void Initialize(DirectXCommon* dxCommon);
     void Update();
     void Draw();
+
+    //衝突判定と応答
+    void CheckAllCollision();
 
     ~GameScene();
 
@@ -38,7 +41,10 @@ private:
     Object3d* enemyObject_ = nullptr;
     uint32_t enemyTex_ = 0u;
 
-   
+   /*-----------------------------
+   弾
+   ----------------------------------*/
+  
 
     // ゲームで使うカメラ
     DebugCamera* debugCamera_ = nullptr;

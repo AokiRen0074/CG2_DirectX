@@ -26,6 +26,12 @@ public:
 	// デスフラグのゲッター
 	bool IsDead() const { return isDead_; }
 
+	// 衝突時コールバック
+	void OnCollision();
+
+	// 自弾のワールド座標
+	Vector3 GetPlayerBulletWorldPos();
+
 private:
 	Vector3 velocity_;
 
