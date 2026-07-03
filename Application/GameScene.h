@@ -7,6 +7,8 @@
 #include "Application/Character/Player.h"
 #include "Enemy.h"
 
+class Skydome;
+
 class EnemyBullet;
 
 class Collider;
@@ -45,9 +47,12 @@ private:
 	uint32_t enemyTex_ = 0u;
 
 	/*-----------------------------
-	弾
+	天球
 	----------------------------------*/
-
+	Object3d* skydomeModel_ = nullptr;
+	Skydome* skydome_ = nullptr;
+	// 天球用のテクスチャハンドル
+	uint32_t skydomeTex_ = 0u;
 
 	// ゲームで使うカメラ
 	DebugCamera* debugCamera_ = nullptr;

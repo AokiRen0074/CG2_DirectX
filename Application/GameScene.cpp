@@ -6,6 +6,7 @@
 #include "GlobalValiables.h"
 #include <cmath>
 #include "CollisionManager.h"
+#include "Skydome.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -22,6 +23,8 @@ GameScene::~GameScene() {
 	delete player_;
 	delete enemy_;
 	delete collisionManager_;
+	delete skydomeModel_;
+	delete skydome_;
 	//delete bulletModel_;
 }
 
@@ -64,6 +67,19 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	/*----------------------
 	スプライトの生成と初期化
 	-------------------------*/
+
+	/*-----------------------
+	天球の生成と初期化
+	-----------------------------*/
+	// 天球モデル
+	skydomeModel_ = new Object3d();
+	skydomeModel_->Initialize("Resources/skyDome", "AL3_skyDome.obj");
+
+	// 天球のテクスチャ
+	skydomeTex_ = TextureManager::Load("Resources/skyDome/AL3_skydome.png");
+
+	skydome_ = new Skydome();
+	skydome_->Initialize(skydomeModel_, skydomeTex_);
 
 
 	/*-------------------------------
@@ -144,6 +160,10 @@ void GameScene::Update() {
 		enemy_->Update();
 	}
 
+	/*--------------------
+	天球
+	---------------------------*/
+	skydome_->Update();
 
 	// オブジェクトの更新
 	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
@@ -197,6 +217,10 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
+
+	if (skydome_) {
+		skydome_->Draw(viewProjection_);
+	}
 
 	// 軸方向描画
 	AxisIndicator::GetInstance()->Draw();

@@ -147,6 +147,9 @@
     <ClCompile Include="CollisionManager.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Skydome.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="CollisionManager.h">
       <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Skydome.h">
+      <Filter>Engine\3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
