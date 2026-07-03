@@ -15,10 +15,23 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 
-	worldTransform_.scale_ = { 0.5f, 0.5f, 0.5f };
+	worldTransform_.scale_ = { 0.5f, 0.5f, 5.0f };
 
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
+
+	worldTransform_.rotation_.y = std::atan2(velocity.x, velocity.z);
+
+	// 横軸方向の長さを求める
+	float xzLength = std::sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+
+	// X軸周り角度
+	worldTransform_.rotation_.x = std::atan2(-velocity.y, xzLength);
+
+
+	// 行列の更新
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.TransferMatrix();
 
 }
 
