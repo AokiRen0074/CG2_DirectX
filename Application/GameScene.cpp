@@ -4,10 +4,12 @@
 #include "Application/Character/Player.h"
 #include "AxisIndicator.h"
 #include "GlobalValiables.h"
+#include "WindowApp.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
 #endif
+
 
 // ==========================================
 // 指定された文字列を、自動で横に並べて配置する関数
@@ -32,7 +34,6 @@ void GameScene::PrintNeon(const std::string& text, float startX, float startY, f
 }
 
 
-
 // ==========================================
 // 1文字ごとの「棒の組み合わせ」を定義する工場
 // ==========================================
@@ -43,10 +44,15 @@ void GameScene::CreateLetter(char c, float baseX, float baseY, float scale) {
 	// ==========================================
 	auto addBar = [&](float ox, float oy, float len, float rot) {
 		NeonSign* bar = new NeonSign();
-		bar->Initialize();
+		bar->Initialize(dxCommon_);
 
-		// ★変更：位置のズレ(ox, oy) と、棒の太さ・長さ(1.0f, len) のすべてに scale を掛ける！
-		bar->SetTransform({ baseX + (ox * scale), baseY + (oy * scale), 0.0f }, { 1.0f * scale, len * scale, 1.0f }, rot);
+		// 🌟 変更：キャンバス（ポリゴン）は光が切れないように長めに用意する（ここは +0.5f のまま）
+		float canvasLength = len + 0.5f;
+		bar->SetTransform({ baseX + (ox * scale), baseY + (oy * scale), 0.0f }, { 1.0f * scale, canvasLength * scale, 1.0f }, rot);
+
+		// 🌟 変更：光の芯は「設計図の長さ(len)」をそのまま使う！引き算しない！
+		bar->SetTubeLength(len * scale);
+
 		neonSigns_.push_back(bar);
 		};
 
@@ -227,6 +233,13 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
+	dxCommon_ = dxCommon;
+	bloom_ = new Bloom();
+
+	// 画面サイズ（1280x720）を渡す
+	bloom_->Initialize(dxCommon_, WindowApp::kClientWidth, WindowApp::kClientHeight);
+
+
 	/*-------------------------------
 	ワールドトランスフォーム
 	----------------------------------*/
@@ -241,6 +254,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	ビュープロジェクションの初期化
 	---------------------------------*/
 	viewProjection_.Initialize();
+	viewProjection_.translation_.z = -20.0f;
+	viewProjection_.UpdateMatrix();
 
 
 	/*-------------------------------
@@ -290,6 +305,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	弾
 	------------------------------*/
 
+	PrintNeon("NEON", 0.0f, 0.0f, 0.7f);
 
 
 	/*-----------------------
@@ -306,6 +322,23 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 }
 
 void GameScene::Update() {
+
+		static float neonRadius = 0.03f;
+		static float neonSoftness = 15.0f;
+		static float neonIntensity = 8.0f;
+		static float neonColor[3] = { 0.0f, 0.8f, 1.0f };
+		static float neonLengthOffset = -0.2f;
+
+#ifdef USE_IMGUI
+		ImGui::Begin("Neon Control Panel");
+		ImGui::SliderFloat("Radius (太さ)", &neonRadius, 0.001f, 0.1f);
+		ImGui::SliderFloat("Length Offset (長さ微調整)", &neonLengthOffset, -1.0f, 1.0f);
+		ImGui::SliderFloat("Softness (ぼかし)", &neonSoftness, 0.1f, 50.0f);
+		ImGui::SliderFloat("Intensity (光の強さ)", &neonIntensity, 0.1f, 20.0f);
+		ImGui::ColorEdit3("Color (色)", neonColor);
+		ImGui::End();
+#endif
+
 	/*-------------------------
 	デバッグカメラ
 	--------------------------*/
@@ -333,6 +366,8 @@ void GameScene::Update() {
 
 	player_->Update();
 
+
+
 	/*------------------
 	敵キャラ更新
 	------------------*/
@@ -349,6 +384,19 @@ void GameScene::Update() {
 		object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
 	}
 
+
+
+	for (NeonSign* sign : neonSigns_) {
+
+		sign->SetMaterial(neonRadius, neonSoftness, neonIntensity, neonColor[0], neonColor[1], neonColor[2], neonLengthOffset);
+		if (isDebugCameraActive_ && debugCamera_ != nullptr) {
+			sign->UpdateCamera(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+		}
+		else {
+			sign->UpdateCamera(viewProjection_.matView, viewProjection_.matProjection);
+		}
+	}
+
 	AxisIndicator::GetInstance()->Update();
 
 
@@ -360,19 +408,37 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-	// 軸方向描画
+	// ==========================================
+		// 1. 通常の描画（普通のモニター R8G8B8A8 に描くもの）
+		// ==========================================
 	AxisIndicator::GetInstance()->Draw();
-
-	/*-------------------
-	自キャラ描画
-	--------------------*/
-
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
-
-	player_->Draw(viewProjection_);
-
+	player_->Draw(viewProjection_); // 普通の3Dプレイヤー
 
 
+	// ==========================================
+	// 2. ネオンの描画（ここからHDRキャンバス R16G16B16A16 に切り替え！）
+	// ==========================================
+	bloom_->PreDraw(); // キャンバスを切り替え
+
+	// ★ ここでネオン系のオブジェクトを描画する！
+	for (NeonSign* sign : neonSigns_) {
+		sign->Draw();
+	}
+	// もしネオン自機（neonPlayer_）などがいるなら、それもここでDrawする
+
+	bloom_->PostDraw(); // HDRキャンバスへの書き込み終了
+
+
+	// ==========================================
+	// 3. 仕上げの魔法（ぼかして光を溢れさせ、モニターに合成する）
+	// ==========================================
+	bloom_->Execute();    // コンピュートシェーダーでぼかし計算
+	bloom_->DrawResult(); // モニターに最終結果をドン！と描画
 }
+
+
+
+

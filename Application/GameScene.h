@@ -7,6 +7,8 @@
 #include "Application/Character/Player.h"
 #include "Enemy.h"
 #include "NeonSign.h"
+#include "DirectXCommon.h"
+#include "Bloom.h"
 
 
 
@@ -18,6 +20,9 @@ public:
     void Initialize(DirectXCommon* dxCommon);
     void Update();
     void Draw();
+
+    void PrintNeon(const std::string& text, float startX, float startY, float scale);
+    void CreateLetter(char c, float baseX, float baseY, float scale);
 
     ~GameScene();
 
@@ -55,4 +60,10 @@ private:
     SoundData soundData_;
 
     //Object3d* bulletModel_ = nullptr;
+    NeonSign* neonSign_ = nullptr;
+    std::vector<NeonSign*> neonSigns_;
+    float globalTubeLength_ = 2.0f;
+
+    DirectXCommon* dxCommon_ = nullptr;
+    Bloom* bloom_ = nullptr;
 };

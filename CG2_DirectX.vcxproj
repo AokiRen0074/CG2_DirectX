@@ -100,7 +100,6 @@
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp" />
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.cpp" />
     <ClCompile Include="Application\AxisIndicator.cpp" />
     <ClCompile Include="Application\Character\Player.cpp" />
     <ClCompile Include="Application\GameScene.cpp" />
@@ -160,6 +159,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="NeonSign.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
@@ -168,7 +168,6 @@
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h" />
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h" />
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h" />
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.h" />
     <ClInclude Include="Application\AxisIndicator.h" />
     <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
@@ -178,6 +177,7 @@
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
+    <ClInclude Include="NeonSign.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />

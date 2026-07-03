@@ -159,7 +159,7 @@
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.cpp">
+    <ClCompile Include="NeonSign.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
   </ItemGroup>
@@ -287,7 +287,7 @@
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.h">
+    <ClInclude Include="NeonSign.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
   </ItemGroup>
