@@ -8,8 +8,9 @@
 
 // 親クラス
 #include "BaseCharacter.h"
+#include "Collider.h"
 
-class PlayerBullet : public BaseCharacter {
+class PlayerBullet : public BaseCharacter, public Collider{
 
 public:
 
@@ -26,11 +27,10 @@ public:
 	// デスフラグのゲッター
 	bool IsDead() const { return isDead_; }
 
-	// 衝突時コールバック
-	void OnCollision();
 
-	// 自弾のワールド座標
-	Vector3 GetPlayerBulletWorldPos();
+
+	void OnCollision() override;
+	Vector3 GetWorldPosition() override;
 
 private:
 	Vector3 velocity_;

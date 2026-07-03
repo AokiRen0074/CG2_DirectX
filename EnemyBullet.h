@@ -3,10 +3,11 @@
 #include "Vector3.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "Collider.h"
 
 class Player;
 
-class EnemyBullet {
+class EnemyBullet: public Collider {
 public:
 	// 初期化処理
 	void Initialize(Object3d* model, const Vector3 position, const Vector3& velocity);
@@ -22,10 +23,10 @@ public:
 	// 自キャラのポインタを受け取る関数
 	void SetPlayer(Player* player) { player_ = player; }
 
-	// 衝突時コールバック
-	void OnCollision();
 
-	Vector3 GetWorldBulletPosition();
+
+	void OnCollision() override;
+	Vector3 GetWorldPosition() override;
 
 private:
 	WorldTransform worldTransform_;

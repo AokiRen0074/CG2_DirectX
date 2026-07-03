@@ -104,106 +104,56 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 }
 
-/*----------------------------------------
-衝突判定と応答
-------------------------------------*/
-void GameScene::CheckAllCollision() {
 
+void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
+	Vector3 posA = colliderA->GetWorldPosition();
+	Vector3 posB = colliderB->GetWorldPosition();
+
+	float dx = posB.x - posA.x;
+	float dy = posB.y - posA.y;
+	float dz = posB.z - posA.z;
+	float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+	if (dist <= colliderA->GetRadius() + colliderB->GetRadius()) {
+		// コライダーAとBの衝突時コールバックを呼び出す
+		colliderA->OnCollision();
+		colliderB->OnCollision();
+	}
+}
+
+void GameScene::CheckAllCollision() {
 	if (!player_ || !enemy_) return;
 
-	// 衝突判定AとBの座標
-	Vector3 posA, posB;
-
-	// 自弾リストの取得
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-
-	// 敵弾リストの取得
 	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
 
-	/*---------------------------------
-	 自キャラと敵弾の当たり判定
-	 ------------------------------*/
-	 // 自キャラの座標
-	posA = player_->GetworldPosition();
-
-
-
-	const float playerRadius = 1.0f;
-	const float enemyRadius = 1.0f;
-	const float pBulletRadius = 1.0f;
-	const float eBulletRadius = 1.0f;
-
-
-	// 自キャラと敵弾全ての当たり判定
+	// ===============================================
+	// 自キャラと敵弾の当たり判定
+	// ===============================================
 	for (EnemyBullet* bullet : enemyBullets) {
-
-		// すでにない場合は判定しない
 		if (bullet->IsDead()) continue;
-
-		// 敵弾の座標
-		posB = bullet->GetWorldBulletPosition();
-
-		float dx = posB.x - posA.x;
-		float dy = posB.y - posA.y;
-		float dz = posB.z - posA.z;
-		float distance = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-		//球と球の交差判定
-		if (distance <= playerRadius + eBulletRadius) {
-			// 自キャラの衝突時コールバックを呼び出す
-			player_->OnCollision();
-			// 敵弾の衝突時コールバックを呼び出す
-			bullet->OnCollision();
-		}
-	}
-	/*-------------------------
-	自弾と敵キャラの当たり判定
-	---------------------------*/
-	Vector3 enemyPos = enemy_->GetWorldPosition();
-
-	for (PlayerBullet* pBullet : playerBullets) {
-		if (pBullet->IsDead()) continue; // 死んでいる弾はスルー
-
-		Vector3 pBulletPos = pBullet->GetPlayerBulletWorldPos();
-
-		float dx = pBulletPos.x - enemyPos.x;
-		float dy = pBulletPos.y - enemyPos.y;
-		float dz = pBulletPos.z - enemyPos.z;
-		float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-		// 当たっていたらお互いのコールバックを呼ぶ
-		if (dist <= enemyRadius + pBulletRadius) {
-			enemy_->OnCollision();
-			pBullet->OnCollision();
-		}
+		CheckCollisionPair(player_, bullet);
 	}
 
-	/*----------------------------------
-	自弾と敵弾の当たり判定
-	----------------------------*/
+	// ===============================================
+	// 自弾と敵キャラの当たり判定
+	// ===============================================
 	for (PlayerBullet* pBullet : playerBullets) {
 		if (pBullet->IsDead()) continue;
-		Vector3 pBulletPos = pBullet->GetPlayerBulletWorldPos();
+		CheckCollisionPair(pBullet, enemy_);
+	}
+
+	// ===============================================
+	// 自弾と敵弾の当たり判定
+	// ===============================================
+	for (PlayerBullet* pBullet : playerBullets) {
+		if (pBullet->IsDead()) continue;
 
 		for (EnemyBullet* eBullet : enemyBullets) {
 			if (eBullet->IsDead()) continue;
-			Vector3 eBulletPos = eBullet->GetWorldBulletPosition();
-
-			// 弾同士の距離計算
-			float dx = eBulletPos.x - pBulletPos.x;
-			float dy = eBulletPos.y - pBulletPos.y;
-			float dz = eBulletPos.z - pBulletPos.z;
-			float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-			// 当たっていたら両方の弾を消す
-			if (dist <= pBulletRadius + eBulletRadius) {
-				pBullet->OnCollision();
-				eBullet->OnCollision();
-			}
+			CheckCollisionPair(pBullet, eBullet);
 		}
 	}
-
-
 }
 void GameScene::Update() {
 	/*-------------------------

@@ -5,8 +5,8 @@
 #include "Vector3.h"
 #include "PlayerBullet.h"
 #include <list>
-
-class Player {
+#include "Collider.h"
+class Player: public Collider {
 public:
 
 	/*-------------------------
@@ -29,10 +29,10 @@ public:
 	// 攻撃
 	void Attack();
 
-	// ワールド座標を取得
-	Vector3 GetworldPosition();
 
 
+	void OnCollision() override;
+	Vector3 GetWorldPosition() override;
 
 
 
@@ -44,8 +44,7 @@ public:
 	// 調整項目を登録
 	static void RegisterGlobalVariables();
 
-	// 衝突を検出したら呼び出される
-	void OnCollision();
+
 
 	// 弾リストの取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }

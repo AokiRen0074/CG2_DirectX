@@ -257,6 +257,9 @@
     <ClInclude Include="TimedCall.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

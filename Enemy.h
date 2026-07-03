@@ -5,11 +5,12 @@
 #include "EnemyBullet.h"
 #include <list>
 #include "TimedCall.h"
+#include "Collider.h"
 
 class BaseEnemyState;
 class Player;
 
-class Enemy {
+class Enemy: public Collider{
 public:
 
 	// 行動フェーズ
@@ -48,8 +49,7 @@ public:
 	// 座標のゲッター
 	Vector3 GetTranslation() const;
 
-	// ワールド座標を取得
-	Vector3 GetWorldPosition();
+
 
 	// 弾の発射
 	void Fire();
@@ -62,8 +62,9 @@ public:
 
 	void SetPlayer(Player* player) { player_ = player; }
 
-	// 衝突時コールバック
-	void OnCollision();
+
+	void OnCollision() override;
+	Vector3 GetWorldPosition() override;
 
 	// 弾リストの取得
 		// 弾リストの取得

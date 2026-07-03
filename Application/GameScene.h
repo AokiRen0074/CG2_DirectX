@@ -9,6 +9,7 @@
 
 class EnemyBullet;
 
+class Collider;
 
 class DirectXCommon;
 
@@ -21,6 +22,9 @@ public:
 
     //衝突判定と応答
     void CheckAllCollision();
+
+    // コライダー2つの衝突判定と応答
+    void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
     ~GameScene();
 

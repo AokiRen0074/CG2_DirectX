@@ -52,7 +52,7 @@ void EnemyBullet::Update() {
 		const float kHomingInterpolation = 0.05f; // 1フレームでの補間割合 
 		// 敵弾から自キャラへのベクトルを計算
 		Vector3 toPlayer;
-		Vector3 playerPos = player_->GetworldPosition();
+		Vector3 playerPos = player_->GetWorldPosition();
 		toPlayer.x = playerPos.x - worldTransform_.translation_.x;
 		toPlayer.y = playerPos.y - worldTransform_.translation_.y;
 		toPlayer.z = playerPos.z - worldTransform_.translation_.z;
@@ -108,7 +108,7 @@ void EnemyBullet::Draw(const ViewProjection& camera) {
 /*-----------------------------
 敵弾のワールド座標
 --------------------------------*/
-Vector3 EnemyBullet::GetWorldBulletPosition() {
+Vector3 EnemyBullet::GetWorldPosition() {
 	Vector3 worldPos;
 	// ワールド座標の平行移動成分を取得
 	worldPos.x = worldTransform_.matWorld_.m[3][0];
