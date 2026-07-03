@@ -43,9 +43,6 @@
     <Filter Include="Application\Character\Enemy">
       <UniqueIdentifier>{2fbed0aa-8e59-4f01-8c29-b12e7fbad36b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Neon">
-      <UniqueIdentifier>{ee710ce3-c69b-4474-998d-9cab56d6f7fb}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -146,21 +143,6 @@
     </ClCompile>
     <ClCompile Include="TimedCall.cpp">
       <Filter>Application</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.cpp">
-      <Filter>Engine\Neon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp">
-      <Filter>Engine\Neon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp">
-      <Filter>Engine\Neon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp">
-      <Filter>Engine\Neon</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.cpp">
-      <Filter>Engine\Neon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -275,21 +257,6 @@
     <ClInclude Include="TimedCall.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonSign.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
@@ -303,36 +270,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
     <None Include="Resources\Shaders\Object3d.VS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.VS.HLSL">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
       <Filter>Resources\Shader</Filter>
     </None>
   </ItemGroup>
