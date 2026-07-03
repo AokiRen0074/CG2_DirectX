@@ -11,58 +11,57 @@ class EnemyBullet;
 
 class Collider;
 
+class CollisionManager;
+
 class DirectXCommon;
 
 class GameScene {
 public:
 
-    void Initialize(DirectXCommon* dxCommon);
-    void Update();
-    void Draw();
+	void Initialize(DirectXCommon* dxCommon);
+	void Update();
+	void Draw();
 
-    //衝突判定と応答
-    void CheckAllCollision();
+	// 衝突マネージャーのポインタ
+	CollisionManager* collisionManager_ = nullptr;
 
-    // コライダー2つの衝突判定と応答
-    void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
-
-    ~GameScene();
+	~GameScene();
 
 private:
 
-    /*--------------------
-    自キャラ
-    ------------------------*/
-    Player* player_ = nullptr;
+	/*--------------------
+	自キャラ
+	------------------------*/
+	Player* player_ = nullptr;
 
-    //ModelData* modelData_ = nullptr;
-    uint32_t textureHandle_=0u;
+	//ModelData* modelData_ = nullptr;
+	uint32_t textureHandle_ = 0u;
 
-    /*---------------------
-    敵キャラ
-    -----------------------------*/
-    Enemy* enemy_ = nullptr;
-    Object3d* enemyObject_ = nullptr;
-    uint32_t enemyTex_ = 0u;
+	/*---------------------
+	敵キャラ
+	-----------------------------*/
+	Enemy* enemy_ = nullptr;
+	Object3d* enemyObject_ = nullptr;
+	uint32_t enemyTex_ = 0u;
 
-   /*-----------------------------
-   弾
-   ----------------------------------*/
-  
+	/*-----------------------------
+	弾
+	----------------------------------*/
 
-    // ゲームで使うカメラ
-    DebugCamera* debugCamera_ = nullptr;
-    bool isDebugCameraActive_ = false;
 
-    // ゲームで使うオブジェクト達
-    Object3d* object3d_ = nullptr;
-    Sprite* sprite_ = nullptr;
+	// ゲームで使うカメラ
+	DebugCamera* debugCamera_ = nullptr;
+	bool isDebugCameraActive_ = false;
 
-    // ビュープロジェクション
-    ViewProjection viewProjection_;
+	// ゲームで使うオブジェクト達
+	Object3d* object3d_ = nullptr;
+	Sprite* sprite_ = nullptr;
 
-    // 音声データ
-    SoundData soundData_;
+	// ビュープロジェクション
+	ViewProjection viewProjection_;
 
-    //Object3d* bulletModel_ = nullptr;
+	// 音声データ
+	SoundData soundData_;
+
+	//Object3d* bulletModel_ = nullptr;
 };

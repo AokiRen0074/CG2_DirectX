@@ -5,6 +5,8 @@
 #include "AxisIndicator.h"
 #include "GlobalValiables.h"
 #include <cmath>
+#include "CollisionManager.h"
+
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
 #endif
@@ -19,6 +21,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
 	delete enemy_;
+	delete collisionManager_;
 	//delete bulletModel_;
 }
 
@@ -86,9 +89,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 
 	/*-------------------------
-	弾
+	衝突マネージャー
 	------------------------------*/
-
+	collisionManager_ = new CollisionManager();
 
 
 	/*-----------------------
@@ -105,71 +108,6 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 }
 
 
-void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) {
-
-	if ((colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) == 0 ||
-		(colliderB->GetCollisionAttribute() & colliderA->GetCollisionMask()) == 0) {
-		return;
-	}
-
-	Vector3 posA = colliderA->GetWorldPosition();
-	Vector3 posB = colliderB->GetWorldPosition();
-
-	float dx = posB.x - posA.x;
-	float dy = posB.y - posA.y;
-	float dz = posB.z - posA.z;
-	float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-
-	if (dist <= colliderA->GetRadius() + colliderB->GetRadius()) {
-		// コライダーAとBの衝突時コールバックを呼び出す
-		colliderA->OnCollision();
-		colliderB->OnCollision();
-	}
-}
-
-void GameScene::CheckAllCollision() {
-	if (!player_ || !enemy_) return;
-
-	// すべてのコライダーを1つのリストに集める
-	std::list<Collider*> colliders_;
-
-	// キャラクターをリストに登録
-	colliders_.push_back(player_);
-	colliders_.push_back(enemy_);
-
-	// 自弾をリストに登録
-	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-	for (PlayerBullet* pBullet : playerBullets) {
-		if (!pBullet->IsDead()) {
-			colliders_.push_back(pBullet);
-		}
-	}
-
-	// 敵弾をリストに登録
-	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
-	for (EnemyBullet* eBullet : enemyBullets) {
-		if (!eBullet->IsDead()) {
-			colliders_.push_back(eBullet);
-		}
-	}
-
-	// リスト内のペアを総当たり
-	std::list<Collider*>::iterator itrA = colliders_.begin();
-	for (; itrA != colliders_.end(); ++itrA) {
-		// イテレータAからコライダーAを取得する
-		Collider* colliderA = *itrA;
-		std::list<Collider*>::iterator itrB = itrA;
-		itrB++;
-
-		for (; itrB != colliders_.end(); ++itrB) {
-			// イテレータBからコライダーBを取得する
-			Collider* colliderB = *itrB;
-
-			// ペアの当たり判定
-			CheckCollisionPair(colliderA, colliderB);
-		}
-	}
-}
 
 void GameScene::Update() {
 	/*-------------------------
@@ -217,7 +155,39 @@ void GameScene::Update() {
 
 	AxisIndicator::GetInstance()->Update();
 
-	CheckAllCollision();
+	/*-----------------------
+	当たり判定処理
+	-------------------------*/
+	collisionManager_->ClearColliders();
+
+	// コライダーを全て衝突マネージャのリストに登録する
+	if (player_) {
+		collisionManager_->AddCollider(player_);
+
+		// 自弾を登録
+		const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+		for (PlayerBullet* pBullet : playerBullets) {
+			if (!pBullet->IsDead()) {
+				collisionManager_->AddCollider(pBullet);
+			}
+		}
+	}
+
+	if (enemy_) {
+		collisionManager_->AddCollider(enemy_);
+
+		// 敵弾を登録
+		const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+		for (EnemyBullet* eBullet : enemyBullets) {
+			if (!eBullet->IsDead()) {
+				collisionManager_->AddCollider(eBullet);
+			}
+		}
+	}
+
+	// 衝突マネージャの当たり判定処理を呼び出す
+	collisionManager_->CheckAllCollisions();
+
 
 
 #ifdef USE_IMGUI

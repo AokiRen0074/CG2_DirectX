@@ -144,6 +144,9 @@
     <ClCompile Include="TimedCall.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="CollisionManager.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -261,6 +264,9 @@
       <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="CollisionConfig.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionManager.h">
       <Filter>Application</Filter>
     </ClInclude>
   </ItemGroup>
