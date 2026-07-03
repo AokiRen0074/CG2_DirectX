@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include "EnemyStateApproach.h"
 #include <cassert>
+#include "cmath"
+#include "Application/Character/Player.h"
 
 
 #ifdef USE_IMGUI
@@ -36,6 +38,9 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
 	worldTransform_.translation_ = { 0.0f, 0.0f, 50.0f };
+	
+	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.TransferMatrix();
 
 	// 最初の状態
 	state_ = new EnemyStateApproach();
@@ -68,13 +73,37 @@ void Enemy::FireAndReset() {
 
 void Enemy::Fire() {
 
+	assert(player_);
 
-	// 弾の速度
+	// 弾の速さ
 	const float kBulletSpeed = 1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
+
+	Vector3 playerPos = player_->GetworldPosition();
+	// 敵キャラ自身のワールド座標を取得する
+	Vector3 enemyPos = GetWorldPosition();
+
+	// 敵から自キャラへの差分ベクトルを求める
+	Vector3 velocity;
+	velocity.x = playerPos.x - enemyPos.x;
+	velocity.y = playerPos.y - enemyPos.y;
+	velocity.z = playerPos.z - enemyPos.z;
+
+	// ベクトルの正規化
+
+	float length = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
+	if (length != 0.0f) {
+		velocity.x /= length;
+		velocity.y /= length;
+		velocity.z /= length;
+	}
+
+	// ベクトルの長さを速さに合わせる
+	velocity.x *= kBulletSpeed;
+	velocity.y *= kBulletSpeed;
+	velocity.z *= kBulletSpeed;
 
 	EnemyBullet* newBullet = new EnemyBullet();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	newBullet->Initialize(model_, enemyPos, velocity);
 
 	// 弾を登録する
 	bullets_.push_back(newBullet);
@@ -193,4 +222,15 @@ void Enemy::ClearTimedCalls() {
 		delete timedCall;
 	}
 	timedCalls_.clear();
+}
+
+Vector3 Enemy::GetWorldPosition() {
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得
+	worldPos.x = worldTransform_.matWorld_.m[3][0]; 
+	worldPos.y = worldTransform_.matWorld_.m[3][1]; 
+	worldPos.z = worldTransform_.matWorld_.m[3][2]; 
+
+	return worldPos;
 }

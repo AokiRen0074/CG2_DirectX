@@ -24,9 +24,9 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 
 void EnemyBullet::Update() {
 
-	worldTransform_.translation_.x -= velocity_.x;
-	worldTransform_.translation_.y -= velocity_.y;
-	worldTransform_.translation_.z -= velocity_.z;
+	worldTransform_.translation_.x += velocity_.x;
+	worldTransform_.translation_.y += velocity_.y;
+	worldTransform_.translation_.z += velocity_.z;
 
 	// 時間経過でデス
 	if (--deathTimer_ <= 0) {

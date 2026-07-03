@@ -48,6 +48,9 @@ public:
 	// 座標のゲッター
 	Vector3 GetTranslation() const;
 
+	// ワールド座標を取得
+	Vector3 GetWorldPosition();
+
 	// 弾の発射
 	void Fire();
 

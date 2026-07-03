@@ -77,11 +77,13 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	// 敵キャラの生成
 	enemy_ = new Enemy();
 
+	// 敵キャラに自キャラのアドレスを渡す
+	enemy_->SetPlayer(player_);
+
 	// 敵キャラの生成
 	enemy_->Initialize(enemyObject_, enemyTex_);
 
-	// 敵キャラに自キャラのアドレスを渡す
-	enemy_->SetPlayer(player_);
+
 
 	/*-------------------------
 	弾

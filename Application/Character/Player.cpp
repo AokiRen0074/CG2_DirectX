@@ -221,10 +221,13 @@ void Player::Draw(const ViewProjection& viewProjection) {
 
 }
 
-/*
-Vector3 GetWorldPosition() {
+
+Vector3  Player::GetworldPosition() {
 	Vector3 worldPos;
 	// ワールド座標の平行移動成分を取得
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
+	return worldPos;
 }
-*/
