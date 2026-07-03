@@ -31,4 +31,7 @@ float Length(const Vector3& v);
 // 三次元ベクトルの正規化
 Vector3 Normalize(const Vector3& v);
 
+// Slerp
+Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t);
+
 

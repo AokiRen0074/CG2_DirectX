@@ -1,6 +1,7 @@
 #include "EnemyBullet.h"
 #include "cassert"
 #include "TextureManager.h"
+#include "Application/Character/Player.h"
 
 void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vector3& velocity){
 	assert(model);
@@ -37,6 +38,45 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 
 void EnemyBullet::Update() {
 
+	// ホーミング
+	if (player_) {
+		const float kBulletSpeed = 1.0f; // 敵弾の速さ
+		const float kHomingInterpolation = 0.05f; // 1フレームでの補間割合 
+		// 敵弾から自キャラへのベクトルを計算
+		Vector3 toPlayer;
+		Vector3 playerPos = player_->GetworldPosition();
+		toPlayer.x = playerPos.x - worldTransform_.translation_.x;
+		toPlayer.y = playerPos.y - worldTransform_.translation_.y;
+		toPlayer.z = playerPos.z - worldTransform_.translation_.z;
+
+		// ベクトルを正規化する
+		float lengthToPlayer = std::sqrt(toPlayer.x * toPlayer.x + toPlayer.y * toPlayer.y + toPlayer.z * toPlayer.z);
+		if (lengthToPlayer != 0.0f) {
+			toPlayer.x /= lengthToPlayer;
+			toPlayer.y /= lengthToPlayer;
+			toPlayer.z /= lengthToPlayer;
+		}
+
+		float lengthVelocity = std::sqrt(velocity_.x * velocity_.x + velocity_.y * velocity_.y + velocity_.z * velocity_.z);
+		if (lengthVelocity != 0.0f) {
+			velocity_.x /= lengthVelocity;
+			velocity_.y /= lengthVelocity;
+			velocity_.z /= lengthVelocity;
+		}
+
+		// 球面線形補間により、新たな速度とする
+		Vector3 slerpVelocity = Slerp(velocity_, toPlayer, kHomingInterpolation);
+		velocity_.x = slerpVelocity.x * kBulletSpeed;
+		velocity_.y = slerpVelocity.y * kBulletSpeed;
+		velocity_.z = slerpVelocity.z * kBulletSpeed;
+
+		// 進行方向に見た目の回転を合わせる
+		worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+		float xzLength = std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z);
+		worldTransform_.rotation_.x = std::atan2(-velocity_.y, xzLength);
+	}
+
+	// 座標の更新
 	worldTransform_.translation_.x += velocity_.x;
 	worldTransform_.translation_.y += velocity_.y;
 	worldTransform_.translation_.z += velocity_.z;

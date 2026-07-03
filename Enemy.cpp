@@ -70,7 +70,9 @@ void Enemy::FireAndReset() {
 }
 
 
-
+/*-------------------------------
+攻撃
+--------------------------------*/
 void Enemy::Fire() {
 
 	assert(player_);
@@ -103,6 +105,7 @@ void Enemy::Fire() {
 	velocity.z *= kBulletSpeed;
 
 	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->SetPlayer(player_);
 	newBullet->Initialize(model_, enemyPos, velocity);
 
 	// 弾を登録する

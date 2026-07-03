@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 
+class Player;
 
 class EnemyBullet {
 public:
@@ -17,6 +18,9 @@ public:
 
 	// ゲッター
 	bool IsDead() const { return isDead_; }
+
+	// 自キャラのポインタを受け取る関数
+	void SetPlayer(Player* player) { player_ = player; }
 
 private:
 	WorldTransform worldTransform_;
@@ -34,5 +38,8 @@ private:
 
 	// デスフラグ
 	bool isDead_ = false;
+
+
+	Player* player_;
 
 };
