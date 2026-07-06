@@ -231,7 +231,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="NeonModel.PS.hlsl" />
+    <None Include="NeonModel.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
       <FileType>Document</FileType>
     </None>

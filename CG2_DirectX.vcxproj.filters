@@ -312,9 +312,6 @@
     <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl">
       <Filter>Resources\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="NeonModel.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.PS.hlsl">
@@ -342,6 +339,9 @@
       <Filter>Resources\Shader</Filter>
     </None>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="NeonModel.PS.hlsl">
       <Filter>Resources\Shader</Filter>
     </None>
   </ItemGroup>
