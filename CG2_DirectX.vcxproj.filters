@@ -162,6 +162,9 @@
     <ClCompile Include="NeonSign.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
+    <ClCompile Include="NeonText.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -290,6 +293,9 @@
     <ClInclude Include="NeonSign.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
+    <ClInclude Include="NeonText.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
@@ -304,6 +310,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="NeonModel.PS.hlsl">
       <Filter>Resources\Shader</Filter>
     </FxCompile>
   </ItemGroup>

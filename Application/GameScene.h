@@ -9,6 +9,7 @@
 #include "NeonSign.h"
 #include "DirectXCommon.h"
 #include "Bloom.h"
+#include "NeonText.h"
 
 
 
@@ -21,9 +22,7 @@ public:
     void Update();
     void Draw();
 
-    void PrintNeon(const std::string& text, float startX, float startY, float scale);
-    void CreateLetter(char c, float baseX, float baseY, float scale);
-
+    
     ~GameScene();
 
 private:
@@ -61,9 +60,8 @@ private:
 
     //Object3d* bulletModel_ = nullptr;
     NeonSign* neonSign_ = nullptr;
-    std::vector<NeonSign*> neonSigns_;
     float globalTubeLength_ = 2.0f;
-
+    NeonText* neonText_ = nullptr;
     DirectXCommon* dxCommon_ = nullptr;
     Bloom* bloom_ = nullptr;
 };

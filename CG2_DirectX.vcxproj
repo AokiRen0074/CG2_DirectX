@@ -160,6 +160,7 @@
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="NeonSign.cpp" />
+    <ClCompile Include="NeonText.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
@@ -178,6 +179,7 @@
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
     <ClInclude Include="NeonSign.h" />
+    <ClInclude Include="NeonText.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />
@@ -229,6 +231,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="NeonModel.PS.hlsl" />
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
       <FileType>Document</FileType>
     </None>
