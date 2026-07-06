@@ -6,6 +6,10 @@
 #include "ViewProjection.h"
 #include "Application/Character/Player.h"
 #include "Enemy.h"
+#include "NeonSign.h"
+#include "DirectXCommon.h"
+#include "Bloom.h"
+#include "NeonText.h"
 
 class Skydome;
 
@@ -68,5 +72,10 @@ private:
 	// 音声データ
 	SoundData soundData_;
 
-	//Object3d* bulletModel_ = nullptr;
+    //Object3d* bulletModel_ = nullptr;
+    NeonSign* neonSign_ = nullptr;
+    float globalTubeLength_ = 2.0f;
+    NeonText* neonText_ = nullptr;
+    DirectXCommon* dxCommon_ = nullptr;
+    Bloom* bloom_ = nullptr;
 };

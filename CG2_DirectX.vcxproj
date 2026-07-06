@@ -96,6 +96,10 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.cpp" />
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp" />
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp" />
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp" />
     <ClCompile Include="Application\AxisIndicator.cpp" />
     <ClCompile Include="Application\Character\Player.cpp" />
     <ClCompile Include="Application\GameScene.cpp" />
@@ -156,11 +160,17 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="NeonSign.cpp" />
+    <ClCompile Include="NeonText.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.h" />
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h" />
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h" />
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h" />
     <ClInclude Include="Application\AxisIndicator.h" />
     <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
@@ -173,6 +183,8 @@
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
+    <ClInclude Include="NeonSign.h" />
+    <ClInclude Include="NeonText.h" />
     <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />
@@ -221,6 +233,36 @@
       <FileType>Document</FileType>
     </Text>
     <None Include="Resources\Shaders\Object3d.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NeonModel.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl" />
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.VS.HLSL">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

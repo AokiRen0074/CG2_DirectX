@@ -4,6 +4,7 @@
 #include "Application/Character/Player.h"
 #include "AxisIndicator.h"
 #include "GlobalValiables.h"
+#include "WindowApp.h"
 #include <cmath>
 #include "CollisionManager.h"
 #include "Skydome.h"
@@ -13,6 +14,8 @@
 #endif
 
 
+
+		
 
 
 
@@ -30,6 +33,18 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
+	dxCommon_ = dxCommon;
+	neonText_ = new NeonText();
+
+
+	neonText_->Initialize(dxCommon_);
+	neonText_->Print("NEON", -3.0f, 0.0f, 0.7f);
+
+	bloom_ = new Bloom();
+	// 画面サイズ（1280x720）を渡す
+	bloom_->Initialize(dxCommon_, WindowApp::kClientWidth, WindowApp::kClientHeight);
+
+
 	/*-------------------------------
 	ワールドトランスフォーム
 	----------------------------------*/
@@ -44,6 +59,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	ビュープロジェクションの初期化
 	---------------------------------*/
 	viewProjection_.Initialize();
+	viewProjection_.translation_.z = -20.0f;
+	viewProjection_.UpdateMatrix();
 
 
 	/*-------------------------------
@@ -110,6 +127,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	collisionManager_ = new CollisionManager();
 
 
+
 	/*-----------------------
 	軸表示
 	------------------------*/
@@ -126,6 +144,23 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 
 void GameScene::Update() {
+
+	static float neonRadius = 0.03f;
+	static float neonSoftness = 15.0f;
+	static float neonIntensity = 8.0f;
+	static float neonColor[3] = { 0.0f, 0.8f, 1.0f };
+	static float neonLengthOffset = -0.2f;
+
+#ifdef USE_IMGUI
+	ImGui::Begin("Neon Control Panel");
+	ImGui::SliderFloat("Radius (太さ)", &neonRadius, 0.001f, 0.1f);
+	ImGui::SliderFloat("Length Offset (長さ微調整)", &neonLengthOffset, -1.0f, 1.0f);
+	ImGui::SliderFloat("Softness (ぼかし)", &neonSoftness, 0.1f, 50.0f);
+	ImGui::SliderFloat("Intensity (光の強さ)", &neonIntensity, 0.1f, 20.0f);
+	ImGui::ColorEdit3("Color (色)", neonColor);
+	ImGui::End();
+#endif
+
 	/*-------------------------
 	デバッグカメラ
 	--------------------------*/
@@ -153,6 +188,8 @@ void GameScene::Update() {
 
 	player_->Update();
 
+
+
 	/*------------------
 	敵キャラ更新
 	------------------*/
@@ -171,6 +208,20 @@ void GameScene::Update() {
 
 		// ここで安全に取得する
 		object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+	}
+
+
+	neonText_->SetMaterial(neonRadius, neonSoftness, neonIntensity, neonColor[0], neonColor[1], neonColor[2], neonLengthOffset);
+
+	if (neonText_ != nullptr) {
+		neonText_->SetMaterial(neonRadius, neonSoftness, neonIntensity, neonColor[0], neonColor[1], neonColor[2], neonLengthOffset);
+
+		if (isDebugCameraActive_ && debugCamera_ != nullptr) {
+			neonText_->Update(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+		}
+		else {
+			neonText_->Update(viewProjection_.matView, viewProjection_.matProjection);
+		}
 	}
 
 	AxisIndicator::GetInstance()->Update();
@@ -218,23 +269,34 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-	if (skydome_) {
-		skydome_->Draw(viewProjection_);
-	}
-
 	// 軸方向描画
 	AxisIndicator::GetInstance()->Draw();
-
-	/*-------------------
-	自キャラ描画
-	--------------------*/
-
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
-
-	player_->Draw(viewProjection_);
-
+	player_->Draw(viewProjection_); // 普通の3Dプレイヤー
 
 
+	// ==========================================
+	// 2. ネオンの描画（ここからHDRキャンバス R16G16B16A16 に切り替え！）
+	// ==========================================
+	bloom_->PreDraw(); // キャンバスを切り替え
+
+	if (neonText_ != nullptr) {
+		neonText_->Draw();
+	}
+	// もしネオン自機（neonPlayer_）などがいるなら、それもここでDrawする
+
+	bloom_->PostDraw(); // HDRキャンバスへの書き込み終了
+
+
+	// ==========================================
+	// 3. 仕上げの魔法（ぼかして光を溢れさせ、モニターに合成する）
+	// ==========================================
+	bloom_->Execute();    // コンピュートシェーダーでぼかし計算
+	bloom_->DrawResult(); // モニターに最終結果をドン！と描画
 }
+
+
+
+

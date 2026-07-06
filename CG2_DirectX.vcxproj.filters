@@ -150,6 +150,18 @@
     <ClCompile Include="Skydome.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
+    <ClCompile Include="NeonSign.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
+    <ClCompile Include="NeonText.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -272,6 +284,14 @@
     <ClInclude Include="CollisionManager.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
+    <ClInclude Include="NeonSign.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
+    <ClInclude Include="NeonText.h">
+      <Filter>Engine\Neon</Filter>
     <ClInclude Include="Skydome.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
@@ -289,6 +309,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\Object3d.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.VS.HLSL">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="NeonModel.PS.hlsl">
       <Filter>Resources\Shader</Filter>
     </None>
   </ItemGroup>
