@@ -40,4 +40,6 @@ private:
 	float intensity_ = 8.0f;
 	float color_[3] = { 0.0f, 0.8f, 1.0f };
 	float lengthOffset_ = -0.2f;
+
+	float time_ = 0.0f;
 };

@@ -6,6 +6,9 @@
 #include "PlayerBullet.h"
 #include <list>
 #include "Collider.h"
+#include "NeonModel.h"
+#include "BodyModel.h"
+
 class Player: public Collider {
 public:
 
@@ -13,12 +16,15 @@ public:
 	プレイヤー系
 	-------------------------*/
 	// 初期化
-	void Initialize(Object3d* model, uint32_t textureHandle);
+	void Initialize();
 	// 更新処理
 	void Update();
 
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);
+
+	// ネオンのもの
+	void DrawNeon(const ViewProjection& viewProjection);
 
 	// 弾のモデルのセット
 //	void SetBulletModel(Object3d* bulletModel) { bulletModel_ = bulletModel; }
@@ -74,10 +80,38 @@ private:
 	// プレイヤーの速さ
 	static inline float kCharacterSpeed = 0.2f;
 
+	// ネオン調整用
+	float neonColor_[3] = { 1.0f, 0.2f, 1.0f }; // RGB
+	float neonIntensity_ = 8.0f;                // 光の強さ
+
+	//  暗いボディ調整用の変数（初期値は黒紫）
+	float bodyColor_[3] = { 0.1f, 0.05f, 0.15f }; // RGB
+
+	// --- 暗いパーツ---
+	BodyModel* modelCore_ = nullptr;
+	BodyModel* modelOuterRing_ = nullptr;
+	BodyModel* modelWingBase_ = nullptr;
+
+	// --- 光るパーツ）---
+	NeonModel* modelInnerRing_ = nullptr; //  中のリング 
+	NeonModel* modelWingNeon_ = nullptr; //  羽の光る部分 
+
+
+
+	WorldTransform transformRot_;  // 回るパーツ用
+	WorldTransform transformStat_; // 回らないパーツ用）
+
+	float coreSpinAngle_ = 0.0f;   // 回転角度タイマー
+
+	// 嘘
+	uint32_t dummyTexture_ = 0u;
+
 	/*-------------------------
 	弾
 	-----------------------------*/
 	PlayerBullet* bullet_ = nullptr;
 	std::list<PlayerBullet*>bullets_;
+
+	NeonModel* bulletModel_ = nullptr;
 
 };

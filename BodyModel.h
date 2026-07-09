@@ -14,7 +14,7 @@
 #include "Model.h"
 
 
-class Object3d {
+class BodyModel {
 
 public:
 	struct Transform {
@@ -56,7 +56,7 @@ public:
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
 
-	static Object3d* Create(const std::string& directoryPath, const std::string& filename);
+	static BodyModel* Create(const std::string& directoryPath, const std::string& filename);
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
@@ -67,6 +67,12 @@ public:
 		projectionMatrix_ = projection;
 	}
 
+	void SetLight(float intensity, float r, float g, float b, const Vector3& direction) {
+		directionalLightData_->intensity = intensity;
+		directionalLightData_->color = { r, g, b, 1.0f };
+		directionalLightData_->direction = direction;
+	}
+
 	// ネオン用の
 	void SetColor(float r, float g, float b, float a) {
 		for (auto& meshRes : meshResources_) {
@@ -75,8 +81,6 @@ public:
 			}
 		}
 	}
-
-
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 

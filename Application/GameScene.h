@@ -10,6 +10,9 @@
 #include "DirectXCommon.h"
 #include "Bloom.h"
 #include "NeonText.h"
+#include "NeonModel.h"
+#include "NeonObj.h"
+#include "ProceduralNeon.h"
 
 class Skydome;
 
@@ -72,10 +75,18 @@ private:
 	// 音声データ
 	SoundData soundData_;
 
+	/*-------------------------
+	ネオン
+	---------------------------*/
     //Object3d* bulletModel_ = nullptr;
     NeonSign* neonSign_ = nullptr;
     float globalTubeLength_ = 2.0f;
     NeonText* neonText_ = nullptr;
     DirectXCommon* dxCommon_ = nullptr;
     Bloom* bloom_ = nullptr;
+	NeonText* neonText_Open_ = nullptr;   // 文字用
+	NeonText* neonText_Border_ = nullptr;
+
+	NeonObj* myNeonBar_ = nullptr;
+	ProceduralNeon* procNeon_ = nullptr;
 };

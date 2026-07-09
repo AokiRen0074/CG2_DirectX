@@ -14,7 +14,7 @@
 #include "Model.h"
 
 
-class Object3d {
+class NeonModel {
 
 public:
 	struct Transform {
@@ -28,6 +28,11 @@ public:
 		int32_t enableLighting;
 		float padding[3];
 		Matrix4x4 uvTransform;
+
+		Vector3 cameraPos;
+		float intensity;
+		float radius;
+		float padding2[3];
 	};
 
 	struct DirectionalLight {
@@ -54,9 +59,12 @@ public:
 		D3D12_GPU_DESCRIPTOR_HANDLE textureHandleGPU{}; // このパーツが使うテクスチャのハンドル
 	};
 
+	// 色と発光強度をセットする関数
+	void SetNeonColor(float intensity, float r, float g, float b);
+
 	static void StaticInitialize(DirectXCommon* dxCommon);
 
-	static Object3d* Create(const std::string& directoryPath, const std::string& filename);
+	static NeonModel* Create(const std::string& directoryPath, const std::string& filename);
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
@@ -67,17 +75,7 @@ public:
 		projectionMatrix_ = projection;
 	}
 
-	// ネオン用の
-	void SetColor(float r, float g, float b, float a) {
-		for (auto& meshRes : meshResources_) {
-			if (meshRes.materialData != nullptr) {
-				meshRes.materialData->color = { r, g, b, a };
-			}
-		}
-	}
-
-
-
+	
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 
 	// ゲッター

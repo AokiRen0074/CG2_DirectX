@@ -1,31 +1,44 @@
-// NeonModel.PS.hlsl
-
-// C++側の ColorData と完全に一致させる定数バッファ
-cbuffer NeonSettings : register(b1)
+struct Material
 {
-    float4 neonColor;
+    float4 color;
+    int enableLighting;
+    float3 padding;
+    float4x4 uvTransform;
+
+    float3 cameraPos;
     float intensity;
-    float radius; // 3Dモデルでは使わないですが、C++側の構造体に合わせるために残します
-    float softness; // 同上
-    float length; // 同上
+    float radius;
+    float3 padding2;
 };
 
-// 頂点シェーダーから渡ってくるデータ（Object3d系のVSと合わせます）
+ConstantBuffer<Material> gMaterial : register(b0);
+
 struct VSOutput
 {
-    float4 pos : SV_POSITION;
-    float2 uv : TEXCOORD;
+    float4 position : SV_POSITION;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
+    
+    //  VSから来る世界座標を受け取る
+    float3 worldPos : TEXCOORD1;
 };
 
 float4 main(VSOutput input) : SV_TARGET
 {
-    // ==========================================
-    // 3Dモデル専用のネオン発光計算
-    // ==========================================
-    
-    // ネオンの色に強度(intensity)を掛けて、1.0以上のHDRカラー（爆光）を作る！
-    // Bloomシェーダーがこの「1.0を超えた光」を検知してボワっと光らせてくれます。
-    float3 hdrColor = neonColor.rgb * intensity;
+    //  Player救済ロジック：intensityが0なら従来通りのベタ塗り（これでプレイヤーが復活する）
+    if (gMaterial.intensity <= 0.0f)
+    {
+        return gMaterial.color;
+    }
 
-    return float4(hdrColor, 1.0f);
+    //  リアルなネオンの計算（フレネル）
+    float3 N = normalize(input.normal);
+    float3 V = normalize(gMaterial.cameraPos - input.worldPos);
+    float facing = abs(dot(N, V));
+    float core = pow(facing, max(gMaterial.radius, 0.01f));
+    
+    float3 baseColor = gMaterial.color.rgb;
+    float3 finalColor = lerp(baseColor, float3(1.0f, 1.0f, 1.0f), core);
+    
+    return float4(finalColor * gMaterial.intensity, gMaterial.color.a);
 }

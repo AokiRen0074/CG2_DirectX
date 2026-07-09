@@ -2,37 +2,31 @@
 // 構造体の定義
 // ==========================================
 
-// 座標変換行列
 struct TransformationMatrix
 {
-    float32_t4x4 WVP;
-    float32_t4x4 World;
+    float4x4 WVP;
+    float4x4 World;
 };
 
-// C++から受け取る入力データ
 struct VertexShaderInput
 {
-    float32_t4 position : POSITION0;
-    float32_t2 texcoord : TEXCOORD0;
-    float32_t3 normal : NORMAL0;
+    float4 position : POSITION0;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
 };
 
-// ピクセルシェーダーへ送る出力データ
 struct VertexShaderOutput
 {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
     float3 normal : NORMAL0;
-    
-    //  唯一の追加点：ワールド座標をPSに投げるためのセマンティクス
-    float3 worldPos : TEXCOORD1;
+    float3 worldPos : POSITION;
 };
 
-// 定数バッファ
 ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
 
 // ==========================================
-// メイン関数
+// メイン関数 (エントリーポイント)
 // ==========================================
 VertexShaderOutput main(VertexShaderInput input)
 {
@@ -45,9 +39,9 @@ VertexShaderOutput main(VertexShaderInput input)
     output.texcoord = input.texcoord;
     
     // 法線をワールド座標系に変換し、正規化する
-    output.normal = normalize(mul(input.normal, (float32_t3x3) gTransformationMatrix.World));
+    output.normal = normalize(mul(input.normal, (float3x3) gTransformationMatrix.World));
     
-    //  これが原因のエラーを消すための1行
+    // 🌟 ワールド座標を計算してPSへ送る
     output.worldPos = mul(input.position, gTransformationMatrix.World).xyz;
     
     return output;

@@ -52,11 +52,26 @@ void NeonText::SetMaterial(float radius, float softness, float intensity, float 
 // 更新処理
 // ==========================================
 void NeonText::Update(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMatrix) {
-	for (NeonSign* sign : neonSigns_) {
-		// 記憶しているマテリアルを各パーツに送信
-		sign->SetMaterial(radius_, softness_, intensity_, color_[0], color_[1], color_[2], lengthOffset_);
+	// 1フレームごとに時間を進める (60FPS想定)
+	time_ += 1.0f / 60.0f;
 
-		// 行列の更新
+	float currentIntensity = intensity_;
+
+	// サイン波が特定の波（0.7以上）に来た時だけ、ランダムでノイズを走らせる
+	if (sinf(time_ * 12.0f) > 0.7f) {
+		// 0.2 ～ 1.0 の間で激しく明るさがブレる
+		float noise = (rand() % 100) / 100.0f;
+		currentIntensity *= (0.2f + noise * 0.8f);
+	}
+	// さらに稀に、一瞬だけ完全に消える（バグったような表現）
+	if (rand() % 1000 < 8) {
+		currentIntensity = 0.0f;
+	}
+
+	for (NeonSign* sign : neonSigns_) {
+		// 💥 計算した currentIntensity を各パーツに送る！
+		sign->SetMaterial(radius_, softness_, currentIntensity, color_[0], color_[1], color_[2], lengthOffset_);
+
 		sign->UpdateCamera(viewMatrix, projectionMatrix);
 	}
 }

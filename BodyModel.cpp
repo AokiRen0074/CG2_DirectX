@@ -1,4 +1,4 @@
-#include "Object3d.h"
+#include "BodyModel.h"
 #include <cassert>
 #include "DirectXCommon.h" 
 #include "WindowApp.h"
@@ -12,28 +12,28 @@
 #include "externals/imgui/imgui_impl_win32.h"
 #endif
 
-DirectXCommon* Object3d::sDxCommon_ = nullptr;
+DirectXCommon* BodyModel::sDxCommon_ = nullptr;
 
 
-void Object3d::StaticInitialize(DirectXCommon* dxCommon) {
+void BodyModel::StaticInitialize(DirectXCommon* dxCommon) {
 	sDxCommon_ = dxCommon;
 }
 
 //Create関数
-Object3d* Object3d::Create(const std::string& directoryPath, const std::string& filename) {
+BodyModel* BodyModel::Create(const std::string& directoryPath, const std::string& filename) {
 	// メモリを確保
-	Object3d* object3d = new Object3d();
+	BodyModel* bodyModel = new BodyModel();
 
 	// 初期化処理
-	object3d->Initialize(directoryPath, filename);
+	bodyModel->Initialize(directoryPath, filename);
 
-	return object3d;
+	return bodyModel;
 }
 
 /*--------------------------
 初期化
 -----------------------------------*/
-void Object3d::Initialize(const std::string& directoryPath, const std::string& filename) {
+void BodyModel::Initialize(const std::string& directoryPath, const std::string& filename) {
 
 	dxCommon_ = sDxCommon_;
 	ID3D12Device* device = dxCommon_->GetDevice();
@@ -150,14 +150,16 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.VS.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob =
+		dxCommon_->CompilerShader(L"Resources/Shaders/BodyModel.VS.hlsl",
 		L"vs_6_0", dxCommon_->GetDxcUtils(),
 		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
 	);
 	assert(vertexShaderBlob != nullptr);
 
 
-	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
+	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob =
+		dxCommon_->CompilerShader(L"Resources/Shaders/BodyModel.PS.hlsl",
 		L"ps_6_0", dxCommon_->GetDxcUtils(),
 		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
 	);
@@ -356,12 +358,12 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 // ==========================================
 // 更新
 // ==========================================
-void Object3d::Update() {
+void BodyModel::Update() {
 	//transform_.rotate.y += 0.03f;
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
-	
+
 
 	wvpData_->WVP = worldViewProjectionMatrix;
 	wvpData_->World = worldMatrix;
@@ -390,13 +392,13 @@ void Object3d::Update() {
 	}
 	ImGui::End();
 #endif
-	
+
 }
 
 // ==========================================
 // 描画
 // ==========================================
-void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
+void BodyModel::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;
@@ -457,7 +459,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 // ==========================================
 // バッファ作成用ヘルパー
 // ==========================================
-Microsoft::WRL::ComPtr<ID3D12Resource> Object3d::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
+Microsoft::WRL::ComPtr<ID3D12Resource> BodyModel::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
 	D3D12_RESOURCE_DESC resourceDesc{};

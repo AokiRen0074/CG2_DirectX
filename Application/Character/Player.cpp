@@ -5,6 +5,9 @@
 #include <externals/nlohmann/json.hpp>
 #include "GlobalValiables.h"
 #include "CollisionConfig.h"
+#include "BodyModel.h"
+#include <cmath>
+
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -18,22 +21,49 @@ Player::~Player() {
 		delete bullet;
 
 	}
+
+	delete modelCore_;
+	delete modelOuterRing_;
+	delete modelWingBase_;
+	delete modelInnerRing_;
+	delete modelWingNeon_;
 }
 
 /*----------------
 初期化
 -----------------------*/
-void Player::Initialize(Object3d* model, uint32_t textureHandle) {
-	assert(model);
+void Player::Initialize() {
 
-	model_ = model;
+	dummyTexture_ = TextureManager::Load("Resources/Player/Playertex.png");
 
-	textureHandle_ = textureHandle;
-
-	worldTransform_.Initialize();
 
 	// テクスチャ読み込み
 	//textureHandle_ = TextureManager::Load("Resources/block.png");
+
+
+	worldTransform_.Initialize();
+	transformRot_.Initialize();
+	transformStat_.Initialize();
+
+	// 動かないring
+	modelOuterRing_ = new BodyModel();
+	modelOuterRing_->Initialize("Resources/Player", "mech_PlayerRing.obj");
+
+	// コア
+	modelCore_ = new BodyModel();
+	modelCore_->Initialize("Resources/Player", "mech_core.obj");
+
+	// 羽
+	modelWingBase_ = new BodyModel();
+	modelWingBase_->Initialize("Resources/Player", "mech_wing.obj");
+
+	// --- 光るパーツ ---
+	modelInnerRing_ = new NeonModel();
+	modelInnerRing_->Initialize("Resources/Player", "mech_core.ring.obj");
+
+	modelWingNeon_ = new NeonModel();
+	modelWingNeon_->Initialize("Resources/Player", "mech_Neonwing.obj");
+
 
 
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
@@ -54,6 +84,11 @@ void Player::Initialize(Object3d* model, uint32_t textureHandle) {
 
 	globalVariables->AddItem(groupName, "moveSpeed", kCharacterSpeed);
 
+	/*----------------------------
+	弾
+	---------------------------------*/
+	bulletModel_ = new NeonModel();
+	bulletModel_->Initialize("Resources/Bullet", "mech_PlayerBullet.obj");
 
 	// 自分の属性をプレイヤーに設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
@@ -108,7 +143,7 @@ void Player::Attack() {
 
 		// 弾を生成し初期イカ
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity, worldTransform_.rotation_);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -143,6 +178,15 @@ void Player::Update() {
 		worldTransform_.translation_.x,
 		worldTransform_.translation_.y,
 		worldTransform_.translation_.z);
+
+	ImGui::Separator(); // 区切り線
+	ImGui::Text("--- Neon Settings ---");
+	ImGui::ColorEdit3("Neon Color", neonColor_); // ネオンの色
+	ImGui::SliderFloat("Neon Intensity", &neonIntensity_, 0.1f, 20.0f); // 光の強さ
+
+	ImGui::Separator();
+	ImGui::Text("--- Body Settings ---");
+	ImGui::ColorEdit3("Body Color", bodyColor_);
 
 	ImGui::End();
 
@@ -215,6 +259,41 @@ void Player::Update() {
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
 	worldTransform_.TransferMatrix();
+
+
+	// ==========================================
+	//  回らないグループ
+	// ==========================================
+	transformStat_.translation_ = worldTransform_.translation_;
+	transformStat_.rotation_ = worldTransform_.rotation_;
+	transformStat_.scale_ = worldTransform_.scale_;
+	// 行列を計算して転送
+	transformStat_.matWorld_ = MakeAffineMatrix(transformStat_.scale_, transformStat_.rotation_, transformStat_.translation_);
+	transformStat_.TransferMatrix();
+
+	// ==========================================
+	// 回るグループ
+	// ==========================================
+	coreSpinAngle_ += 0.05f; // くるくる回すスピード
+
+
+	float colorSpeed = 0.5f; // 色が変化するスピード
+	neonColor_[0] = std::sin(coreSpinAngle_ * colorSpeed) * 0.5f + 0.5f;               // R (赤)
+	neonColor_[1] = std::sin(coreSpinAngle_ * colorSpeed + 2.094395f) * 0.5f + 0.5f; // G (緑)
+	neonColor_[2] = std::sin(coreSpinAngle_ * colorSpeed + 4.188790f) * 0.5f + 0.5f; // B (青)
+
+	transformRot_.translation_ = worldTransform_.translation_;
+	transformRot_.rotation_ = {
+			worldTransform_.rotation_.x + coreSpinAngle_ * 0.8f,
+			worldTransform_.rotation_.y + coreSpinAngle_ * 1.3f,
+			worldTransform_.rotation_.z + coreSpinAngle_ * 1.0f
+	};
+
+	transformRot_.scale_ = worldTransform_.scale_;
+	// 行列を計算して転送
+	transformRot_.matWorld_ = MakeAffineMatrix(transformRot_.scale_, transformRot_.rotation_, transformRot_.translation_);
+	transformRot_.TransferMatrix();
+
 }
 
 
@@ -224,14 +303,42 @@ void Player::Update() {
 --------------------*/
 void Player::Draw(const ViewProjection& viewProjection) {
 
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	modelCore_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
+	modelOuterRing_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
+	modelWingBase_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 
-	// 弾描画
+	Vector3 lightDir = { -1.0f, -1.0f, 1.0f }; // 左上・手前からの固定ライト
+
+
+	float bodyLightIntensity = 1.5f;
+
+	// 光の色もネオンの色ではなく、純粋な白（1,1,1）で照らして、ボディ本来の紫を活かす
+	modelCore_->SetLight(bodyLightIntensity, 1.0f, 1.0f, 1.0f, lightDir);
+	modelOuterRing_->SetLight(bodyLightIntensity, 1.0f, 1.0f, 1.0f, lightDir);
+	modelWingBase_->SetLight(bodyLightIntensity, 1.0f, 1.0f, 1.0f, lightDir);
+
+	// --- 暗いパーツを描画 ---
+	modelCore_->Draw(transformRot_, viewProjection, dummyTexture_);
+	modelOuterRing_->Draw(transformStat_, viewProjection, dummyTexture_);
+	modelWingBase_->Draw(transformStat_, viewProjection, dummyTexture_);
+
+
+}
+
+void Player::DrawNeon(const ViewProjection& viewProjection) {
+	// ネオンパーツには色と強さを送る
+	modelInnerRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+	modelWingNeon_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+
+	// --- 光るパーツを描画 ---
+	modelInnerRing_->Draw(transformRot_, viewProjection, dummyTexture_);
+	modelWingNeon_->Draw(transformStat_, viewProjection, dummyTexture_);
+
+	// 弾
+		// 弾描画
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
-
 	}
-
 }
 
 

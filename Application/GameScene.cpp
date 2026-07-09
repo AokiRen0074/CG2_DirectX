@@ -34,15 +34,15 @@ GameScene::~GameScene() {
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	dxCommon_ = dxCommon;
-	neonText_ = new NeonText();
+	
+	//
+	enemyObject_ = new Object3d();
+	Object3d::StaticInitialize(dxCommon);
+	NeonModel::StaticInitialize(dxCommon);
+	BodyModel::StaticInitialize(dxCommon);
 
 
-	neonText_->Initialize(dxCommon_);
-	neonText_->Print("NEON", -3.0f, 0.0f, 0.7f);
-
-	bloom_ = new Bloom();
-	// 画面サイズ（1280x720）を渡す
-	bloom_->Initialize(dxCommon_, WindowApp::kClientWidth, WindowApp::kClientHeight);
+	
 
 
 	/*-------------------------------
@@ -68,14 +68,32 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	----------------------------------*/
 
 	// プレイヤー
-	object3d_ = new Object3d();
-	Object3d::StaticInitialize(dxCommon);
-	object3d_->Initialize("Resources", "player.obj");
 
-	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
+
+
+	// ネオン
+	neonText_Open_ = new NeonText();
+	neonText_Open_->Initialize(dxCommon_);
+	neonText_Open_->Print("OPEN", -3.0f, 0.0f, 0.8f);
+
+	// 枠線用
+	neonText_Border_ = new NeonText();
+	neonText_Border_->Initialize(dxCommon_);
+	neonText_Border_->Print("O", -0.9f, 0.0f, 3.0f);
+
+	myNeonBar_ = new NeonObj();
+	myNeonBar_->Initialize("Resources/Neon", "Neon_bar.obj");
+
+
+
+	bloom_ = new Bloom();
+	// 画面サイズ（1280x720）を渡す
+	bloom_->Initialize(dxCommon_, WindowApp::kClientWidth, WindowApp::kClientHeight);
+	
+
 
 	// エネミー
-	enemyObject_ = new Object3d();
+
 	enemyObject_->Initialize("Resources", "block.obj");
 	enemyTex_ = TextureManager::Load("Resources/monsterBall.png");
 
@@ -107,7 +125,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	player_ = new Player();
 
 	// 自キャラの初期化
-	player_->Initialize(object3d_, textureHandle_);
+	player_->Initialize();
 
 
 	// 敵キャラの生成
@@ -152,12 +170,14 @@ void GameScene::Update() {
 	static float neonLengthOffset = -0.2f;
 
 #ifdef USE_IMGUI
-	ImGui::Begin("Neon Control Panel");
-	ImGui::SliderFloat("Radius (太さ)", &neonRadius, 0.001f, 0.1f);
-	ImGui::SliderFloat("Length Offset (長さ微調整)", &neonLengthOffset, -1.0f, 1.0f);
-	ImGui::SliderFloat("Softness (ぼかし)", &neonSoftness, 0.1f, 50.0f);
-	ImGui::SliderFloat("Intensity (光の強さ)", &neonIntensity, 0.1f, 20.0f);
-	ImGui::ColorEdit3("Color (色)", neonColor);
+
+	static Vector3 startPos = { -4.0f, 2.0f, 0.0f };
+	static Vector3 endPos = { 4.0f, 2.0f, 0.0f };
+	static float canvasThickness = 1.0f;
+	ImGui::Begin("Procedural Neon");
+	ImGui::DragFloat3("Start Pos", &startPos.x, 0.1f);
+	ImGui::DragFloat3("End Pos", &endPos.x, 0.1f);
+	ImGui::SliderFloat("Canvas Thickness", &canvasThickness, 0.1f, 5.0f);
 	ImGui::End();
 #endif
 
@@ -207,22 +227,35 @@ void GameScene::Update() {
 		debugCamera_->Update();
 
 		// ここで安全に取得する
-		object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+		//object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
 	}
 
 
-	neonText_->SetMaterial(neonRadius, neonSoftness, neonIntensity, neonColor[0], neonColor[1], neonColor[2], neonLengthOffset);
+	if (myNeonBar_ != nullptr) {
+		myNeonBar_->Update();
+		myNeonBar_->DrawImGui("Neon Bar Test"); // ここでImGuiのウィンドウを描画！
+	}
 
-	if (neonText_ != nullptr) {
-		neonText_->SetMaterial(neonRadius, neonSoftness, neonIntensity, neonColor[0], neonColor[1], neonColor[2], neonLengthOffset);
 
+	static float time = 0.0f;
+	time += 1.0f / 60.0f;
+	float flickerIntensity = neonIntensity;
+
+	if (sinf(time * 12.0f) > 0.7f) {
+		flickerIntensity *= (0.2f + (rand() % 100 / 100.0f) * 0.8f);
+	}
+	if (rand() % 1000 < 10) { flickerIntensity = 0.0f; }
+
+	if (neonText_Open_ != nullptr) {
+		neonText_Open_->SetMaterial(neonRadius, neonSoftness, flickerIntensity, 1.0f, 0.2f, 0.2f, neonLengthOffset);
 		if (isDebugCameraActive_ && debugCamera_ != nullptr) {
-			neonText_->Update(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+			neonText_Open_->Update(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
 		}
 		else {
-			neonText_->Update(viewProjection_.matView, viewProjection_.matProjection);
+			neonText_Open_->Update(viewProjection_.matView, viewProjection_.matProjection);
 		}
 	}
+
 
 	AxisIndicator::GetInstance()->Update();
 
@@ -268,33 +301,45 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-
-	// 軸方向描画
+	// ==========================================
+	// 普通のやつ
+	// ==========================================
 	AxisIndicator::GetInstance()->Draw();
+	skydome_->Draw(viewProjection_);
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
-	player_->Draw(viewProjection_); // 普通の3Dプレイヤー
+
+	// 「暗いパーツ」をここで描画
+	//player_->Draw(viewProjection_);
 
 
 	// ==========================================
-	// 2. ネオンの描画（ここからHDRキャンバス R16G16B16A16 に切り替え！）
+	//  ネオン
 	// ==========================================
-	bloom_->PreDraw(); // キャンバスを切り替え
+	bloom_->PreDraw();
 
-	if (neonText_ != nullptr) {
-		neonText_->Draw();
+	// 自機の「光るパーツ」と「ネオン文字」だけをここで描画！
+//player_->DrawNeon(viewProjection_);
+
+	
+	//if (neonText_Border_ != nullptr) { neonText_Border_->Draw(); }
+	//if (neonText_Open_ != nullptr) { neonText_Open_->Draw(); }
+
+	
+	if (myNeonBar_ != nullptr) {
+		myNeonBar_->Draw(viewProjection_);
 	}
-	// もしネオン自機（neonPlayer_）などがいるなら、それもここでDrawする
 
-	bloom_->PostDraw(); // HDRキャンバスへの書き込み終了
 
+	// HDRキャンバスへの書き込み終了、普通の画面(R8)に戻る
+	bloom_->PostDraw();
 
 	// ==========================================
-	// 3. 仕上げの魔法（ぼかして光を溢れさせ、モニターに合成する）
+	// 3. 仕上げの魔法（Bloomで光を溢れさせて画面に合成！）
 	// ==========================================
-	bloom_->Execute();    // コンピュートシェーダーでぼかし計算
-	bloom_->DrawResult(); // モニターに最終結果をドン！と描画
+	bloom_->Execute();
+	bloom_->DrawResult();
 }
 
 

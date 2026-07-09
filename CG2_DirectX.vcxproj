@@ -105,6 +105,10 @@
     <ClCompile Include="Application\GameScene.cpp" />
     <ClCompile Include="Application\main.cpp" />
     <ClCompile Include="BaseCharacter.cpp" />
+    <ClCompile Include="BodyModel.cpp" />
+    <None Include="BodyModel.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
@@ -160,9 +164,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="NeonModel.cpp" />
+    <ClCompile Include="NeonObj.cpp" />
     <ClCompile Include="NeonSign.cpp" />
     <ClCompile Include="NeonText.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
+    <ClCompile Include="ProceduralNeon.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
@@ -176,6 +183,7 @@
     <ClInclude Include="Application\GameScene.h" />
     <ClInclude Include="BaseCharacter.h" />
     <ClInclude Include="BaseEnemyState.h" />
+    <ClInclude Include="BodyModel.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionConfig.h" />
     <ClInclude Include="CollisionManager.h" />
@@ -183,6 +191,8 @@
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
+    <ClInclude Include="NeonModel.h" />
+    <ClInclude Include="NeonObj.h" />
     <ClInclude Include="NeonSign.h" />
     <ClInclude Include="NeonText.h" />
     <ClInclude Include="PlayerBullet.h" />
@@ -210,6 +220,7 @@
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="GlobalValiables.h" />
+    <ClInclude Include="ProceduralNeon.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="TimedCall.h" />
     <ClInclude Include="Vector2.h" />
@@ -237,6 +248,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="NeonModel.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="BodyModel.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <None Include="NeonModel.PS.hlsl">
       <FileType>Document</FileType>
     </None>

@@ -1,112 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{b0671225-87d5-4d92-aba9-fe0682402793}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{12f76924-9735-4091-8abd-3f46eccb6e50}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Audio">
-      <UniqueIdentifier>{03c38c21-ff86-424b-b948-80f3d4e799d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Base">
-      <UniqueIdentifier>{9a0a579e-c679-4686-9d59-48d762f717bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Input">
-      <UniqueIdentifier>{31464d99-ce21-423c-8514-32c729dfa41e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Math">
-      <UniqueIdentifier>{6bb19ed3-cf9a-4030-a3db-a3ab0f73c032}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{8375ed75-90ee-47b4-ab57-083effc1e413}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Shader">
-      <UniqueIdentifier>{242873a3-8f4c-401a-9719-6d0c568ee72f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application">
-      <UniqueIdentifier>{135c9144-ba1c-4dd7-bb97-a05fc0955eec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character">
-      <UniqueIdentifier>{89acfc04-419f-473b-a228-fbbc2fcb519a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\3D">
-      <UniqueIdentifier>{bf76dfd0-53b6-4729-9e85-ea724f06ce9d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\2D">
-      <UniqueIdentifier>{79672d2b-602e-4fac-8450-5cb2194b7f0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Player">
-      <UniqueIdentifier>{c30c8824-6ca1-4695-87a4-653b7eca2565}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Enemy">
-      <UniqueIdentifier>{2fbed0aa-8e59-4f01-8c29-b12e7fbad36b}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="Skydome.cpp" />
+    <ClCompile Include="TimedCall.cpp" />
+    <ClCompile Include="ProceduralNeon.cpp" />
+    <ClCompile Include="NeonText.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="NeonSign.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="NeonObj.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="NeonModel.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\2D\Sprite.cpp">
-      <Filter>Engine\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\2D\TextureManager.cpp">
-      <Filter>Engine\2D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Audio\Audio.cpp">
-      <Filter>Engine\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Base\DirectXCommon.cpp">
-      <Filter>Engine\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Base\Logger.cpp">
-      <Filter>Engine\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Base\WindowApp.cpp">
-      <Filter>Engine\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Input\Input.cpp">
-      <Filter>Engine\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Math\Matrix4x4.cpp">
-      <Filter>Engine\Math</Filter>
+    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.cpp">
+      <Filter>Engine\Neon</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Math\Vector3.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Application\main.cpp">
-      <Filter>Application</Filter>
+    <ClCompile Include="Engine\Math\Matrix4x4.cpp">
+      <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Application\GameScene.cpp">
-      <Filter>Application</Filter>
+    <ClCompile Include="Engine\2D\TextureManager.cpp">
+      <Filter>Engine\2D</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3D\DebugCamera.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Object3d.cpp">
-      <Filter>Engine\3D</Filter>
+    <ClCompile Include="Engine\2D\Sprite.cpp">
+      <Filter>Engine\2D</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\ViewProjection.cpp">
       <Filter>Engine\3D</Filter>
@@ -114,23 +48,53 @@
     <ClCompile Include="Engine\3D\WorldTransform.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3D\Object3d.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\DebugCamera.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\Audio.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\WindowApp.cpp">
+      <Filter>Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\Logger.cpp">
+      <Filter>Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\DirectXCommon.cpp">
+      <Filter>Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Input\Input.cpp">
+      <Filter>Engine\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\main.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
     <ClCompile Include="Application\AxisIndicator.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalVariables.cpp">
+    <ClCompile Include="Application\GameScene.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="BodyModel.cpp">
+      <Filter>Application\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Player.cpp">
+      <Filter>Application\Character\Player</Filter>
     </ClCompile>
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>Application\Character\Player</Filter>
     </ClCompile>
-    <ClCompile Include="BaseCharacter.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
     <ClCompile Include="Enemy.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Character\Player.cpp">
-      <Filter>Application\Character\Player</Filter>
+    <ClCompile Include="EnemyBullet.cpp">
+      <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyStateApproach.cpp">
       <Filter>Application\Character\Enemy</Filter>
@@ -138,81 +102,65 @@
     <ClCompile Include="EnemyStateLeave.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyBullet.cpp">
-      <Filter>Application\Character\Enemy</Filter>
+    <ClCompile Include="BaseCharacter.cpp">
+      <Filter>Application\Character</Filter>
     </ClCompile>
-    <ClCompile Include="TimedCall.cpp">
-      <Filter>Application</Filter>
+    <ClCompile Include="externals\imgui\imgui.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionManager.cpp">
-      <Filter>Application</Filter>
+    <ClCompile Include="externals\imgui\imgui_demo.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Skydome.cpp">
-      <Filter>Engine\3D</Filter>
+    <ClCompile Include="externals\imgui\imgui_draw.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp">
-      <Filter>Engine\Neon</Filter>
+    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp">
-      <Filter>Engine\Neon</Filter>
+    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="NeonSign.cpp">
-      <Filter>Engine\Neon</Filter>
+    <ClCompile Include="externals\imgui\imgui_tables.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="NeonText.cpp">
-      <Filter>Engine\Neon</Filter>
+    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
+      <Filter>externals\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="CollisionConfig.h" />
+    <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Engine\Math\Transform.h" />
+    <ClInclude Include="GlobalValiables.h" />
+    <ClInclude Include="Skydome.h" />
+    <ClInclude Include="TimedCall.h" />
+    <ClInclude Include="ProceduralNeon.h" />
+    <ClInclude Include="NeonText.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="NeonSign.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="NeonObj.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="NeonModel.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
+    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.h">
+      <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\2D\Sprite.h">
-      <Filter>Engine\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\2D\TextureManager.h">
-      <Filter>Engine\2D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Audio\Audio.h">
-      <Filter>Engine\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\DirectXCommon.h">
-      <Filter>Engine\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\Logger.h">
-      <Filter>Engine\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\WindowApp.h">
-      <Filter>Engine\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Input\Input.h">
-      <Filter>Engine\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Math\Matrix4x4.h">
-      <Filter>Engine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Math\Transform.h">
+    <ClInclude Include="Vector4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Math\Vector3.h">
@@ -221,20 +169,14 @@
     <ClInclude Include="Vector2.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Vector4.h">
+    <ClInclude Include="Engine\Math\Matrix4x4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Application\GameScene.h">
-      <Filter>Application</Filter>
+    <ClInclude Include="Engine\2D\TextureManager.h">
+      <Filter>Engine\2D</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3D\DebugCamera.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Object3d.h">
-      <Filter>Engine\3D</Filter>
+    <ClInclude Include="Engine\2D\Sprite.h">
+      <Filter>Engine\2D</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\ViewProjection.h">
       <Filter>Engine\3D</Filter>
@@ -242,25 +184,49 @@
     <ClInclude Include="Engine\3D\WorldTransform.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\Object3d.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\DebugCamera.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\Audio.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\WindowApp.h">
+      <Filter>Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\Logger.h">
+      <Filter>Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\DirectXCommon.h">
+      <Filter>Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Input\Input.h">
+      <Filter>Engine\Input</Filter>
+    </ClInclude>
     <ClInclude Include="Application\AxisIndicator.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalValiables.h">
+    <ClInclude Include="Application\GameScene.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerBullet.h">
+    <ClInclude Include="BodyModel.h">
       <Filter>Application\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseCharacter.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Application\Character\Player.h">
       <Filter>Application\Character\Player</Filter>
     </ClInclude>
-    <ClInclude Include="BaseEnemyState.h">
+    <ClInclude Include="PlayerBullet.h">
+      <Filter>Application\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBullet.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyStateApproach.h">
@@ -269,68 +235,142 @@
     <ClInclude Include="EnemyStateLeave.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyBullet.h">
+    <ClInclude Include="BaseCharacter.h">
+      <Filter>Application\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEnemyState.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="TimedCall.h">
-      <Filter>Application</Filter>
+    <ClInclude Include="externals\imgui\imconfig.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Collider.h">
-      <Filter>Application</Filter>
+    <ClInclude Include="externals\imgui\imgui.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionConfig.h">
-      <Filter>Application</Filter>
+    <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionManager.h">
-      <Filter>Application</Filter>
+    <ClInclude Include="externals\imgui\imgui_impl_win32.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h">
-      <Filter>Engine\Neon</Filter>
+    <ClInclude Include="externals\imgui\imgui_internal.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="NeonSign.h">
-      <Filter>Engine\Neon</Filter>
+    <ClInclude Include="externals\imgui\imstb_rectpack.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="NeonText.h">
-      <Filter>Engine\Neon</Filter>
-    <ClInclude Include="Skydome.h">
-      <Filter>Engine\3D</Filter>
+    <ClInclude Include="externals\imgui\imstb_textedit.h">
+      <Filter>externals\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="externals\imgui\imstb_truetype.h">
+      <Filter>externals\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="externals\imgui\LICENSE.txt">
-      <Filter>imgui</Filter>
-    </Text>
-    <Text Include="Resources\Shaders\Object3d.hlsli">
-      <Filter>Resources\Shader</Filter>
-    </Text>
-    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Shaders\Object3d.VS.hlsl">
-      <Filter>Resources\Shader</Filter>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
     </None>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.VS.HLSL">
-      <Filter>Resources\Shader</Filter>
+      <Filter>Resources\Shaders</Filter>
     </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
     </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
-      <Filter>Resources\Shader</Filter>
+    <None Include="Resources\Shaders\Object3d.VS.hlsl">
+      <Filter>Resources\Shaders</Filter>
     </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
     </None>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
-      <Filter>Resources\Shader</Filter>
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="NeonModel.VS.hlsl">
+      <Filter>Resources\Shaders</Filter>
     </None>
     <None Include="NeonModel.PS.hlsl">
-      <Filter>Resources\Shader</Filter>
+      <Filter>Resources\Shaders</Filter>
     </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="BodyModel.VS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="BodyModel.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </Text>
+    <Text Include="Resources\Shaders\Object3d.hlsli">
+      <Filter>Resources\Shaders</Filter>
+    </Text>
+    <Text Include="externals\imgui\LICENSE.txt">
+      <Filter>externals\imgui</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{90fb2555-bf79-4a28-99cf-8aad12dc400e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders">
+      <UniqueIdentifier>{14fe8185-d55a-46c2-892e-0db458634f7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{eea0f5fe-31c6-4970-a6e4-50e63f1e504a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Neon">
+      <UniqueIdentifier>{43b4c504-199e-4479-82fb-ce7ab71f1cf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{494e18f2-1abb-4734-9283-66897282a1ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\2D">
+      <UniqueIdentifier>{9cb5a3d3-97df-4829-8899-2e457bf9e1b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\3D">
+      <UniqueIdentifier>{f30dc0bd-dcf8-4df2-b1ea-0351dca1433a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Audio">
+      <UniqueIdentifier>{9365baf1-53aa-4c9f-9e4f-c78c9d007409}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Base">
+      <UniqueIdentifier>{4ff32235-e166-4fd7-a13b-6eb27f070322}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{bc187617-0ff3-40ca-bad1-2a893fc574a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{2dc82173-3e47-4f51-aea3-0203ee99a6f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character">
+      <UniqueIdentifier>{19b8900f-e0bd-4234-81a3-e66b3a3749c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Player">
+      <UniqueIdentifier>{1cd234d4-811c-4ce5-b2aa-572c87c57674}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Enemy">
+      <UniqueIdentifier>{20e35f19-ef32-4437-ab0f-76b0e2138d3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals">
+      <UniqueIdentifier>{446ebfbe-f993-4096-8dff-4c82e4956092}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="externals\imgui">
+      <UniqueIdentifier>{41cec707-6026-46c6-8ae5-17c84a2a2f45}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
