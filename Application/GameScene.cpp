@@ -40,7 +40,13 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
     object3d_ = new Object3d();
     Object3d::StaticInitialize(dxCommon);
-    object3d_->Initialize("Resources","Player.obj");
+
+    object3d_->GetTransform().translate.x = 16.0f;
+    object3d_->GetTransform().translate.y = 2.8f;
+    object3d_->GetTransform().rotate.y = 3.14f;
+    object3d_->GetTransform().scale = { 2.0f,2.0f,1.0f };
+
+    object3d_->Initialize("Resources","plane.obj");
 
 
   //  modelData_ = new ModelData();
@@ -89,8 +95,8 @@ void GameScene::Update() {
 
     // オブジェクトの更新
   object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
-  //object3d_->Update();
-   //prite_->Update();
+  object3d_->Update();
+   sprite_->Update();
 
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();
@@ -105,8 +111,11 @@ void GameScene::Draw() {
     player_->Draw(viewProjection_);
 
     // 3Dモデル描画
-  //object3d_->Draw();
+    WorldTransform dummyTransform;
+    dummyTransform.Initialize();
+
+    object3d_->Draw(dummyTransform, viewProjection_, textureHandle_);
 
     // 2Dスプライト描画
-     //rite_->Draw();
+     sprite_->Draw();
 }

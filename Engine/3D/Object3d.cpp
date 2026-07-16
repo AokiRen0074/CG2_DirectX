@@ -381,6 +381,15 @@ void Object3d::Update() {
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
+
+	if (ImGui::TreeNode("Object3D Transform")) {
+		ImGui::DragFloat3("Translate", &transform_.translate.x, 0.1f);
+		ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
+		ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
+		ImGui::TreePop();
+	}
+
+
 	if (ImGui::TreeNode("Camera")) {
 		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
 		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");

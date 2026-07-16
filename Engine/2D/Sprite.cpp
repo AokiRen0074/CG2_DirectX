@@ -127,6 +127,8 @@ void Sprite::Update() {
     if (ImGui::TreeNode("Sprite Settings")) {
         ImGui::ColorEdit4("Color", &materialData_->color.x);
         ImGui::DragFloat3("Translate", &transform_.translate.x, 1.0f);
+        ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
+        ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
 
         if (ImGui::TreeNode("UV Transform")) {
             ImGui::DragFloat2("Translate", &uvTransformSprite_.translate.x, 0.01f, -10.0f, 10.0f);

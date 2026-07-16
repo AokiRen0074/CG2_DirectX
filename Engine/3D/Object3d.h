@@ -66,6 +66,8 @@ public:
 		projectionMatrix_ = projection;
 	}
 
+	Transform& GetTransform() { return transform_; }
+
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 
 	// ゲッター
