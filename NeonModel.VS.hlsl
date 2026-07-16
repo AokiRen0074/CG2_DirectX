@@ -20,7 +20,7 @@ struct VertexShaderOutput
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
     float3 normal : NORMAL0;
-    float3 worldPos : POSITION;
+    float3 worldPos : TEXCOORD1; // 🌟 修正：PS側と合わせるために TEXCOORD1 にする
 };
 
 ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
@@ -41,7 +41,7 @@ VertexShaderOutput main(VertexShaderInput input)
     // 法線をワールド座標系に変換し、正規化する
     output.normal = normalize(mul(input.normal, (float3x3) gTransformationMatrix.World));
     
-    // 🌟 ワールド座標を計算してPSへ送る
+    // ワールド座標を計算してPSへ送る
     output.worldPos = mul(input.position, gTransformationMatrix.World).xyz;
     
     return output;

@@ -84,11 +84,11 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	myNeonBar_ = new NeonObj();
 	myNeonBar_->Initialize("Resources/Neon", "Neon_bar.obj");
 
+	neonModel_ = new NeonModel();
 
 
 	bloom_ = new Bloom();
-	// 画面サイズ（1280x720）を渡す
-	bloom_->Initialize(dxCommon_, WindowApp::kClientWidth, WindowApp::kClientHeight);
+	bloom_->Initialize(dxCommon_, 1280,720);
 	
 
 
@@ -115,6 +115,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	skydome_ = new Skydome();
 	skydome_->Initialize(skydomeModel_, skydomeTex_);
+
+	/*--------------------------------
+	エディターパネルの描画
+	-------------------------------*/
 
 
 	/*-------------------------------
@@ -163,91 +167,87 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 void GameScene::Update() {
 
-	static float neonRadius = 0.03f;
-	static float neonSoftness = 15.0f;
-	static float neonIntensity = 8.0f;
-	static float neonColor[3] = { 0.0f, 0.8f, 1.0f };
-	static float neonLengthOffset = -0.2f;
+	/*-----------------------------
+	プレイヤー更新
+	--------------------------------*/
+	player_->Update();
 
-#ifdef USE_IMGUI
+	/*-----------------------------
+		エネミー更新
+--------------------------------*/
+	if (enemy_) enemy_->Update();
 
-	static Vector3 startPos = { -4.0f, 2.0f, 0.0f };
-	static Vector3 endPos = { 4.0f, 2.0f, 0.0f };
-	static float canvasThickness = 1.0f;
-	ImGui::Begin("Procedural Neon");
-	ImGui::DragFloat3("Start Pos", &startPos.x, 0.1f);
-	ImGui::DragFloat3("End Pos", &endPos.x, 0.1f);
-	ImGui::SliderFloat("Canvas Thickness", &canvasThickness, 0.1f, 5.0f);
-	ImGui::End();
-#endif
+	/*-------------------------------
+	天球
+	----------------------------------*/
+	skydome_->Update();
 
-	/*-------------------------
-	デバッグカメラ
-	--------------------------*/
+
+
+
+	// 軸表示
+	AxisIndicator::GetInstance()->Update();
+
 #ifdef _DEBUG 
 	if (Input::GetInstance()->TriggerKey(DIK_P)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 
-
-	if (isDebugCameraActive_) {
+	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
 		debugCamera_->Update();
-
 		viewProjection_.matView = debugCamera_->GetViewMatrix();
 		viewProjection_.matProjection = debugCamera_->GetProjectionMatrix();
 	}
 	else {
+		// 通常のカメラ更新
 		viewProjection_.UpdateMatrix();
 	}
 #endif
 
-
-	/*------------------
-	自キャラ更新
-	----------------------*/
-
-	player_->Update();
-
-
-
-	/*------------------
-	敵キャラ更新
-	------------------*/
-	if (enemy_) {
-		enemy_->Update();
-	}
-
-	/*--------------------
-	天球
-	---------------------------*/
-	skydome_->Update();
-
-	// オブジェクトの更新
+	// ==========================================
+	// カメラとネオンの連動処理
+	// ==========================================
+	Vector3 camPos = viewProjection_.translation_;
 	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
-		debugCamera_->Update();
-
-		// ここで安全に取得する
-		//object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+		// ビュー行列からカメラのワールド座標を逆算
+		Matrix4x4 v = debugCamera_->GetViewMatrix();
+		camPos.x = -(v.m[3][0] * v.m[0][0] + v.m[3][1] * v.m[1][0] + v.m[3][2] * v.m[2][0]);
+		camPos.y = -(v.m[3][0] * v.m[0][1] + v.m[3][1] * v.m[1][1] + v.m[3][2] * v.m[2][1]);
+		camPos.z = -(v.m[3][0] * v.m[0][2] + v.m[3][1] * v.m[1][2] + v.m[3][2] * v.m[2][2]);
+	}
+	else {
+		viewProjection_.UpdateMatrix();
 	}
 
-
+	// ---------------------------------
+	// ネオンバーの更新
 	if (myNeonBar_ != nullptr) {
-		myNeonBar_->Update();
-		myNeonBar_->DrawImGui("Neon Bar Test"); // ここでImGuiのウィンドウを描画！
+		myNeonBar_->Update(camPos);
+
+		// ネオンの光を自機(Player)へ送る
+		if (player_ != nullptr) {
+			Vector3 neonPos = myNeonBar_->GetPosition();
+			Vector3 nColor = myNeonBar_->GetNeonColor();
+			float nIntensity = myNeonBar_->GetIntensity();
+			player_->SetPointLight(neonPos, nColor, nIntensity, 30.0f, camPos);
+		}
+
+		// ネオンバー自体が発する点光源の設定
+		NeonModel::DirectionalLight* lightData = myNeonBar_->GetModel()->GetLightData();
+		if (lightData != nullptr && player_ != nullptr) {
+			lightData->pointPos = player_->GetWorldPosition();
+			lightData->pointColor = { 0.0f, 1.0f, 0.5f, 1.0f };
+			lightData->pointIntensity = 5.0f;
+			lightData->pointRadius = 12.0f;
+		}
 	}
 
-
-	static float time = 0.0f;
-	time += 1.0f / 60.0f;
-	float flickerIntensity = neonIntensity;
-
-	if (sinf(time * 12.0f) > 0.7f) {
-		flickerIntensity *= (0.2f + (rand() % 100 / 100.0f) * 0.8f);
-	}
-	if (rand() % 1000 < 10) { flickerIntensity = 0.0f; }
+	// ---------------------------------
+	// ネオン文字
+	float currentTextIntensity = neonTextFlicker_.GetIntensity(neonIntensity_);
 
 	if (neonText_Open_ != nullptr) {
-		neonText_Open_->SetMaterial(neonRadius, neonSoftness, flickerIntensity, 1.0f, 0.2f, 0.2f, neonLengthOffset);
+		neonText_Open_->SetMaterial(neonRadius_, neonSoftness_, currentTextIntensity, neonColor_[0], neonColor_[1], neonColor_[2], neonLengthOffset_);
 		if (isDebugCameraActive_ && debugCamera_ != nullptr) {
 			neonText_Open_->Update(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
 		}
@@ -256,47 +256,78 @@ void GameScene::Update() {
 		}
 	}
 
-
-	AxisIndicator::GetInstance()->Update();
-
-	/*-----------------------
-	当たり判定処理
-	-------------------------*/
+	// ==========================================
+	//  当たり判定処理
+	// ==========================================
 	collisionManager_->ClearColliders();
 
-	// コライダーを全て衝突マネージャのリストに登録する
 	if (player_) {
 		collisionManager_->AddCollider(player_);
-
-		// 自弾を登録
-		const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
-		for (PlayerBullet* pBullet : playerBullets) {
-			if (!pBullet->IsDead()) {
-				collisionManager_->AddCollider(pBullet);
-			}
+		for (PlayerBullet* pBullet : player_->GetBullets()) {
+			if (!pBullet->IsDead()) collisionManager_->AddCollider(pBullet);
 		}
 	}
-
 	if (enemy_) {
 		collisionManager_->AddCollider(enemy_);
+		for (EnemyBullet* eBullet : enemy_->GetBullets()) {
+			if (!eBullet->IsDead()) collisionManager_->AddCollider(eBullet);
+		}
+	}
+	collisionManager_->CheckAllCollisions();
 
-		// 敵弾を登録
-		const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
-		for (EnemyBullet* eBullet : enemyBullets) {
-			if (!eBullet->IsDead()) {
-				collisionManager_->AddCollider(eBullet);
-			}
+	// ==========================================
+	//  ImGuiの描画
+	// ==========================================
+#ifdef USE_IMGUI
+
+	ImGui::Begin("Master Control", nullptr, ImGuiWindowFlags_MenuBar);
+
+	//  自機の設定
+	if (ImGui::TreeNodeEx("Player Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (player_) player_->DrawImGui();
+		ImGui::TreePop();
+	}
+
+	// 敵
+	if (ImGui::TreeNodeEx("Enemy Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+		if (enemy_) enemy_->DrawImGui();
+		ImGui::TreePop();
+	}
+
+	// ネオン文字の設定
+	if (ImGui::TreeNodeEx("Neon Text Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+		ImGui::ColorEdit3("Text Color", neonColor_);
+		ImGui::SliderFloat("Text Intensity", &neonIntensity_, 0.0f, 20.0f);
+		ImGui::SliderFloat("Text Radius", &neonRadius_, 0.001f, 0.1f);
+		ImGui::SliderFloat("Text Softness", &neonSoftness_, 0.1f, 50.0f);
+		ImGui::SliderFloat("Text Length Offset", &neonLengthOffset_, -1.0f, 1.0f);
+
+		ImGui::Separator();
+		ImGui::Checkbox("Enable Flicker", &neonTextFlicker_.isFlicker_);
+		ImGui::TreePop();
+	}
+
+	// ネオンバーの設定
+	if (myNeonBar_ != nullptr) {
+		myNeonBar_->DrawImGui("Neon Bar Settings");
+		if (myNeonBar_->GetModel() != nullptr) {
+			myNeonBar_->GetModel()->DrawImGui("Neon Bar - Plasma Settings");
 		}
 	}
 
-	// 衝突マネージャの当たり判定処理を呼び出す
-	collisionManager_->CheckAllCollisions();
+	// Bloomの設定
+	if (bloom_ != nullptr) {
+		bloom_->DrawImGui();
+	}
 
+	// グローバル変数の設定
+	if (ImGui::TreeNodeEx("Global Variables")) {
+		GlobalVariables::GetInstance()->Update();
+		ImGui::TreePop();
+	}
 
+	ImGui::End(); // Master Controlの終了
 
-#ifdef USE_IMGUI
-	ImGui::ShowDemoWindow();
-	GlobalVariables::GetInstance()->Update();
 #endif
 }
 
@@ -310,6 +341,7 @@ void GameScene::Draw() {
 		enemy_->Draw(viewProjection_);
 	}
 
+
 	// 「暗いパーツ」をここで描画
 	//player_->Draw(viewProjection_);
 
@@ -319,25 +351,33 @@ void GameScene::Draw() {
 	// ==========================================
 	bloom_->PreDraw();
 
-	// 自機の「光るパーツ」と「ネオン文字」だけをここで描画！
-//player_->DrawNeon(viewProjection_);
+	
+	if (player_) {
+		player_->Draw(viewProjection_);      // 暗いパーツ（ここに反射が乗る）
+		player_->DrawNeon(viewProjection_);  // 光るパーツ
+	}
+	
+	if (enemy_) enemy_->DrawNeon(viewProjection_);
+	
 
 	
 	//if (neonText_Border_ != nullptr) { neonText_Border_->Draw(); }
 	//if (neonText_Open_ != nullptr) { neonText_Open_->Draw(); }
 
 	
+	
 	if (myNeonBar_ != nullptr) {
 		myNeonBar_->Draw(viewProjection_);
 	}
+	
+	
+	
 
 
 	// HDRキャンバスへの書き込み終了、普通の画面(R8)に戻る
 	bloom_->PostDraw();
 
-	// ==========================================
-	// 3. 仕上げの魔法（Bloomで光を溢れさせて画面に合成！）
-	// ==========================================
+
 	bloom_->Execute();
 	bloom_->DrawResult();
 }

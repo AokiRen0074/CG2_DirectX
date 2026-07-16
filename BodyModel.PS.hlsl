@@ -6,59 +6,75 @@ struct Material
     float4x4 uvTransform;
 };
 
+// 🌟 C++と完全に一致させたライト構造体
+struct LightData
+{
+    float4 dirColor;
+    float3 dirDirection;
+    float dirIntensity;
+    
+    float3 pointPos;
+    float pointIntensity;
+    float4 pointColor;
+    
+    float pointRadius;
+    float3 cameraPos; // 🌟 追加されたカメラ座標
+};
+
 ConstantBuffer<Material> gMaterial : register(b0);
+ConstantBuffer<LightData> gLight : register(b1);
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
 struct VSOutput
 {
-    float4 pos : SV_POSITION;
-    float2 uv : TEXCOORD;
-    float3 posWorld : TEXCOORD1; // ✨ 受け取る
+    float4 position : SV_POSITION;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
+    float3 worldPos : TEXCOORD1;
 };
 
 float4 main(VSOutput input) : SV_TARGET
 {
-    float4 texColor = gTexture.Sample(gSampler, input.uv);
-    float4 baseColor = gMaterial.color * texColor;
-
-    // ==========================================
-    // ✨ 魔法の計算：ポリゴンの面から「正しい法線」を自動生成！
-    // ==========================================
-    float3 dx = ddx(input.posWorld);
-    float3 dy = ddy(input.posWorld);
-    float3 N = normalize(cross(dx, dy));
+    float4 texColor = gTexture.Sample(gSampler, input.texcoord);
+    float3 baseColor = gMaterial.color.rgb * texColor.rgb;
     
-    // 面が裏返って暗くなるのを防ぐため、常にカメラ側を向くように補正
-    if (dot(N, float3(0.0f, 0.0f, -1.0f)) < 0.0f)
+    if (gMaterial.enableLighting == 0)
     {
-        N = -N;
+        return float4(baseColor, gMaterial.color.a);
     }
 
-    // 光とカメラの向き
-    float3 L = normalize(float3(-1.0f, 1.0f, -1.0f));
-    float3 V = normalize(float3(0.0f, 0.0f, -1.0f));
+    float3 N = normalize(input.normal);
     
-    // 1. 環境光
-    float3 ambient = baseColor.rgb * 0.05f;
+    // 🌟 視線ベクトルの計算が可能になった！
+    float3 V = normalize(gLight.cameraPos - input.worldPos);
     
-    // 2. ディフューズ（基本の明るさ）
-    float NdotL = max(dot(N, L), 0.0f);
-    float3 diffuse = baseColor.rgb * NdotL * 1.5f;
+    // --- ① 平行光源（全体を照らす弱い光） ---
+    float diffuseLight = max(dot(N, -gLight.dirDirection), 0.0f);
+    float3 diffuse = baseColor * diffuseLight * gLight.dirColor.rgb * gLight.dirIntensity;
     
-    // 3. スペキュラー（広い光沢！）
-    float3 H = normalize(L + V);
-    float NdotH = max(dot(N, H), 0.0f);
-    float specIntensity = pow(NdotH, 4.0f);
-    float3 specular = float3(1.0f, 0.9f, 1.0f) * specIntensity * 2.0f;
+    // --- ② 🌟 ネオンからの照り返し（点光源） ---
+    float3 pointToLight = gLight.pointPos - input.worldPos;
+    float distance = length(pointToLight);
+    float3 L_point = normalize(pointToLight);
     
-    // 4. リムライト（エッジのハイライト）
-    float rim = 1.0f - max(dot(V, N), 0.0f);
-    rim = smoothstep(0.6f, 1.0f, rim);
-    float3 rimColor = float3(0.8f, 0.3f, 0.8f) * rim;
+    // 距離による減衰（近づくほど強い光になる）
+    float attenuation = max(0.0f, 1.0f - (distance / max(gLight.pointRadius, 0.01f)));
+    attenuation = pow(attenuation, 2.0f);
     
-    // 最終合成
-    float3 finalColor = ambient + diffuse + specular + rimColor;
+    // ボディへの照り返し（ディフューズ：色がフワッと乗る）
+    float pointDiffuseLight = max(dot(N, L_point), 0.0f);
+    float3 pointDiffuse = baseColor * pointDiffuseLight * gLight.pointColor.rgb * gLight.pointIntensity * attenuation;
+    
+    // 🌟 ボディのツヤ（ネオンの光が金属に鋭く反射するスペキュラ！）
+    float3 R_point = reflect(-L_point, N);
+    float pointSpecularLight = pow(max(dot(R_point, V), 0.0f), 16.0f);
+    
+    // スペキュラは白やネオンの原色で強く光らせる
+    float3 pointSpecular = float3(1.0f, 1.0f, 1.0f) * pointSpecularLight * gLight.pointColor.rgb * gLight.pointIntensity * attenuation;
 
-    return float4(saturate(finalColor), baseColor.a);
+    // すべての光を合成！
+    float3 finalColor = diffuse + pointDiffuse + pointSpecular;
+    
+    return float4(finalColor, gMaterial.color.a);
 }

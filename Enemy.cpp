@@ -10,6 +10,10 @@
 #include "externals/imgui/imgui.h"
 #endif
 
+
+
+
+
 // デストラクタ
 Enemy::~Enemy() {
 	for (EnemyBullet* bullet : bullets_) {
@@ -31,13 +35,35 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 	textureHandle_ = textureHandle;
 
 	worldTransform_.Initialize();
+	transformLines_.Initialize();
 
-	// テクスチャ読み込み
-	//textureHandle_ = TextureManager::Load("Resources/monsterBall.png");
+	for (int i = 0; i < 5; ++i) {
+		transformTails_[i].Initialize();
+	}
+
+	dummyTexture_ = TextureManager::Load("Resources/Enemy/Playertex.png");
+	tailTexture_ = TextureManager::Load("Resources/Enemy/Playertex.png");
+
+
+	// --- 暗いパーツ ---
+	modelBase_ = new BodyModel();
+	modelBase_->Initialize("Resources/Enemy", "enemy_base.obj");
+
+	// --- 光るパーツ ---
+	modelLines_ = new NeonModel();
+	modelLines_->Initialize("Resources/Enemy", "enemy_lines.obj");
+
+	for (int i = 0; i < 5; ++i) {
+		modelTails_[i] = new NeonModel();
+		modelTails_[i]->Initialize("Resources/Enemy", "enemy_tail.obj");
+	}
+
+	modelRing_ = new NeonModel();
+	modelRing_->Initialize("Resources/Enemy", "enemy_ring.obj");
 
 	// 初期座標
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
-	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
+	worldTransform_.rotation_ = { -1.5708f, 0.0f, 0.0f };
 	worldTransform_.translation_ = { 5.0f, 0.0f, 50.0f };
 	
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
@@ -135,7 +161,6 @@ void Enemy::OnCollision() {
 更新処理
 ------------------------------------*/
 void Enemy::Update() {
-
 	// 終了したイベントを削除
 	timedCalls_.remove_if([](TimedCall* timedCall) {
 		if (timedCall->isFinished()) {
@@ -169,6 +194,25 @@ void Enemy::Update() {
 		});
 
 
+	// 時間の更新
+	time_ += 1.0f / 60.0f;
+
+	// 尻尾5個の座標更新
+	for (int i = 0; i < 5; ++i) {
+		transformTails_[i].scale_ = worldTransform_.scale_;
+		transformTails_[i].rotation_ = worldTransform_.rotation_;
+
+		// 順番にズラす
+		float offset = i * 1.0f;
+		transformTails_[i].translation_ = {
+			worldTransform_.translation_.x,
+			worldTransform_.translation_.y,
+			worldTransform_.translation_.z + offset
+		};
+
+		transformTails_[i].matWorld_ = MakeAffineMatrix(transformTails_[i].scale_, transformTails_[i].rotation_, transformTails_[i].translation_);
+		transformTails_[i].TransferMatrix();
+	}
 
 	// 行列の更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
@@ -176,23 +220,17 @@ void Enemy::Update() {
 	worldTransform_.TransferMatrix();
 
 
+	transformLines_.translation_ = worldTransform_.translation_;
+	transformLines_.scale_ = worldTransform_.scale_;
 
 
+	transformLines_.rotation_.x = -1.5708f;
 
-#ifdef USE_IMGUI
 
-	// キャラクターの座標を画面表示する処理
-
-	ImGui::Begin("Enemy");
-
-	ImGui::Text("Position: X: %f, Y: %f, Z: %f",
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);
-
-	ImGui::End();
-
-#endif
+	transformLines_.rotation_.z += 0.05f;
+	// Lines専用の行列を更新
+	transformLines_.matWorld_ = MakeAffineMatrix(transformLines_.scale_, transformLines_.rotation_, transformLines_.translation_);
+	transformLines_.TransferMatrix();
 }
 
 
@@ -200,14 +238,84 @@ void Enemy::Update() {
 
 void Enemy::Draw(const ViewProjection& viewProjection) {
 
-	// 敵の描画
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
 
 	// 弾の描画
 	for (EnemyBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
 
+}
+
+void Enemy::DrawNeon(const ViewProjection& viewProjection) {
+	if (modelBase_) {
+		modelBase_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
+		Vector3 lightDir = { -1.0f, -1.0f, 1.0f };
+		modelBase_->SetLight(1.0f, 1.0f, 1.0f, 1.0f, lightDir);
+		modelBase_->Draw(worldTransform_, viewProjection, dummyTexture_);
+	}
+
+	if (modelLines_) {
+		modelLines_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+		modelLines_->Draw(transformLines_, viewProjection, dummyTexture_);
+	}
+
+	float* colors[3] = { tailColor1_, tailColor2_, tailColor3_ };
+	float speed = 5.0f;
+	float t = time_ * speed;
+
+	for (int i = 0; i < 5; ++i) {
+		// 安全対策：モデルが作られていなければスキップ
+		if (modelTails_[i] == nullptr) continue;
+
+		// 各矢印の位置を計算
+		float x = t - i;
+		int colorGroup = static_cast<int>(std::floor(x / 5.0f));
+
+		// 3色でループさせる
+		int colorIndex = colorGroup % 3;
+		if (colorIndex < 0) {
+			colorIndex += 3;
+		}
+
+		// 計算された色を割り当て
+		float r = colors[colorIndex][0];
+		float g = colors[colorIndex][1];
+		float b = colors[colorIndex][2];
+
+		// i番目専用のモデルに色をセットし、描画する！
+		modelTails_[i]->SetNeonColor(tailIntensity_, r, g, b);
+		modelTails_[i]->Draw(transformTails_[i], viewProjection, dummyTexture_);
+	}
+
+
+	if (modelRing_) {
+		modelRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+		modelRing_->Draw(worldTransform_, viewProjection, dummyTexture_);
+	}
+}
+
+void Enemy::DrawImGui() {
+#ifdef USE_IMGUI
+	// 座標の操作
+	ImGui::DragFloat3("Position", &worldTransform_.translation_.x, 0.1f);
+
+	ImGui::Separator();
+
+	// 色と輝度のスライダー
+	ImGui::ColorEdit3("Body Color", bodyColor_);
+	ImGui::ColorEdit3("Neon Color", neonColor_);
+	ImGui::SliderFloat("Neon Intensity", &neonIntensity_, 0.0f, 20.0f);
+
+	ImGui::Separator();
+	ImGui::Text("Tail UV Scroll Settings");
+	ImGui::ColorEdit3("Tail Color 1", tailColor1_);
+	ImGui::ColorEdit3("Tail Color 2", tailColor2_);
+	ImGui::ColorEdit3("Tail Color 3", tailColor3_);
+	ImGui::SliderFloat("Tail Intensity", &tailIntensity_, 0.0f, 20.0f);
+	
+
+#endif
 }
 
 // 状態を切り替える関数

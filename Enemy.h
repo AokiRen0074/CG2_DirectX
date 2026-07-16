@@ -6,6 +6,8 @@
 #include <list>
 #include "TimedCall.h"
 #include "Collider.h"
+#include "BodyModel.h"
+#include "NeonModel.h"
 
 class BaseEnemyState;
 class Player;
@@ -30,6 +32,10 @@ public:
 
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);
+
+	void DrawNeon(const ViewProjection& viewProjection);
+
+	void DrawImGui();
 
 	// デストラクタ
 	~Enemy();
@@ -77,6 +83,9 @@ private:
 	// モデル
 	Object3d* model_ = nullptr;
 
+	// まわすやつ
+	WorldTransform transformLines_;
+
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
@@ -99,6 +108,31 @@ private:
 
 	
 
+	/*---------------
+	ネオン
+	--------------------*/
+	BodyModel* modelBase_ = nullptr;     // 暗い実体
+	NeonModel* modelLines_ = nullptr;    // 光るライン・コア
+	NeonModel* modelTails_[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+	NeonModel* modelRing_ = nullptr;     // バリアリング
+
+	// 質感パラメータ
+	float bodyColor_[3] = { 0.2f, 0.0f, 0.3f }; // 暗い紫
+	float neonColor_[3] = { 0.8f, 0.0f, 1.0f }; // 鮮やかな紫/ピンク
+
+	// 尻尾
+	float tailColor1_[3] = { 0.8f, 0.0f, 1.0f }; // 紫
+	float tailColor2_[3] = { 0.0f, 1.0f, 0.8f }; // 水色
+	float tailColor3_[3] = { 1.0f, 0.0f, 0.5f }; // ピンク
+	float tailIntensity_ = 12.0f;
+	float neonIntensity_ = 10.0f;
+
+	uint32_t dummyTexture_ = 0;
+	uint32_t tailTexture_ = 0;
+
+	// アニメーション尻尾
+	WorldTransform transformTails_[5];
+	float time_ = 0.0f;
 
 	/*---------------------------------------
 	

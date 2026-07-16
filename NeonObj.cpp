@@ -20,7 +20,7 @@ void NeonObj::Initialize(const std::string& directoryPath, const std::string& fi
 	dummyTexture_ = TextureManager::Load("Resources/uvChecker.png");
 }
 
-void NeonObj::Update() {
+void NeonObj::Update(const Vector3& cameraPos) {
 	// ==========================================
 	// 💡 フリッカー（チカチカ）の計算
 	// ==========================================
@@ -38,16 +38,20 @@ void NeonObj::Update() {
 		}
 	}
 
-	// ==========================================
-	// 💡 モデルへ質感パラメーターを送信
-	// ==========================================
-	// ※注意：NeonModel側に、NeonSignで作ったのと同じ SetMaterial 関数を用意しておく必要があります！
-	// もし無ければ、とりあえずモデルが持っている SetNeonColor などを呼んでください。
-	model_->SetNeonColor(currentIntensity, color_[0], color_[1], color_[2]);
-	// model_->SetMaterial(radius_, softness_, currentIntensity, color_[0], color_[1], color_[2], lengthOffset_);
+	actualIntensity_ = isDrawn_ ? currentIntensity : 0.0f;
+
+	isDrawn_ = false;
+
+	if (model_) model_->Update();
 
 	// ==========================================
-	// 💡 行列の更新（★ここで座標移動が反映される！）
+	//  モデルへ質感パラメーターを送信
+	// ==========================================
+
+	model_->SetNeonMaterial(cameraPos, actualIntensity_, radius_, { color_[0], color_[1], color_[2] });
+
+	// ==========================================
+	//  行列の更新
 	// ==========================================
 	// ImGuiなどで translation_ が書き換えられた後、必ず行列を作り直す！
 	transform_.matWorld_ = MakeAffineMatrix(transform_.scale_, transform_.rotation_, transform_.translation_);
@@ -56,29 +60,31 @@ void NeonObj::Update() {
 
 void NeonObj::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(transform_, viewProjection, dummyTexture_);
+
+	isDrawn_ = true;
 }
 
 void NeonObj::DrawImGui(const std::string& label) {
 #ifdef USE_IMGUI
-	// labelを使ってウィンドウ名を変える（複数置いた時に混ざらないようにするため）
-	ImGui::Begin(label.c_str());
 
-	// ★ posが動かなかったのは、この数値をいじった後に行列を再計算していなかったからです！
-	ImGui::DragFloat3("Position", &transform_.translation_.x, 0.1f);
-	ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.01f);
-	ImGui::DragFloat3("Rotation", &transform_.rotation_.x, 0.05f);
+	if (ImGui::TreeNodeEx(label.c_str())) {
 
-	ImGui::Separator();
-	ImGui::ColorEdit3("Color", color_);
-	ImGui::SliderFloat("Intensity", &intensity_, 0.0f, 20.0f);
-	ImGui::SliderFloat("Radius (太さ)", &radius_, 0.001f, 0.1f);
-	ImGui::SliderFloat("Length (長さ)", &lengthOffset_, -1.0f, 1.0f);
-	ImGui::SliderFloat("Softness (ぼかし)", &softness_, 0.1f, 50.0f);
+		ImGui::DragFloat3("Position", &transform_.translation_.x, 0.1f);
+		ImGui::DragFloat3("Scale", &transform_.scale_.x, 0.01f);
+		ImGui::DragFloat3("Rotation", &transform_.rotation_.x, 0.05f);
 
-	ImGui::Separator();
-	// ★ フリッカーのON/OFFスイッチ！
-	ImGui::Checkbox("Enable Flicker (チカチカ)", &isFlicker_);
+		ImGui::Separator();
+		ImGui::ColorEdit3("Color", color_);
+		ImGui::SliderFloat("Intensity", &intensity_, 0.0f, 20.0f);
+		ImGui::SliderFloat("Radius (太さ)", &radius_, 0.001f, 0.1f);
+		ImGui::SliderFloat("Length (長さ)", &lengthOffset_, -1.0f, 1.0f);
+		ImGui::SliderFloat("Softness (ぼかし)", &softness_, 0.1f, 50.0f);
 
-	ImGui::End();
+		ImGui::Separator();
+		// ★ フリッカーのON/OFFスイッチ！
+		ImGui::Checkbox("Enable Flicker (チカチカ)", &isFlicker_);
+
+		ImGui::TreePop();
+	}
 #endif
 }

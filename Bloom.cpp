@@ -7,11 +7,11 @@
 
 ID3D12Device* Bloom::GetDevice() { return dxCommon_->GetDevice(); }
 
-void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight) {
-	
+void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeight) {
+
 	dxCommon_ = dxCommon; // ポインタを保存
 	ID3D12Device* device = dxCommon_->GetDevice();
-	
+
 	//ID3D12Device* device = GetDevice();
 	assert(device != nullptr);
 
@@ -19,7 +19,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	// HDR用テクスチャリソースの設定
 	// ==========================================
 	D3D12_HEAP_PROPERTIES heapProps{};
-	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT; 
+	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
 	// ==========================================
 	// リソースの設定
@@ -48,10 +48,10 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	// リソースの生成
 	// ==========================================
 	HRESULT hr = device->CreateCommittedResource(
-	    &heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-	    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, // 最初は描画対象として使う状態
-	    &clearValue, IID_PPV_ARGS(&hdrTextureResource_));
-	assert(SUCCEEDED(hr)); 
+		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		&clearValue, IID_PPV_ARGS(&hdrTextureResource_));
+	assert(SUCCEEDED(hr));
 
 	// ==========================================
 	// 5. デスクリプタヒープの作成
@@ -78,10 +78,10 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	uavDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS; // ★書き込み可能(UAV)フラグを立てる
 
 	hr = device->CreateCommittedResource(
-	    &heapProps, D3D12_HEAP_FLAG_NONE, &uavDesc,
-	    D3D12_RESOURCE_STATE_UNORDERED_ACCESS, // 初期状態は書き込み待ち
-	    nullptr,                               // UAVにはクリアカラーは不要
-	    IID_PPV_ARGS(&uavTextureResource_));
+		&heapProps, D3D12_HEAP_FLAG_NONE, &uavDesc,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS, // 初期状態は書き込み待ち
+		nullptr,                               // UAVにはクリアカラーは不要
+		IID_PPV_ARGS(&uavTextureResource_));
 
 	assert(SUCCEEDED(hr));
 
@@ -168,8 +168,8 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	// 8. パイプラインステートの作成 (CSの読み込みと設定)
 	// ==========================================
 	Microsoft::WRL::ComPtr<IDxcBlob> csBlob = dxCommon_->CompilerShader(
-	    L"Resources/Shaders/Bloom.hlsl", L"cs_6_0", // コンピュートシェーダーなので cs_6_0
-	    dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+		L"Resources/Shaders/Bloom.hlsl", L"cs_6_0", // コンピュートシェーダーなので cs_6_0
+		dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(csBlob != nullptr);
 
 	D3D12_COMPUTE_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -189,11 +189,23 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	ppRange.BaseShaderRegister = 0; // シェーダーのt0に送る
 	ppRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER ppParam{};
-	ppParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	ppParam.DescriptorTable.NumDescriptorRanges = 1;
-	ppParam.DescriptorTable.pDescriptorRanges = &ppRange;
-	ppParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // ピクセルシェーダーで使う
+	// パラメータ0: 画像データ (t0)
+	D3D12_ROOT_PARAMETER ppParamSRV{};
+	ppParamSRV.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	ppParamSRV.DescriptorTable.NumDescriptorRanges = 1;
+	ppParamSRV.DescriptorTable.pDescriptorRanges = &ppRange;
+	ppParamSRV.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// パラメータ1: 定数データ (b0) - 時間やエフェクト強度を送る
+	D3D12_ROOT_PARAMETER ppParamConstants{};
+	ppParamConstants.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	ppParamConstants.Constants.ShaderRegister = 0; // b0
+	ppParamConstants.Constants.Num32BitValues = 4; // float 3つ分 (時間, 色収差, ノイズ)
+	ppParamConstants.Constants.RegisterSpace = 0;
+	ppParamConstants.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// 🌟 修正の要：必ずこの配列(サイズ2)を作り、それを渡す！
+	D3D12_ROOT_PARAMETER ppRootParams[2] = { ppParamSRV, ppParamConstants };
 
 	// 画像を滑らかに補間するサンプラー（s0）
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
@@ -205,8 +217,8 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_ROOT_SIGNATURE_DESC ppRootDesc{};
-	ppRootDesc.NumParameters = 1;
-	ppRootDesc.pParameters = &ppParam;
+	ppRootDesc.NumParameters = 2;          // パラメータは2つ
+	ppRootDesc.pParameters = ppRootParams; // 🌟 古い変数が残らないよう、必ず作った配列を指定する！
 	ppRootDesc.NumStaticSamplers = 1;
 	ppRootDesc.pStaticSamplers = &samplerDesc;
 	ppRootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -221,11 +233,11 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	// 10. ポストプロセス用パイプラインステートの作成
 	// ==========================================
 	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob =
-	    dxCommon_->CompilerShader(L"Resources/Shaders/PostProcess.VS.hlsl", L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+		dxCommon_->CompilerShader(L"Resources/Shaders/PostProcess.VS.hlsl", L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(vsBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> psBlob =
-	    dxCommon_->CompilerShader(L"Resources/Shaders/PostProcess.PS.hlsl", L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+		dxCommon_->CompilerShader(L"Resources/Shaders/PostProcess.PS.hlsl", L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(psBlob != nullptr);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC ppPsoDesc{};
@@ -242,7 +254,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 
 	ppPsoDesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
 	ppPsoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;  // 光(Bloom結果)の強さはそのまま
-	ppPsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO; // 下地(黄色いビール)にそのまま足す
+	ppPsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE; // 下地(黄色いビール)にそのまま足す
 	ppPsoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 	ppPsoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	ppPsoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
@@ -253,6 +265,10 @@ void Bloom::Initialize(DirectXCommon* dxCommon,int windowWidth, int windowHeight
 	// ★エンジンに合わせてフォーマットを設定
 	ppPsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	ppPsoDesc.SampleDesc.Count = 1;
+
+	ppPsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	// ただし、画面全体にペタッと貼るだけなので深度のテスト自体はOFFにする
+	ppPsoDesc.DepthStencilState.DepthEnable = FALSE;
 
 	hr = device->CreateGraphicsPipelineState(&ppPsoDesc, IID_PPV_ARGS(&postProcessPipelineState_));
 	assert(SUCCEEDED(hr));
@@ -269,16 +285,18 @@ void Bloom::PreDraw() {
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.pResource = hdrTextureResource_.Get();
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	cmdList->ResourceBarrier(1, &barrier);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxCommon_->GetDsvDescriptorHeap()->GetCPUDescriptorHandleForHeapStart();
+
 	// 2. 描画先をこのHDRキャンバスに変更
-	cmdList->OMSetRenderTargets(1, &rtvHandle_, FALSE, nullptr);
+	cmdList->OMSetRenderTargets(1, &rtvHandle_, FALSE, &dsvHandle);
 
 	// 3. キャンバスを真っ黒にクリア（背景色）
-	float clearColor[] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	cmdList->ClearRenderTargetView(rtvHandle_, clearColor, 0, nullptr);
 }
 
@@ -291,7 +309,7 @@ void Bloom::PostDraw() {
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.pResource = hdrTextureResource_.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	cmdList->ResourceBarrier(1, &barrier);
 }
@@ -305,7 +323,7 @@ void Bloom::Execute() {
 	cmdList->SetComputeRootSignature(rootSignature_.Get());
 
 	// 2. デスクリプタヒープのセット（SRVとUAVが入っている箱）
-	ID3D12DescriptorHeap* ppHeaps[] = {srvHeap_.Get()};
+	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap_.Get() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 	// 3. GPUに渡すアドレス（ハンドル）の計算
@@ -317,8 +335,8 @@ void Bloom::Execute() {
 	// 4. ルートパラメータにアドレスをセット（t0 = 読み取り, u0 = 書き込み）
 	cmdList->SetComputeRootDescriptorTable(0, srvGpuHandle);
 	cmdList->SetComputeRootDescriptorTable(1, uavGpuHandle);
-	
-	int constants[3] = {enableLuminance_ ? 1 : 0, enableBlur_ ? 1 : 0, enableAdditive_ ? 1 : 0};
+
+	int constants[3] = { enableLuminance_ ? 1 : 0, enableBlur_ ? 1 : 0, enableAdditive_ ? 1 : 0 };
 	// 配列ごとGPU（パラメータ2番 = b0レジスタ）に直接発射！
 	cmdList->SetComputeRoot32BitConstants(2, 3, constants, 0);
 
@@ -356,7 +374,7 @@ void Bloom::DrawResult() {
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// 3. 画像が入っているヒープをセットし、3番目の部屋（結果画像）のアドレスを渡す
-	ID3D12DescriptorHeap* ppHeaps[] = {srvHeap_.Get()};
+	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap_.Get() };
 	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 	D3D12_GPU_DESCRIPTOR_HANDLE resultGpuHandle = srvHeap_->GetGPUDescriptorHandleForHeapStart();
@@ -364,7 +382,16 @@ void Bloom::DrawResult() {
 
 	cmdList->SetGraphicsRootDescriptorTable(0, resultGpuHandle);
 
-	// 4. 画面全体を覆う巨大な三角形を描画
+	time_ += 1.0f / 60.0f;
+	if (time_ > 1000.0f)
+		time_ = 0.0f; // オーバーフロー防止
+
+	// 時間とエフェクトの強さをHLSL (b0) に発射！
+	float ppData[4] = { time_, chromaticAberration_, noiseIntensity_, useACES_ ? 1.0f : 0.0f };
+
+	cmdList->SetGraphicsRoot32BitConstants(1, 4, ppData, 0);
+
+	//  画面全体を覆う巨大な三角形を描画
 	cmdList->DrawInstanced(3, 1, 0, 0);
 
 	// 5. リソースバリア：次のフレームのために UAV（書き込み） に戻す
@@ -375,10 +402,17 @@ void Bloom::DrawResult() {
 }
 
 void Bloom::DrawImGui() {
-	if (ImGui::TreeNode("Bloom Debug Settings")) {
+	if (ImGui::TreeNodeEx("Bloom Debug Settings")) {
 		ImGui::Checkbox("1. Luminance Extraction ", &enableLuminance_);
 		ImGui::Checkbox("2. Gaussian Blur ", &enableBlur_);
 		ImGui::Checkbox("3. Additive Blending", &enableAdditive_);
+		ImGui::Separator();
+		ImGui::Text("Camera Lens Effects");
+
+		ImGui::SliderFloat("Chromatic Aberration", &chromaticAberration_, 0.0f, 0.05f);
+		ImGui::SliderFloat("Film Grain", &noiseIntensity_, 0.0f, 0.5f);
+
+		ImGui::Checkbox("Use ACES Tonemapping", &useACES_);
 		ImGui::TreePop();
 	}
 }

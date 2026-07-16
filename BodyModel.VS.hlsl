@@ -1,40 +1,35 @@
 struct TransformationMatrix
 {
-	float4x4 WVP;
-	float4x4 World;
+    float4x4 WVP;
+    float4x4 World;
 };
 
-// C++の rootParameters[1] から受け取るデータ
+struct VertexShaderInput
+{
+    float4 position : POSITION0;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
+};
+
+struct VertexShaderOutput
+{
+    float4 position : SV_POSITION;
+    float2 texcoord : TEXCOORD0;
+    float3 normal : NORMAL0;
+    float3 worldPos : TEXCOORD1; // 🌟 これが足りていなかった！
+};
+
 ConstantBuffer<TransformationMatrix> gTransformationMatrix : register(b0);
 
-// C++から送られてくる頂点データ
-struct VSInput
+VertexShaderOutput main(VertexShaderInput input)
 {
-	float4 pos : POSITION;
-	float2 uv : TEXCOORD;
-	float3 normal : NORMAL;
-};
-
-// PS（ピクセルシェーダー）へ送るデータ
-struct VSOutput
-{
-	float4 pos : SV_POSITION;
-	float2 uv : TEXCOORD;
-	float3 normal : NORMAL; 
-	float3 posWorld : TEXCOORD1; 
-};
-
-VSOutput main(VSInput input)
-{
-	VSOutput output;
+    VertexShaderOutput output;
+    output.position = mul(input.position, gTransformationMatrix.WVP);
+    output.texcoord = input.texcoord;
+    output.normal = normalize(mul(input.normal, (float3x3) gTransformationMatrix.World));
     
-    // 座標とUVはそのまま計算
-	output.pos = mul(input.pos, gTransformationMatrix.WVP);
-	output.uv = input.uv;
+    // 🌟 ワールド座標を計算してPSへ渡す！
+    output.worldPos = mul(input.position, gTransformationMatrix.World).xyz;
     
-    // ✨ここが最大の鍵！
-    // モデルが回転したら、法線（面の向き）も一緒に回転させてからPSに渡す！
-	output.normal = normalize(mul(input.normal, (float3x3) gTransformationMatrix.World));
-    
-	return output;
+    return output;
 }

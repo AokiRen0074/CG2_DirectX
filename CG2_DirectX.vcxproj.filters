@@ -27,9 +27,6 @@
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.cpp">
-      <Filter>Engine\Neon</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Math\Vector3.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
@@ -126,6 +123,12 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="EditorPanel.cpp">
+      <Filter>Engine\EditorPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Bloom.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -155,9 +158,6 @@
       <Filter>Engine\Neon</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h">
-      <Filter>Engine\Neon</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
     <ClInclude Include="Vector4.h">
@@ -265,6 +265,15 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="EditorPanel.h">
+      <Filter>Engine\EditorPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Bloom.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
+    <ClInclude Include="FlickerTimer.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
@@ -366,6 +375,9 @@
     </Filter>
     <Filter Include="externals\imgui">
       <UniqueIdentifier>{41cec707-6026-46c6-8ae5-17c84a2a2f45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\EditorPanel">
+      <UniqueIdentifier>{f03de160-2560-42a2-b500-b8776c7c9945}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

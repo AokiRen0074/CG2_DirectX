@@ -168,29 +168,6 @@ void Player::Update() {
 	//　旋回処理
 	Rotate();
 
-#ifdef USE_IMGUI
-
-	// キャラクターの座標を画面表示する処理
-
-	ImGui::Begin("Player");
-
-	ImGui::Text("Position: X: %f, Y: %f, Z: %f",
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);
-
-	ImGui::Separator(); // 区切り線
-	ImGui::Text("--- Neon Settings ---");
-	ImGui::ColorEdit3("Neon Color", neonColor_); // ネオンの色
-	ImGui::SliderFloat("Neon Intensity", &neonIntensity_, 0.1f, 20.0f); // 光の強さ
-
-	ImGui::Separator();
-	ImGui::Text("--- Body Settings ---");
-	ImGui::ColorEdit3("Body Color", bodyColor_);
-
-	ImGui::End();
-
-#endif
 
 	/*------------------------------
 	弾
@@ -351,4 +328,27 @@ Vector3  Player::GetWorldPosition() {
 
 	return worldPos;
 }
+void Player::SetPointLight(const Vector3& pos, const Vector3& color, float intensity, float radius, const Vector3& cameraPos) {
+	if (modelCore_) modelCore_->SetPointLight(pos, color, intensity, radius, cameraPos);
+	if (modelOuterRing_) modelOuterRing_->SetPointLight(pos, color, intensity, radius, cameraPos);
+	if (modelWingBase_) modelWingBase_->SetPointLight(pos, color, intensity, radius, cameraPos);
+}
 
+
+
+void Player::DrawImGui() {
+#ifdef USE_IMGUI
+	ImGui::Text("Position: X: %f, Y: %f, Z: %f",
+		worldTransform_.translation_.x, worldTransform_.translation_.y, worldTransform_.translation_.z);
+
+	ImGui::Separator();
+	ImGui::Text("--- Neon Settings ---");
+	ImGui::ColorEdit3("Neon Color", neonColor_);
+	ImGui::SliderFloat("Neon Intensity", &neonIntensity_, 0.1f, 20.0f);
+
+
+	ImGui::Separator();
+	ImGui::Text("--- Body Settings ---");
+	ImGui::ColorEdit3("Body Color", bodyColor_);
+#endif
+}

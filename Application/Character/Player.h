@@ -35,6 +35,8 @@ public:
 	// 攻撃
 	void Attack();
 
+	// ImGui描画関数
+	void DrawImGui();
 
 
 	void OnCollision() override;
@@ -50,7 +52,8 @@ public:
 	// 調整項目を登録
 	static void RegisterGlobalVariables();
 
-
+	// 点光源設置
+	void SetPointLight(const Vector3& pos, const Vector3& color, float intensity, float radius, const Vector3& cameraPos);
 
 	// 弾リストの取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }

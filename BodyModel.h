@@ -34,6 +34,12 @@ public:
 		Vector4 color;
 		Vector3 direction;
 		float intensity;
+
+		Vector3 pointPos;      // 光源の位置
+		float pointIntensity;  // 光の強さ
+		Vector4 pointColor;    // 光の色
+		float pointRadius;     // 光が届く距離
+		Vector3 cameraPos;
 	};
 
 	struct TransformationMatrix {
@@ -72,6 +78,8 @@ public:
 		directionalLightData_->color = { r, g, b, 1.0f };
 		directionalLightData_->direction = direction;
 	}
+
+	void SetPointLight(const Vector3& pos, const Vector3& color, float intensity, float radius, const Vector3& cameraPos);
 
 	// ネオン用の
 	void SetColor(float r, float g, float b, float a) {

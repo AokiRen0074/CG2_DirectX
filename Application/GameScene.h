@@ -13,6 +13,8 @@
 #include "NeonModel.h"
 #include "NeonObj.h"
 #include "ProceduralNeon.h"
+#include "EditorPanel.h"
+#include "FlickerTimer.h"
 
 class Skydome;
 
@@ -78,15 +80,31 @@ private:
 	/*-------------------------
 	ネオン
 	---------------------------*/
-    //Object3d* bulletModel_ = nullptr;
-    NeonSign* neonSign_ = nullptr;
-    float globalTubeLength_ = 2.0f;
-    NeonText* neonText_ = nullptr;
-    DirectXCommon* dxCommon_ = nullptr;
-    Bloom* bloom_ = nullptr;
+	//Object3d* bulletModel_ = nullptr;
+	NeonSign* neonSign_ = nullptr;
+	float globalTubeLength_ = 2.0f;
+	NeonText* neonText_ = nullptr;
+	DirectXCommon* dxCommon_ = nullptr;
+	Bloom* bloom_ = nullptr;
 	NeonText* neonText_Open_ = nullptr;   // 文字用
 	NeonText* neonText_Border_ = nullptr;
 
 	NeonObj* myNeonBar_ = nullptr;
 	ProceduralNeon* procNeon_ = nullptr;
+
+	NeonModel* neonModel_ = nullptr;
+
+	float neonRadius_ = 0.03f;
+	float neonSoftness_ = 15.0f;
+	float neonIntensity_ = 8.0f;
+	float neonColor_[3] = { 0.0f, 0.8f, 1.0f };
+	float neonLengthOffset_ = -0.2f;
+
+	// チカチカを管理するクラス
+	FlickerTimer neonTextFlicker_;
+
+	/*------------------------
+	エディター
+	------------------------*/
+	//EditorPanel* editorPanel_ = nullptr;
 };

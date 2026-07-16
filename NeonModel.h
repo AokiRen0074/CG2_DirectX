@@ -32,13 +32,23 @@ public:
 		Vector3 cameraPos;
 		float intensity;
 		float radius;
-		float padding2[3];
+
+		float time;
+		float usePlasma;
+		float padding2;
 	};
 
 	struct DirectionalLight {
-		Vector4 color;
-		Vector3 direction;
-		float intensity;
+		Vector4 color;       // 平行光源の色
+		Vector3 direction;   // 平行光源の向き
+		float intensity;     // 平行光源の強さ
+
+		//点光源データ
+		Vector3 pointPos;      // 点光源の位置
+		float pointIntensity;  // 点光源の強さ
+		Vector4 pointColor;    // 点光源の色
+		float pointRadius;     // 光が届く限界半径
+		float padding[3];      // 16バイトアライメント用のパディング
 	};
 
 	struct TransformationMatrix {
@@ -68,6 +78,10 @@ public:
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
+
+	// ImGui
+	void DrawImGui(const std::string& label);
+
 	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle);
 
 	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
@@ -75,7 +89,14 @@ public:
 		projectionMatrix_ = projection;
 	}
 
-	
+	// ライト
+	DirectionalLight* GetLightData() { return directionalLightData_; }
+
+
+
+	// ネオンの芯、カメラ座標を送る
+	void SetNeonMaterial(const Vector3& cameraPos, float intensity, float radius, const Vector3& color);
+
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 
 	// ゲッター
@@ -131,4 +152,8 @@ private:
 
 	// クラス全体で共有するdxCommon
 	static DirectXCommon* sDxCommon_;
+
+
+	float time_ = 0.0f;
+	bool usePlasma_ = true;
 };

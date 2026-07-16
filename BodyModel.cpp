@@ -187,7 +187,8 @@ void BodyModel::Initialize(const std::string& directoryPath, const std::string& 
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc; // RasterizerState
 	//書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	//利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -347,6 +348,11 @@ void BodyModel::Initialize(const std::string& directoryPath, const std::string& 
 	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData_->intensity = 1.0f;
 
+	directionalLightData_->pointPos = { 0.0f, 0.0f, 0.0f };
+	directionalLightData_->pointIntensity = 0.0f;
+	directionalLightData_->pointColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	directionalLightData_->pointRadius = 15.0f;
+
 	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
 	transformMatrixSize = (transformMatrixSize + 255) & ~255;
 	wvpResource_ = CreateBufferResource(device, transformMatrixSize);
@@ -476,3 +482,13 @@ Microsoft::WRL::ComPtr<ID3D12Resource> BodyModel::CreateBufferResource(ID3D12Dev
 	return resource;
 }
 
+// 点光源
+void BodyModel::SetPointLight(const Vector3& pos, const Vector3& color, float intensity, float radius, const Vector3& cameraPos) {
+	if (directionalLightData_) {
+		directionalLightData_->pointPos = pos;
+		directionalLightData_->pointColor = { color.x, color.y, color.z, 1.0f };
+		directionalLightData_->pointIntensity = intensity;
+		directionalLightData_->pointRadius = radius;
+		directionalLightData_->cameraPos = cameraPos; 
+	}
+}

@@ -5,6 +5,7 @@
 #include "TextureManager.h"
 #include <numbers>
 #include "Model.h"
+#include "EditorPanel.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -346,6 +347,12 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData_->intensity = 1.0f;
 
+	// 照り返し用点光源の初期化
+	directionalLightData_->pointPos = { 0.0f, 0.0f, 0.0f };
+	directionalLightData_->pointIntensity = 0.0f; // 最初は消灯
+	directionalLightData_->pointColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	directionalLightData_->pointRadius = 15.0f;   // 15の距離まで光が届く
+
 	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
 	transformMatrixSize = (transformMatrixSize + 255) & ~255;
 	wvpResource_ = CreateBufferResource(device, transformMatrixSize);
@@ -358,40 +365,47 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 // 更新
 // ==========================================
 void NeonModel::Update() {
-	//transform_.rotate.y += 0.03f;
+	// 🌟追加：時間を進める
+	time_ += 1.0f / 60.0f;
+	if (time_ > 1000.0f) time_ = 0.0f; // オーバーフロー防止
+
+	// 🌟追加：各メッシュ（パーツ）のマテリアルに時間とフラグを流し込む
+	for (auto& meshRes : meshResources_) {
+		if (meshRes.materialData != nullptr) {
+			meshRes.materialData->time = time_;
+			meshRes.materialData->usePlasma = usePlasma_ ? 1.0f : 0.0f;
+		}
+	}
+
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
 
-
 	wvpData_->WVP = worldViewProjectionMatrix;
 	wvpData_->World = worldMatrix;
 
-#ifdef USE_IMGUI
-	ImGui::Begin("Settings");
-	if (ImGui::TreeNode("Camera")) {
-		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
-		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Directional Light")) {
-		ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
-		if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
-			float len = std::sqrt(directionalLightData_->direction.x * directionalLightData_->direction.x + directionalLightData_->direction.y * directionalLightData_->direction.y + directionalLightData_->direction.z * directionalLightData_->direction.z);
-			if (len != 0.0f) {
-				directionalLightData_->direction.x /= len;
-				directionalLightData_->direction.y /= len;
-				directionalLightData_->direction.z /= len;
-			}
-		}
-		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
-		ImGui::TreePop();
-	}
-	ImGui::End();
-#endif
 
+}
+
+
+
+
+void NeonModel::DrawImGui(const std::string& label) {
+#ifdef USE_IMGUI
+
+	if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+
+		ImGui::Checkbox("Use Plasma Flow (UV Scroll)", &usePlasma_);
+
+		if (ImGui::TreeNode("Camera & Light")) {
+			ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
+			ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
+			ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
+	}
+#endif
 }
 
 // ==========================================
@@ -476,10 +490,25 @@ Microsoft::WRL::ComPtr<ID3D12Resource> NeonModel::CreateBufferResource(ID3D12Dev
 }
 
 void NeonModel::SetNeonColor(float intensity, float r, float g, float b) {
-	
 	for (auto& meshRes : meshResources_) {
 		if (meshRes.materialData != nullptr) {
-			meshRes.materialData->color = { r * intensity, g * intensity, b * intensity, 1.0f };
+			meshRes.materialData->color = { r*intensity, g*intensity, b*intensity, 1.0f };
+
+		
+			meshRes.materialData->intensity = -1.0f;
+			meshRes.materialData->radius = 0.0f;
+			meshRes.materialData->cameraPos = { 0.0f, 0.0f, 0.0f };
+		}
+	}
+}
+
+void NeonModel::SetNeonMaterial(const Vector3& cameraPos, float intensity, float radius, const Vector3& color) {
+	for (auto& meshRes : meshResources_) {
+		if (meshRes.materialData != nullptr) {
+			meshRes.materialData->color = { color.x, color.y, color.z, 1.0f };
+			meshRes.materialData->intensity = intensity;
+			meshRes.materialData->radius = radius;
+			meshRes.materialData->cameraPos = cameraPos;
 		}
 	}
 }
