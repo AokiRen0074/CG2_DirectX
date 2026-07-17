@@ -40,4 +40,24 @@ private:
 
     // 音声データ
     SoundData soundData_;
+
+    int currentModelType_ = 0;
+    const char* modelNames_[4] = { "Plane&sprite","Teapot","Bunny","Suzanne" };
+
+    /*----------------------
+    ティーポット
+    -----------------------------*/
+    Object3d* teapot_ = nullptr;
+    uint32_t teapotTexture_ = 0u;
+
+    /*--------------------------
+    バニー
+    -----------------------------*/
+    Object3d* bunny_ = nullptr;
+
+    /*---------------------------
+    スザンヌ
+    ------------------------------*/
+    Object3d* suzanne_ = nullptr;
+
 };

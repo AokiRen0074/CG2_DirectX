@@ -209,4 +209,12 @@
       <Filter>Resources\Shader</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Object3D.NoTexture.PS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="Object3d.NoTexture.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+  </ItemGroup>
 </Project>

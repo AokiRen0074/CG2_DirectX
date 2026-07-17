@@ -33,6 +33,8 @@ public:
 		Vector4 color;
 		Vector3 direction;
 		float intensity;
+		int32_t lightingType;
+		float padding2[3];
 	};
 
 	struct TransformationMatrix {
@@ -59,7 +61,12 @@ public:
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
+
+	// テクスチャ有り
 	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle);
+
+	// テクスチャなし
+	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
 
 	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
 		viewMatrix_ = view;
@@ -81,6 +88,10 @@ private:
 	// rootSignatureとGraphicPipelineState
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
+
+	// テクスチャがない時のパイプライン
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureNoTexture_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoTexture_;
 
 	std::vector<MeshResource> meshResources_;
 

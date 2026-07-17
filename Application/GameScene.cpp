@@ -14,6 +14,10 @@ GameScene::~GameScene() {
     delete object3d_;
     delete debugCamera_;
     delete player_;
+
+    delete teapot_;
+    delete bunny_;
+    delete suzanne_;
 }
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
@@ -48,11 +52,23 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
     object3d_->Initialize("Resources","plane.obj");
 
+    teapot_ = new Object3d();
+    teapot_->Initialize("Resources", "teapot.obj");
+
+    bunny_ = new Object3d();
+    bunny_->Initialize("Resources", "bunny.obj");
+
+
+    suzanne_ = new Object3d();
+    suzanne_->Initialize("Resources", "suzanne.obj");
+
+
 
   //  modelData_ = new ModelData();
 
   //  *modelData_ = LoadObjectFile("Resources", "Player.obj");
     textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
+    teapotTexture_ = TextureManager::Load("Resources/checkerBoard.png");
 
     /*----------------------
     スプライトの生成と初期化
@@ -80,6 +96,28 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 }
 
 void GameScene::Update() {
+
+#ifdef USE_IMGUI
+    ImGui::ShowDemoWindow();
+    ImGui::Begin("Scene Selector");
+    ImGui::Combo("Select Model", &currentModelType_, modelNames_, 4);
+    ImGui::End();
+#endif
+
+    if (currentModelType_ == 0) {
+        object3d_->Update();
+        sprite_->Update();
+    }
+    else if (currentModelType_ == 1) {
+        teapot_->Update();
+    }
+    else if (currentModelType_ == 2) {
+        bunny_->Update();
+    }
+    else if (currentModelType_ == 3) {
+        suzanne_->Update();
+    }
+
     // カメラの更新
     debugCamera_->Update();
 
@@ -90,13 +128,18 @@ void GameScene::Update() {
     /*------------------
     自キャラ更新
     ----------------------*/
-    player_->Update();
+   // player_->Update();
 
 
     // オブジェクトの更新
   object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
-  object3d_->Update();
-   sprite_->Update();
+
+  object3d_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  teapot_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  bunny_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  suzanne_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+
+  //sprite_->Update();
 
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();
@@ -108,14 +151,29 @@ void GameScene::Draw() {
     /*-------------------
     自キャラ描画
     --------------------*/
-    player_->Draw(viewProjection_);
+   // player_->Draw(viewProjection_);
 
     // 3Dモデル描画
     WorldTransform dummyTransform;
     dummyTransform.Initialize();
 
-    object3d_->Draw(dummyTransform, viewProjection_, textureHandle_);
+
+    if (currentModelType_ == 0) {
+        object3d_->Draw(dummyTransform, viewProjection_, textureHandle_);
+        sprite_->Draw();
+    }
+    else if (currentModelType_ == 1) {
+        teapot_->Draw(dummyTransform, viewProjection_, teapotTexture_);
+    }
+    else if (currentModelType_ == 2) {
+        bunny_->Draw(dummyTransform, viewProjection_, textureHandle_);
+    }
+    else if (currentModelType_ == 3) {
+        suzanne_->Draw(dummyTransform, viewProjection_);
+    }
 
     // 2Dスプライト描画
-     sprite_->Draw();
+   //  sprite_->Draw();
+
+   
 }

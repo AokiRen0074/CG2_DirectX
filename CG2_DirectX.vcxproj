@@ -193,6 +193,14 @@
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Object3D.NoTexture.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Object3d.NoTexture.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
