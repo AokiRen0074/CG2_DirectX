@@ -17,7 +17,7 @@ struct DirectionalLight
     float32_t4 color; // ライトの色
     float32_t3 direction; // ライトの向き
     float intensity; // 輝度
-    int lightingType;
+    int lightingType; 
     float3 padding;
 };
 
@@ -42,12 +42,10 @@ SamplerState gSampler : register(s0);
 // ==========================================
 float32_t4 main(VertexShaderOutput input) : SV_TARGET
 {
-    
     // テクスチャから色をサンプリング
     float32_t4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
     
-
     float32_t4 outputColor;
 
     // ライティングの計算
@@ -56,13 +54,25 @@ float32_t4 main(VertexShaderOutput input) : SV_TARGET
         // ライティング有効の場合
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
  
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        // 光の計算
-        outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-        
-  
-        outputColor.a = gMaterial.color.a * textureColor.a;
-        
+        if (gDirectionalLight.lightingType == 1)
+        {
+            //ランバート
+            float cos = saturate(NdotL);
+            outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+            outputColor.a = gMaterial.color.a * textureColor.a;
+        }
+        else if (gDirectionalLight.lightingType == 2)
+        {
+            // ハーフランバート
+            float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+            outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+            outputColor.a = gMaterial.color.a * textureColor.a;
+        }
+        else
+        {
+          
+            outputColor = gMaterial.color * textureColor;
+        }
     }
     else
     {

@@ -450,8 +450,8 @@ void Object3d::Update() {
 			}
 		}
 		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
-		const char* lightingTypes[] = { "Lambert", "Half Lambert" };
-		ImGui::Combo("Lighting Type", &directionalLightData_->lightingType, lightingTypes, 2);
+		const char* lightingTypes[] = { "None", "Lambert", "Half Lambert" };
+		ImGui::Combo("Lighting Type", &directionalLightData_->lightingType, lightingTypes, 3);
 
 		ImGui::TreePop();
 	}

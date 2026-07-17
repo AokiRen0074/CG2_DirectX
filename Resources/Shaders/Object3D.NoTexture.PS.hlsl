@@ -12,8 +12,10 @@ struct DirectionalLight
     float4 color;
     float3 direction;
     float intensity;
+    int lightingType; 
+    float3 padding; 
 };
-// テクスチャが無いので、ライトは b1に詰める
+
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 
 struct VSOutput
@@ -29,9 +31,20 @@ float4 main(VSOutput input) : SV_TARGET
     if (gMaterial.enableLighting != 0)
     {
         float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
         
-        outputColor.rgb *= gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        if (gDirectionalLight.lightingType == 1)
+        {
+            //ランバート
+            float cos = saturate(NdotL);
+            outputColor.rgb *= gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        }
+        else if (gDirectionalLight.lightingType == 2)
+        {
+            // ハーフランバート
+            float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+            outputColor.rgb *= gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        }
+
     }
 
     return outputColor;
