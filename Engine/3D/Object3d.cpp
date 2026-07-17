@@ -244,7 +244,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	assert(SUCCEEDED(hr));
 
 
-	/*
+	
 	// ==========================================
 	// 球体の頂点・インデックスデータの計算
 	// ==========================================
@@ -313,7 +313,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		}
 	}
 
-	*/
+	
 
 
 	// ==========================================
@@ -323,7 +323,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	ModelData modelData = LoadObjectFile(directoryPath, filename);
 
 	// SRVの割り当て用インデックス
-	uint32_t srvIndex = 1;
+	static uint32_t srvIndex = 10;
 	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
 	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
 
@@ -356,9 +356,16 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		meshRes.materialData->color = matData.diffuseColor;
 		meshRes.materialData->enableLighting = 1;
 
-		Matrix4x4 uvTransformMatrix = MakeScaleMatrix(matData.textureScale);
-		uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(matData.textureOffset));
-		meshRes.materialData->uvTransform = uvTransformMatrix;
+		meshRes.uvTransform.scale = matData.textureScale;
+		meshRes.uvTransform.translate = matData.textureOffset;
+		meshRes.uvTransform.rotate = { 0.0f, 0.0f, 0.0f }; // 初期回転はゼロ
+
+		// SRTからAffine行列を作ってGPUに送る
+		meshRes.materialData->uvTransform = MakeAffineMatrix(
+			meshRes.uvTransform.scale,
+			meshRes.uvTransform.rotate,
+			meshRes.uvTransform.translate
+		);
 
 		// このパーツ専用のテクスチャを読み込んでSRVを作成
 		if (!matData.textureFilePath.empty()) {
@@ -455,9 +462,35 @@ void Object3d::Update() {
 
 		ImGui::TreePop();
 	}
+
+
+	for (size_t i = 0; i < meshResources_.size(); ++i) {
+		ImGui::PushID(static_cast<int>(i));
+
+		if (ImGui::TreeNode("Material")) {
+			ImGui::DragFloat3("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
+			ImGui::DragFloat3("UVRotate", &meshResources_[i].uvTransform.rotate.x, 0.01f);
+			ImGui::DragFloat3("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
+			ImGui::ColorEdit4("Color", &meshResources_[i].materialData->color.x);
+
+			bool isLighting = meshResources_[i].materialData->enableLighting != 0;
+			if (ImGui::Checkbox("Enable Lighting", &isLighting)) {
+				meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopID(); 
+
+		// 動かしたUVのSRTをもとに、最新の行列を計算してGPUに送る
+		meshResources_[i].materialData->uvTransform = MakeAffineMatrix(
+			meshResources_[i].uvTransform.scale,
+			meshResources_[i].uvTransform.rotate,
+			meshResources_[i].uvTransform.translate
+		);
+	}
+
 	ImGui::End();
 #endif
-	
 }
 
 // ==========================================

@@ -53,6 +53,7 @@ public:
 		uint32_t vertexCount = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureResource;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureHandleGPU{}; // このパーツが使うテクスチャのハンドル
+		Transform uvTransform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	};
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
@@ -94,6 +95,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoTexture_;
 
 	std::vector<MeshResource> meshResources_;
+
+	// 頂点データ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
 

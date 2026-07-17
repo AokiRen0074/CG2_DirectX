@@ -111,6 +111,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Application\Character</Filter>
     </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -193,6 +196,9 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Application\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Engine\3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

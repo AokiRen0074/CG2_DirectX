@@ -5,6 +5,7 @@
 #include "Audio/Audio.h"
 #include "ViewProjection.h"
 #include "Player.h"
+#include "Sphere.h"
 
 
 class DirectXCommon;
@@ -12,52 +13,62 @@ class DirectXCommon;
 class GameScene {
 public:
 
-    void Initialize(DirectXCommon* dxCommon);
-    void Update();
-    void Draw();
+	void Initialize(DirectXCommon* dxCommon);
+	void Update();
+	void Draw();
 
-    ~GameScene();
+	~GameScene();
 
 private:
 
-    /*--------------------
-    自キャラ
-    ------------------------*/
-    Player* player_ = nullptr;
+	/*--------------------
+	自キャラ
+	------------------------*/
+	Player* player_ = nullptr;
 
-    ModelData* modelData_ = nullptr;
-    uint32_t textureHandle_=0u;
+	ModelData* modelData_ = nullptr;
+	uint32_t textureHandle_ = 0u;
 
-    // ゲームで使うカメラ
-    DebugCamera* debugCamera_ = nullptr;
+	// ゲームで使うカメラ
+	DebugCamera* debugCamera_ = nullptr;
 
-    // ゲームで使うオブジェクト達
-    Object3d* object3d_ = nullptr;
-    Sprite* sprite_ = nullptr;
+	// ゲームで使うオブジェクト達
+	Object3d* object3d_ = nullptr;
+	Sprite* sprite_ = nullptr;
 
-    // ビュープロジェクション
-    ViewProjection viewProjection_;
+	// ビュープロジェクション
+	ViewProjection viewProjection_;
 
-    // 音声データ
-    SoundData soundData_;
+	// 音声データ
+	SoundData soundData_;
 
-    int currentModelType_ = 0;
-    const char* modelNames_[4] = { "Plane&sprite","Teapot","Bunny","Suzanne" };
+	int currentModelType_ = 0;
+	const char* modelNames_[6] = { "Plane&sprite","Teapot","Bunny","Suzanne","MultiMesh","MultiMaterial" };
 
-    /*----------------------
-    ティーポット
-    -----------------------------*/
-    Object3d* teapot_ = nullptr;
-    uint32_t teapotTexture_ = 0u;
+	/*----------------------
+	ティーポット
+	-----------------------------*/
+	Object3d* teapot_ = nullptr;
+	uint32_t teapotTexture_ = 0u;
 
-    /*--------------------------
-    バニー
-    -----------------------------*/
-    Object3d* bunny_ = nullptr;
+	/*--------------------------
+	バニー
+	-----------------------------*/
+	Object3d* bunny_ = nullptr;
 
-    /*---------------------------
-    スザンヌ
-    ------------------------------*/
-    Object3d* suzanne_ = nullptr;
+	/*---------------------------
+	スザンヌ
+	------------------------------*/
+	Object3d* suzanne_ = nullptr;
+
+	// 球
+	Sphere* sphere_ = nullptr;
+
+	// マルチメッシュ
+	Object3d* multiMesh_ = nullptr;
+
+	// マルチマテリアル
+	Object3d* multiMaterial_ = nullptr;
+	uint32_t ballTexture_ = 0u;
 
 };

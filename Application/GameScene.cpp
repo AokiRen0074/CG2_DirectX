@@ -18,7 +18,11 @@ GameScene::~GameScene() {
     delete teapot_;
     delete bunny_;
     delete suzanne_;
+    delete sphere_;
+    delete multiMesh_;
+    delete multiMaterial_;
 }
+
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
@@ -50,6 +54,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     object3d_->GetTransform().rotate.y = 3.14f;
     object3d_->GetTransform().scale = { 2.0f,2.0f,1.0f };
 
+    
+
     object3d_->Initialize("Resources","plane.obj");
 
     teapot_ = new Object3d();
@@ -62,6 +68,17 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
     suzanne_ = new Object3d();
     suzanne_->Initialize("Resources", "suzanne.obj");
 
+    Sphere::StaticInitialize(dxCommon); 
+    sphere_ = new Sphere();
+    sphere_->Initialize();             
+    sphere_->GetTransform().translate.x =8.0f;
+
+    multiMesh_ = new Object3d();
+    multiMesh_->Initialize("Resources", "multiMesh.obj");
+
+
+    multiMaterial_ = new Object3d();
+    multiMaterial_->Initialize("Resources", "multiMaterial.obj");
 
 
   //  modelData_ = new ModelData();
@@ -69,6 +86,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
   //  *modelData_ = LoadObjectFile("Resources", "Player.obj");
     textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
     teapotTexture_ = TextureManager::Load("Resources/checkerBoard.png");
+    ballTexture_ = TextureManager::Load("Resources/monsterBall.png");
 
     /*----------------------
     スプライトの生成と初期化
@@ -100,13 +118,14 @@ void GameScene::Update() {
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();
     ImGui::Begin("Scene Selector");
-    ImGui::Combo("Select Model", &currentModelType_, modelNames_, 4);
+    ImGui::Combo("Select Model", &currentModelType_, modelNames_, 6);
     ImGui::End();
 #endif
 
     if (currentModelType_ == 0) {
         object3d_->Update();
         sprite_->Update();
+        sphere_->Update();
     }
     else if (currentModelType_ == 1) {
         teapot_->Update();
@@ -116,6 +135,12 @@ void GameScene::Update() {
     }
     else if (currentModelType_ == 3) {
         suzanne_->Update();
+    }
+    else if (currentModelType_ == 4){
+        multiMesh_->Update();
+    }
+    else if (currentModelType_ == 5) {
+        multiMaterial_ -> Update();
     }
 
     // カメラの更新
@@ -138,6 +163,9 @@ void GameScene::Update() {
   teapot_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
   bunny_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
   suzanne_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  sphere_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  multiMesh_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+  multiMaterial_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
 
   //sprite_->Update();
 
@@ -161,6 +189,7 @@ void GameScene::Draw() {
     if (currentModelType_ == 0) {
         object3d_->Draw(dummyTransform, viewProjection_, textureHandle_);
         sprite_->Draw();
+        sphere_->Draw(dummyTransform, viewProjection_, textureHandle_);
     }
     else if (currentModelType_ == 1) {
         teapot_->Draw(dummyTransform, viewProjection_, teapotTexture_);
@@ -171,6 +200,13 @@ void GameScene::Draw() {
     else if (currentModelType_ == 3) {
         suzanne_->Draw(dummyTransform, viewProjection_);
     }
+    else if (currentModelType_ == 4) {
+        multiMesh_->Draw(dummyTransform, viewProjection_, textureHandle_);
+    }
+    else if (currentModelType_ == 5) {
+        multiMaterial_->Draw(dummyTransform, viewProjection_, ballTexture_);
+    }
+    
 
     // 2Dスプライト描画
    //  sprite_->Draw();
