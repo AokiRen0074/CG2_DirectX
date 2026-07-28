@@ -2,14 +2,17 @@
 #include "cassert"
 #include "TextureManager.h"
 #include "CollisionConfig.h"
+#include <numbers>
 #include "Application/Character/Player.h"
 
-void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vector3& velocity){
+void EnemyBullet::Initialize(NeonModel* model, const Vector3 position, const Vector3& velocity, uint32_t textureHandle) {
 	assert(model);
 
 	model_ = model;
 
 	velocity_ = velocity;
+
+	textureHandle_ = textureHandle;
 
 	// モデル読み込み
 	//textureHandle_ = TextureManager::Load("Resources/block.png");
@@ -17,7 +20,7 @@ void EnemyBullet::Initialize(Object3d* model, const Vector3 position, const Vect
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 
-	worldTransform_.scale_ = { 0.5f, 0.5f, 5.0f };
+	worldTransform_.scale_ = { 0.3f, 0.3f, 10.5f };
 
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
@@ -100,6 +103,9 @@ void EnemyBullet::Update() {
 		isDead_ = true;
 	}
 
+	colorTimer_ += 0.05f;
+
+
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
@@ -107,8 +113,21 @@ void EnemyBullet::Update() {
 }
 
 void EnemyBullet::Draw(const ViewProjection& camera) {
-	
-	model_->Draw(worldTransform_, camera, textureHandle_);
+	if (model_) {
+		const float pi = std::numbers::pi_v<float>;
+
+
+		float r = std::sin(colorTimer_) * 0.5f + 0.5f;
+		float g = std::sin(colorTimer_ + (2.0f * pi / 3.0f)) * 0.5f + 0.5f; // 120度ズラす
+		float b = std::sin(colorTimer_ + (4.0f * pi / 3.0f)) * 0.5f + 0.5f; // 240度ズラす
+
+		// 強烈に光らせる
+		float intensity = 15.0f;
+
+		// ネオンカラーをセットして描画
+		model_->SetNeonColor(intensity, r, g, b);
+		model_->Draw(worldTransform_, camera, textureHandle_);
+	}
 }
 
 /*-----------------------------

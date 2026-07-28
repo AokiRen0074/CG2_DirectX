@@ -29,6 +29,7 @@ GameScene::~GameScene() {
 	delete skydomeModel_;
 	delete skydome_;
 	//delete bulletModel_;
+	delete groundModel_;
 }
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
@@ -69,6 +70,21 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	// プレイヤー
 
+	/*----------------------
+	地面
+	-----------------------------*/
+	groundModel_ = new Object3d();
+	groundModel_->Initialize("Resources/Ground", "ground.obj");
+	groundTex_ = TextureManager::Load("Resources/Ground/ground.png");
+
+	groundTransform_.Initialize();
+
+	groundTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
+	groundTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
+	groundTransform_.translation_ = { 0.0f, -15.0f, 0.0f }; // 原点に配置
+
+	groundTransform_.matWorld_ = MakeAffineMatrix(groundTransform_.scale_, groundTransform_.rotation_, groundTransform_.translation_);
+	groundTransform_.TransferMatrix();
 
 
 	// ネオン
@@ -139,7 +155,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	enemy_->SetPlayer(player_);
 
 	// 敵キャラの生成
-	enemy_->Initialize(enemyObject_, enemyTex_);
+
+
+	enemy_ = new Enemy();
+	enemy_->Initialize(player_);
 
 
 
@@ -337,12 +356,19 @@ void GameScene::Draw() {
 	// ==========================================
 	AxisIndicator::GetInstance()->Draw();
 	skydome_->Draw(viewProjection_);
+
+	if (groundModel_) {
+		groundModel_->Draw(groundTransform_, viewProjection_, groundTex_);
+	}
+
+	/*
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
+	*/
 
 
-	// 「暗いパーツ」をここで描画
+	// 暗いパーツ
 	//player_->Draw(viewProjection_);
 
 
@@ -353,7 +379,7 @@ void GameScene::Draw() {
 
 	
 	if (player_) {
-		player_->Draw(viewProjection_);      // 暗いパーツ（ここに反射が乗る）
+		player_->Draw(viewProjection_);      // 暗いパーツ
 		player_->DrawNeon(viewProjection_);  // 光るパーツ
 	}
 	
@@ -365,11 +391,11 @@ void GameScene::Draw() {
 	//if (neonText_Open_ != nullptr) { neonText_Open_->Draw(); }
 
 	
-	
+	/*
 	if (myNeonBar_ != nullptr) {
 		myNeonBar_->Draw(viewProjection_);
 	}
-	
+	*/
 	
 	
 

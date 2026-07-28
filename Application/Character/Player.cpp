@@ -34,7 +34,7 @@ Player::~Player() {
 -----------------------*/
 void Player::Initialize() {
 
-	dummyTexture_ = TextureManager::Load("Resources/Player/Playertex.png");
+	dummyTexture_ = TextureManager::Load("Resources/Player/PlayerTex.png");
 
 
 	// テクスチャ読み込み

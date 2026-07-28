@@ -94,6 +94,8 @@ private:
 
 	NeonModel* neonModel_ = nullptr;
 
+	NeonModel* enemyBulletModel_ = nullptr;
+
 	float neonRadius_ = 0.03f;
 	float neonSoftness_ = 15.0f;
 	float neonIntensity_ = 8.0f;
@@ -107,4 +109,11 @@ private:
 	エディター
 	------------------------*/
 	//EditorPanel* editorPanel_ = nullptr;
+
+	/*--------------------
+	地面
+	---------------------------*/
+	Object3d* groundModel_ = nullptr;
+	WorldTransform groundTransform_;
+	uint32_t groundTex_ = 0u;
 };

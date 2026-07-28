@@ -24,15 +24,14 @@ Enemy::~Enemy() {
 	for (TimedCall* timedCall : timedCalls_) {
 		delete timedCall;
 	}
+
+	delete bulletModel_;
 }
 
-void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
+void Enemy::Initialize(Player* player) {
 
-	assert(model);
-
-	model_ = model;
-
-	textureHandle_ = textureHandle;
+	assert(player);
+	player_ = player;
 
 	worldTransform_.Initialize();
 	transformLines_.Initialize();
@@ -41,13 +40,13 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 		transformTails_[i].Initialize();
 	}
 
-	dummyTexture_ = TextureManager::Load("Resources/Enemy/Playertex.png");
-	tailTexture_ = TextureManager::Load("Resources/Enemy/Playertex.png");
+	dummyTexture_ = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+	tailTexture_ = TextureManager::Load("Resources/Enemy/PlayerTex.png");
 
 
 	// --- 暗いパーツ ---
 	modelBase_ = new BodyModel();
-	modelBase_->Initialize("Resources/Enemy", "enemy_base.obj");
+	modelBase_->Initialize("Resources/Enemy", "Enemy_Base.obj");
 
 	// --- 光るパーツ ---
 	modelLines_ = new NeonModel();
@@ -57,9 +56,13 @@ void Enemy::Initialize(Object3d* model, uint32_t textureHandle) {
 		modelTails_[i] = new NeonModel();
 		modelTails_[i]->Initialize("Resources/Enemy", "enemy_tail.obj");
 	}
-
+	
 	modelRing_ = new NeonModel();
-	modelRing_->Initialize("Resources/Enemy", "enemy_ring.obj");
+	modelRing_->Initialize("Resources/Enemy", "Enemy_ring.obj");
+
+
+	bulletModel_ = new NeonModel();
+	bulletModel_->Initialize("Resources/Bullet", "EnemyBuillet.obj");
 
 	// 初期座標
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
@@ -139,7 +142,7 @@ void Enemy::Fire() {
 
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->SetPlayer(player_);
-	newBullet->Initialize(model_, enemyPos, velocity);
+	newBullet->Initialize(bulletModel_, enemyPos, velocity, dummyTexture_);
 
 	// 弾を登録する
 	bullets_.push_back(newBullet);
@@ -240,11 +243,6 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 
 
 
-	// 弾の描画
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection);
-	}
-
 }
 
 void Enemy::DrawNeon(const ViewProjection& viewProjection) {
@@ -292,6 +290,11 @@ void Enemy::DrawNeon(const ViewProjection& viewProjection) {
 	if (modelRing_) {
 		modelRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
 		modelRing_->Draw(worldTransform_, viewProjection, dummyTexture_);
+	}
+
+	// 弾の描画
+	for (EnemyBullet* bullet : bullets_) {
+		bullet->Draw(viewProjection);
 	}
 }
 

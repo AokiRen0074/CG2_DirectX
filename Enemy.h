@@ -25,7 +25,7 @@ public:
 	static const int kFireInterval = 60;
 
 	// 初期化
-	void Initialize(Object3d* model, uint32_t textureHandle);
+	void Initialize(Player* player);
 
 	// 更新処理
 	void Update();
@@ -81,7 +81,7 @@ private:
 	WorldTransform worldTransform_;
 
 	// モデル
-	Object3d* model_ = nullptr;
+	NeonModel* model_ = nullptr;
 
 	// まわすやつ
 	WorldTransform transformLines_;
@@ -129,6 +129,8 @@ private:
 
 	uint32_t dummyTexture_ = 0;
 	uint32_t tailTexture_ = 0;
+
+	NeonModel* bulletModel_ = nullptr;
 
 	// アニメーション尻尾
 	WorldTransform transformTails_[5];

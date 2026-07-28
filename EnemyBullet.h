@@ -1,5 +1,5 @@
 #pragma once
-#include "Object3d.h"
+#include "NeonModel.h"
 #include "Vector3.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
@@ -10,7 +10,7 @@ class Player;
 class EnemyBullet: public Collider {
 public:
 	// 初期化処理
-	void Initialize(Object3d* model, const Vector3 position, const Vector3& velocity);
+	void Initialize(NeonModel* model, const Vector3 position, const Vector3& velocity,uint32_t textureHandle);
 
 	// 更新処理
 	void Update();
@@ -30,7 +30,7 @@ public:
 
 private:
 	WorldTransform worldTransform_;
-	Object3d* model_ = nullptr;
+	NeonModel* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 
 	// 速度
@@ -47,5 +47,7 @@ private:
 
 
 	Player* player_;
+
+	float colorTimer_ = 0.0f;
 
 };
