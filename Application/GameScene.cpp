@@ -21,6 +21,8 @@ GameScene::~GameScene() {
     delete sphere_;
     delete multiMesh_;
     delete multiMaterial_;
+    delete gamePad_;
+    delete pathTracer_;
 }
 
 
@@ -106,11 +108,14 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
    player_->Initialize(object3d_, textureHandle_);
 
    /*--------------------------
-   デバッグカメラ
+   パストレーサー
    ------------------------------*/
+   PathTracer::StaticInitialize(dxCommon);
+   pathTracer_ = new PathTracer();
+   pathTracer_->Initialize();
 
     // 音の読み込み
-  //  soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
+   soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
 }
 
 void GameScene::Update() {
@@ -118,8 +123,23 @@ void GameScene::Update() {
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();
     ImGui::Begin("Scene Selector");
-    ImGui::Combo("Select Model", &currentModelType_, modelNames_, 6);
+    ImGui::Combo("Select Model", &currentModelType_, modelNames_, 7);
     ImGui::End();
+
+    ImGui::Begin("Sound");
+    ImGui::Text("Press [SPACE] key to Play Sound");
+    ImGui::Separator();
+
+    // 鳴っているときだけ赤文字を出す
+    if (isSoundPlaying_) {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), ">>> SOUND PLAYING <<<");
+    }
+    ImGui::End();
+
+    if (gamePad_) {
+        gamePad_->DrawImGui();
+    }
+
 #endif
 
     if (currentModelType_ == 0) {
@@ -142,12 +162,27 @@ void GameScene::Update() {
     else if (currentModelType_ == 5) {
         multiMaterial_ -> Update();
     }
+    else if (currentModelType_ == 6) {
+        pathTracer_->Update();
+    }
 
     // カメラの更新
     debugCamera_->Update();
 
+    // 音
     if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-        // Audio::GetInstance()->SoundPlayWave(soundData_);
+        Audio::GetInstance()->SoundPlayWave(soundData_);
+
+        isSoundPlaying_ = true;
+        soundVisualTimer_ = 240;
+    }
+
+    // タイマーのカウントダウン
+    if (soundVisualTimer_ > 0) {
+        soundVisualTimer_--;
+    }
+    else {
+        isSoundPlaying_ = false;
     }
 
     /*------------------
@@ -166,6 +201,7 @@ void GameScene::Update() {
   sphere_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
   multiMesh_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
   multiMaterial_->SetCameraMatrix(debugCamera_->GetViewMatrix(), debugCamera_->GetProjectionMatrix());
+ 
 
   //sprite_->Update();
 
@@ -205,6 +241,9 @@ void GameScene::Draw() {
     }
     else if (currentModelType_ == 5) {
         multiMaterial_->Draw(dummyTransform, viewProjection_, ballTexture_);
+    }
+    else if (currentModelType_ == 6) {
+        pathTracer_->Draw();
     }
     
 

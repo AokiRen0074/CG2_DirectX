@@ -37,6 +37,12 @@
     <Filter Include="Engine\3D\2D">
       <UniqueIdentifier>{79672d2b-602e-4fac-8450-5cb2194b7f0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GamePad">
+      <UniqueIdentifier>{f1267d1f-4f81-4c3d-b6ad-8c18207e398c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\PathTracer">
+      <UniqueIdentifier>{72381b59-d1cf-4292-9c30-e9d91ac352a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\imgui\imgui.cpp">
@@ -113,6 +119,12 @@
     </ClCompile>
     <ClCompile Include="Sphere.cpp">
       <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePad.cpp">
+      <Filter>Engine\GamePad</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracer.cpp">
+      <Filter>Engine\PathTracer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +212,12 @@
     <ClInclude Include="Sphere.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
+    <ClInclude Include="GamePad.h">
+      <Filter>Engine\GamePad</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracer.h">
+      <Filter>Engine\PathTracer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">
@@ -222,5 +240,7 @@
     <None Include="Object3d.NoTexture.VS.hlsl">
       <Filter>Resources\Shader</Filter>
     </None>
+    <None Include="PathTracing.VS.hlsl" />
+    <None Include="PathTracing.PS.hlsl" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,8 @@
 #include "ViewProjection.h"
 #include "Player.h"
 #include "Sphere.h"
+#include "GamePad.h"
+#include "PathTracer.h"
 
 
 class DirectXCommon;
@@ -41,9 +43,11 @@ private:
 
 	// 音声データ
 	SoundData soundData_;
+	bool isSoundPlaying_ = false;
+	int soundVisualTimer_ = 0;
 
 	int currentModelType_ = 0;
-	const char* modelNames_[6] = { "Plane&sprite","Teapot","Bunny","Suzanne","MultiMesh","MultiMaterial" };
+	const char* modelNames_[7] = { "Plane&sprite","Teapot","Bunny","Suzanne","MultiMesh","MultiMaterial","PathTracing"};
 
 	/*----------------------
 	ティーポット
@@ -71,4 +75,13 @@ private:
 	Object3d* multiMaterial_ = nullptr;
 	uint32_t ballTexture_ = 0u;
 
+	/*----------------
+	ゲームパッド
+	-------------------*/
+	GamePad* gamePad_ = nullptr;
+
+	/*------------
+	パストレーサー
+	--------------------------*/
+	PathTracer* pathTracer_ = nullptr;
 };
