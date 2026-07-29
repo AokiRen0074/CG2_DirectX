@@ -65,7 +65,7 @@ void GamePad::GetRightStick(float& outX, float& outY) {
 	float stickX = state_.Gamepad.sThumbRX;
 	float stickY = state_.Gamepad.sThumbRY;
 
-	// ✨ 右スティック用のデッドゾーン処理
+	// 右スティック用のデッドゾーン処理
 	if (std::abs(stickX) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
 		std::abs(stickY) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
 		outX = stickX / 32767.0f;

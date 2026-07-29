@@ -15,7 +15,7 @@ public:
 	struct SceneData {
 		float time;
 		float resolution[2];
-		float padding;
+		float frameCount;
 	};
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
@@ -46,6 +46,13 @@ private:
 
 	float currentTime_ = 0.0f;
 
+	uint32_t frameCount_ = 0; // 現在の蓄積フレーム数
+	Microsoft::WRL::ComPtr<ID3D12Resource> accumulationTexture_; // 見えないキャンバス
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> uavHeap_;       // キャンバスへのアクセス権
+
 	// バッファ作成用
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
+
+	// キャンバス作成用
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateUAVTextureResource(ID3D12Device* device, uint32_t width, uint32_t height);
 };

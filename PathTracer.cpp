@@ -25,6 +25,26 @@ Microsoft::WRL::ComPtr<ID3D12Resource> PathTracer::CreateBufferResource(ID3D12De
 	return resource;
 }
 
+// UAVキャンバスを作る関数
+Microsoft::WRL::ComPtr<ID3D12Resource> PathTracer::CreateUAVTextureResource(ID3D12Device* device, uint32_t width, uint32_t height) {
+	D3D12_HEAP_PROPERTIES heapProps{};
+	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+	D3D12_RESOURCE_DESC resDesc{};
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resDesc.Width = width;
+	resDesc.Height = height;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 光の情報を失わない高精度フォーマット！
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	HRESULT hr = device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&resource));
+	assert(SUCCEEDED(hr));
+	return resource;
+}
+
 void PathTracer::Initialize() {
 	dxCommon_ = sDxCommon_;
 	ID3D12Device* device = dxCommon_->GetDevice();
@@ -32,14 +52,27 @@ void PathTracer::Initialize() {
 	// ==========================================
 	// ルートシグネチャの構築
 	// ==========================================
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	D3D12_DESCRIPTOR_RANGE uavRange{};
+	uavRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+	uavRange.NumDescriptors = 1;
+	uavRange.BaseShaderRegister = 0; // u0レジスタ
+	uavRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+
+	//  SceneData 
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[0].Descriptor.ShaderRegister = 0; // b0レジスタ（SceneData用）
+	rootParameters[0].Descriptor.ShaderRegister = 0;
 
+	//  Accumulation Texture
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[1].DescriptorTable.pDescriptorRanges = &uavRange;
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
+
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
+	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
 
@@ -68,7 +101,6 @@ void PathTracer::Initialize() {
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
-	// hlsl読み込み
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/PathTracing.VS.hlsl", L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/PathTracing.PS.hlsl", L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 
@@ -76,9 +108,8 @@ void PathTracer::Initialize() {
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE; // 両面描画
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
 
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = false;
@@ -100,9 +131,7 @@ void PathTracer::Initialize() {
 	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState_));
 	assert(SUCCEEDED(hr));
 
-	// ==========================================
-	// 画面全体を覆う四角形の頂点データを作成
-	// ==========================================
+	// 頂点とインデックスデータの作成
 	vertexResource_ = CreateBufferResource(device, sizeof(VertexData) * 4);
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 4;
@@ -110,10 +139,10 @@ void PathTracer::Initialize() {
 	VertexData* vertexData = nullptr;
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 
-	vertexData[0] = { {-1.0f,  1.0f, 0.0f, 1.0f}, {0.0f, 0.0f} }; // 左上
-	vertexData[1] = { { 1.0f,  1.0f, 0.0f, 1.0f}, {1.0f, 0.0f} }; // 右上
-	vertexData[2] = { {-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f} }; // 左下
-	vertexData[3] = { { 1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f} }; // 右下
+	vertexData[0] = { {-1.0f,  1.0f, 0.0f, 1.0f}, {0.0f, 0.0f} };
+	vertexData[1] = { { 1.0f,  1.0f, 0.0f, 1.0f}, {1.0f, 0.0f} };
+	vertexData[2] = { {-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f} };
+	vertexData[3] = { { 1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f} };
 
 	indexCount_ = 6;
 	indexResource_ = CreateBufferResource(device, sizeof(uint32_t) * indexCount_);
@@ -126,20 +155,39 @@ void PathTracer::Initialize() {
 	indexData[3] = 1; indexData[4] = 3; indexData[5] = 2;
 
 	// ==========================================
-	// シーンデータのリソース作成
+	// UAVキャンバスの実体の作成
 	// ==========================================
+	accumulationTexture_ = CreateUAVTextureResource(device, WindowApp::kClientWidth, WindowApp::kClientHeight);
+
+	D3D12_DESCRIPTOR_HEAP_DESC uavHeapDesc{};
+	uavHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	uavHeapDesc.NumDescriptors = 1;
+	uavHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	hr = device->CreateDescriptorHeap(&uavHeapDesc, IID_PPV_ARGS(&uavHeap_));
+	assert(SUCCEEDED(hr));
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
+	uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	device->CreateUnorderedAccessView(accumulationTexture_.Get(), nullptr, &uavDesc, uavHeap_->GetCPUDescriptorHandleForHeapStart());
+
+	// シーンデータのリソース作成
 	uint32_t cbSize = (sizeof(SceneData) + 255) & ~255;
 	sceneDataResource_ = CreateBufferResource(device, cbSize);
 	sceneDataResource_->Map(0, nullptr, reinterpret_cast<void**>(&sceneDataMap_));
 	sceneDataMap_->time = 0.0f;
-	sceneDataMap_->resolution[0] = WindowApp::kClientWidth;
-	sceneDataMap_->resolution[1] = WindowApp::kClientHeight;
+	sceneDataMap_->resolution[0] = (float)WindowApp::kClientWidth;
+	sceneDataMap_->resolution[1] = (float)WindowApp::kClientHeight;
+	sceneDataMap_->frameCount = 0.0f; // 初期化
 }
 
 void PathTracer::Update() {
-	// 時間を進める
 	currentTime_ += 1.0f / 60.0f;
 	sceneDataMap_->time = currentTime_;
+
+	//フレームを毎フレーム蓄積していく
+	frameCount_++;
+	sceneDataMap_->frameCount = (float)frameCount_;
 }
 
 void PathTracer::Draw() {
@@ -148,16 +196,11 @@ void PathTracer::Draw() {
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = (float)WindowApp::kClientWidth;
 	viewport.Height = (float)WindowApp::kClientHeight;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0; viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
 
 	D3D12_RECT scissorRect{};
-	scissorRect.left = 0;
-	scissorRect.right = WindowApp::kClientWidth;
-	scissorRect.top = 0;
-	scissorRect.bottom = WindowApp::kClientHeight;
+	scissorRect.left = 0; scissorRect.right = WindowApp::kClientWidth;
+	scissorRect.top = 0; scissorRect.bottom = WindowApp::kClientHeight;
 
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);
@@ -169,8 +212,14 @@ void PathTracer::Draw() {
 	commandList->SetGraphicsRootSignature(rootSignature_.Get());
 	commandList->SetPipelineState(graphicsPipelineState_.Get());
 
-	// レジスタに時間、解像度データを転送
+	// ヒープをセットして、シェーダーにUAVキャンバスを渡す
+	ID3D12DescriptorHeap* descriptorHeaps[] = { uavHeap_.Get() };
+	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+	// SceneData
 	commandList->SetGraphicsRootConstantBufferView(0, sceneDataResource_->GetGPUVirtualAddress());
+	// UAV Texture
+	commandList->SetGraphicsRootDescriptorTable(1, uavHeap_->GetGPUDescriptorHandleForHeapStart());
 
 	commandList->DrawIndexedInstanced(indexCount_, 1, 0, 0, 0);
 }
