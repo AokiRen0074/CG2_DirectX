@@ -401,6 +401,7 @@ void Bloom::DrawResult() {
 	cmdList->ResourceBarrier(1, &barrierToUAV);
 }
 
+#ifdef USE_IMGUI
 void Bloom::DrawImGui() {
 	if (ImGui::TreeNodeEx("Bloom Debug Settings")) {
 		ImGui::Checkbox("1. Luminance Extraction ", &enableLuminance_);
@@ -416,3 +417,4 @@ void Bloom::DrawImGui() {
 		ImGui::TreePop();
 	}
 }
+#endif

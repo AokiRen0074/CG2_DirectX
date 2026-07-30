@@ -43,6 +43,7 @@ void GlobalVariables::SetValue(const std::string& groupName, const std::string& 
 	group[key] = value;
 }
 
+#ifdef USE_IMGUI
 // 更新処理
 void GlobalVariables::Update() {
 	if (!ImGui::Begin("Global Variables", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -109,6 +110,7 @@ void GlobalVariables::Update() {
 	ImGui::EndMenuBar();
 	ImGui::End();
 }
+#endif
 
 void GlobalVariables::SaveFile(const std::string& groupName) {
 	// グループを探索
