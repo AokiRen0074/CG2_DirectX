@@ -1,7 +1,7 @@
 #include "GameScene.h"
 #include "Input/Input.h"
 #include "2D/TextureManager.h"
-#include "Player.h"
+
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -114,11 +114,20 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
    pathTracer_ = new PathTracer();
    pathTracer_->Initialize();
 
+   /*------------------
+   ゲームパッド
+   --------------------*/
+   gamePad_ = new GamePad();
+
     // 音の読み込み
    soundData_ = Audio::GetInstance()->SoundLoadWave("Resources/Alarm01.wav");
 }
 
 void GameScene::Update() {
+
+    if (gamePad_) {
+        gamePad_->Update();
+    }
 
 #ifdef USE_IMGUI
     ImGui::ShowDemoWindow();

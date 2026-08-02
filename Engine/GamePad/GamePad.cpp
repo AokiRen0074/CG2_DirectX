@@ -143,6 +143,32 @@ void GamePad::DrawImGui() {
 	if (GetButton(XINPUT_GAMEPAD_Y)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "[ Y ]");
 	else ImGui::TextDisabled("[ Y ]");
 
+	// バンパーの状態
+	ImGui::Text("Bumpers  :");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_LEFT_SHOULDER)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ LB ]");
+	else ImGui::TextDisabled("[ LB ]");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_RIGHT_SHOULDER)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ RB ]");
+	else ImGui::TextDisabled("[ RB ]");
+
+	ImGui::Separator();
+
+	// 十字キーの状態
+	ImGui::Text("D-Pad    :");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_DPAD_UP)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ UP ]");
+	else ImGui::TextDisabled("[ UP ]");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_DPAD_DOWN)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ DOWN ]");
+	else ImGui::TextDisabled("[ DOWN ]");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_DPAD_LEFT)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ LEFT ]");
+	else ImGui::TextDisabled("[ LEFT ]");
+	ImGui::SameLine();
+	if (GetButton(XINPUT_GAMEPAD_DPAD_RIGHT)) ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "[ RIGHT ]");
+	else ImGui::TextDisabled("[ RIGHT ]");
+
 	ImGui::End();
 #endif
 }

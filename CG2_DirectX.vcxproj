@@ -90,6 +90,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Character\Player.cpp" />
     <ClCompile Include="Application\GameScene.cpp" />
     <ClCompile Include="Application\main.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
@@ -97,13 +98,18 @@
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
     <ClCompile Include="Engine\3D\Model.cpp" />
     <ClCompile Include="Engine\3D\Object3d.cpp" />
+    <ClCompile Include="Engine\3D\Sphere.cpp" />
+    <ClCompile Include="Engine\3D\ViewProjection.cpp" />
+    <ClCompile Include="Engine\3D\WorldTransform.cpp" />
     <ClCompile Include="Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Base\DirectXCommon.cpp" />
     <ClCompile Include="Engine\Base\Logger.cpp" />
     <ClCompile Include="Engine\Base\WindowApp.cpp" />
+    <ClCompile Include="Engine\GamePad\GamePad.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Engine\Math\Matrix4x4.cpp" />
     <ClCompile Include="Engine\Math\Vector3.cpp" />
+    <ClCompile Include="Engine\PathTracer\PathTracer.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
@@ -139,28 +145,28 @@
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GamePad.cpp" />
-    <ClCompile Include="PathTracer.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="ViewProjection.cpp" />
-    <ClCompile Include="WorldTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />
     <ClInclude Include="Engine\3D\DebugCamera.h" />
     <ClInclude Include="Engine\3D\Model.h" />
     <ClInclude Include="Engine\3D\Object3d.h" />
+    <ClInclude Include="Engine\3D\Sphere.h" />
+    <ClInclude Include="Engine\3D\ViewProjection.h" />
+    <ClInclude Include="Engine\3D\WorldTransform.h" />
     <ClInclude Include="Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Base\DirectXCommon.h" />
     <ClInclude Include="Engine\Base\Logger.h" />
     <ClInclude Include="Engine\Base\WindowApp.h" />
+    <ClInclude Include="Engine\GamePad\GamePad.h" />
     <ClInclude Include="Engine\Input\Input.h" />
     <ClInclude Include="Engine\Math\Matrix4x4.h" />
     <ClInclude Include="Engine\Math\Transform.h" />
     <ClInclude Include="Engine\Math\Vector3.h" />
+    <ClInclude Include="Engine\PathTracer\PathTracer.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -169,14 +175,8 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="GamePad.h" />
-    <ClInclude Include="PathTracer.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector4.h" />
-    <ClInclude Include="ViewProjection.h" />
-    <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -208,10 +208,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PathTracing.PS.hlsl">
+    <None Include="Resources\Shaders\PathTracing.PS.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="PathTracing.VS.hlsl">
+    <None Include="Resources\Shaders\PathTracing.VS.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

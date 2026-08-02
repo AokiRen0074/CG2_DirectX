@@ -108,23 +108,23 @@
     <ClCompile Include="Engine\3D\Object3d.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
-    <ClCompile Include="ViewProjection.cpp">
+    <ClCompile Include="Engine\PathTracer\PathTracer.cpp">
+      <Filter>Engine\PathTracer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Sphere.cpp">
       <Filter>Engine\3D</Filter>
     </ClCompile>
-    <ClCompile Include="WorldTransform.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>Engine\3D</Filter>
-    </ClCompile>
-    <ClCompile Include="GamePad.cpp">
+    <ClCompile Include="Engine\GamePad\GamePad.cpp">
       <Filter>Engine\GamePad</Filter>
     </ClCompile>
-    <ClCompile Include="PathTracer.cpp">
-      <Filter>Engine\PathTracer</Filter>
+    <ClCompile Include="Engine\3D\ViewProjection.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\WorldTransform.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Player.cpp">
+      <Filter>Application\Character</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,23 +200,23 @@
     <ClInclude Include="Engine\3D\Object3d.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="ViewProjection.h">
+    <ClInclude Include="Engine\PathTracer\PathTracer.h">
+      <Filter>Engine\PathTracer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Sphere.h">
       <Filter>Engine\3D</Filter>
     </ClInclude>
-    <ClInclude Include="WorldTransform.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Engine\3D</Filter>
-    </ClInclude>
-    <ClInclude Include="GamePad.h">
+    <ClInclude Include="Engine\GamePad\GamePad.h">
       <Filter>Engine\GamePad</Filter>
     </ClInclude>
-    <ClInclude Include="PathTracer.h">
-      <Filter>Engine\PathTracer</Filter>
+    <ClInclude Include="Engine\3D\ViewProjection.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\WorldTransform.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Player.h">
+      <Filter>Application\Character</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -240,7 +240,11 @@
     <None Include="Object3d.NoTexture.VS.hlsl">
       <Filter>Resources\Shader</Filter>
     </None>
-    <None Include="PathTracing.VS.hlsl" />
-    <None Include="PathTracing.PS.hlsl" />
+    <None Include="Resources\Shaders\PathTracing.VS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
+    <None Include="Resources\Shaders\PathTracing.PS.hlsl">
+      <Filter>Resources\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

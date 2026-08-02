@@ -4,10 +4,10 @@
 #include "3D/DebugCamera.h"
 #include "Audio/Audio.h"
 #include "ViewProjection.h"
-#include "Player.h"
+#include "Application/Character/Player.h"
 #include "Sphere.h"
-#include "GamePad.h"
-#include "PathTracer.h"
+#include "Engine/GamePad/GamePad.h"
+#include "Engine/PathTracer/PathTracer.h"
 
 
 class DirectXCommon;
