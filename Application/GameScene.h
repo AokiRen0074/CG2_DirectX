@@ -15,6 +15,8 @@
 #include "ProceduralNeon.h"
 #include "EditorPanel.h"
 #include "FlickerTimer.h"
+#include "Rail.h"
+#include "RailCamera.h"
 
 class Skydome;
 
@@ -116,4 +118,10 @@ private:
 	Object3d* groundModel_ = nullptr;
 	WorldTransform groundTransform_;
 	uint32_t groundTex_ = 0u;
+
+	/*-----------------------
+	レールカメラ
+	-------------------------*/
+	Rail* rail_ = nullptr;
+	RailCamera* railCamera_ = nullptr;
 };

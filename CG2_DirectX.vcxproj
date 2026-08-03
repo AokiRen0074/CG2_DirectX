@@ -165,12 +165,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp" />
+    <ClCompile Include="MathUtility.cpp" />
     <ClCompile Include="NeonModel.cpp" />
     <ClCompile Include="NeonObj.cpp" />
     <ClCompile Include="NeonSign.cpp" />
     <ClCompile Include="NeonText.cpp" />
     <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="ProceduralNeon.cpp" />
+    <ClCompile Include="Rail.cpp" />
+    <ClCompile Include="RailCamera.cpp" />
+    <ClCompile Include="RailEditor.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
@@ -194,6 +198,7 @@
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
     <ClInclude Include="FlickerTimer.h" />
+    <ClInclude Include="MathUtility.h" />
     <ClInclude Include="NeonModel.h" />
     <ClInclude Include="NeonObj.h" />
     <ClInclude Include="NeonSign.h" />
@@ -224,6 +229,9 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="GlobalValiables.h" />
     <ClInclude Include="ProceduralNeon.h" />
+    <ClInclude Include="Rail.h" />
+    <ClInclude Include="RailCamera.h" />
+    <ClInclude Include="RailEditor.h" />
     <ClInclude Include="Skydome.h" />
     <ClInclude Include="TimedCall.h" />
     <ClInclude Include="Vector2.h" />

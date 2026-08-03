@@ -18,7 +18,7 @@ public:
 	// 初期化
 	void Initialize();
 	// 更新処理
-	void Update();
+	void Update(const Matrix4x4& parentMatrix);
 
 	// 描画処理
 	void Draw(const ViewProjection& viewProjection);

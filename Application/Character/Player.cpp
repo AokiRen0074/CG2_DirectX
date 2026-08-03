@@ -68,7 +68,8 @@ void Player::Initialize() {
 
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	worldTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
-	worldTransform_.translation_ = { 0.0f, 0.0f, 0.0f };
+	worldTransform_.translation_ = { 0.0f, -2.0f, 15.0f };
+
 	// シングルトンインスタンスを取得する
 	input_ = Input::GetInstance();
 
@@ -141,9 +142,11 @@ void Player::Attack() {
 		// 速度ベクトルを自機の向きに合わせて回転させる
 		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 
+		Vector3 spawnPos = GetWorldPosition();
+
 		// 弾を生成し初期イカ
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(bulletModel_, worldTransform_.translation_, velocity, worldTransform_.rotation_);
+		newBullet->Initialize(bulletModel_, spawnPos, velocity, worldTransform_.rotation_);
 
 		// 弾を登録する
 		bullets_.push_back(newBullet);
@@ -160,7 +163,7 @@ void Player::OnCollision() {
 /*-------------------------
 更新処理
 ----------------------------*/
-void Player::Update() {
+void Player::Update(const Matrix4x4& parentMatrix) {
 
 	// 機能の調整
 	ApplyGlobalVariables();
@@ -214,6 +217,11 @@ void Player::Update() {
 	worldTransform_.translation_.y = (std::max)(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = (std::min)(worldTransform_.translation_.y, kMoveLimitY);
 
+
+	Matrix4x4 localMatrix = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+	worldTransform_.matWorld_ = Multiply(localMatrix, parentMatrix);
+	worldTransform_.TransferMatrix();
+
 	// 攻撃処理
 	Attack();
 
@@ -232,10 +240,7 @@ void Player::Update() {
 		return false;
 		});
 
-	// 行列の更新
-	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
 
-	worldTransform_.TransferMatrix();
 
 
 	// ==========================================
@@ -245,7 +250,8 @@ void Player::Update() {
 	transformStat_.rotation_ = worldTransform_.rotation_;
 	transformStat_.scale_ = worldTransform_.scale_;
 	// 行列を計算して転送
-	transformStat_.matWorld_ = MakeAffineMatrix(transformStat_.scale_, transformStat_.rotation_, transformStat_.translation_);
+	Matrix4x4 statLocal = MakeAffineMatrix(transformStat_.scale_, transformStat_.rotation_, transformStat_.translation_);
+	transformStat_.matWorld_ = Multiply(statLocal, parentMatrix);
 	transformStat_.TransferMatrix();
 
 	// ==========================================
@@ -268,7 +274,8 @@ void Player::Update() {
 
 	transformRot_.scale_ = worldTransform_.scale_;
 	// 行列を計算して転送
-	transformRot_.matWorld_ = MakeAffineMatrix(transformRot_.scale_, transformRot_.rotation_, transformRot_.translation_);
+	Matrix4x4 rotLocal = MakeAffineMatrix(transformRot_.scale_, transformRot_.rotation_, transformRot_.translation_);
+	transformRot_.matWorld_ = Multiply(rotLocal, parentMatrix);
 	transformRot_.TransferMatrix();
 
 }

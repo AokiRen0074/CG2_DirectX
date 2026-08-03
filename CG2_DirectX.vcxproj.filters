@@ -129,6 +129,18 @@
     <ClCompile Include="Bloom.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
+    <ClCompile Include="MathUtility.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Rail.cpp">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClCompile>
+    <ClCompile Include="RailCamera.cpp">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClCompile>
+    <ClCompile Include="RailEditor.cpp">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -274,6 +286,18 @@
     <ClInclude Include="FlickerTimer.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
+    <ClInclude Include="MathUtility.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rail.h">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClInclude>
+    <ClInclude Include="RailCamera.h">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClInclude>
+    <ClInclude Include="RailEditor.h">
+      <Filter>Engine\3D\Rail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
@@ -378,6 +402,9 @@
     </Filter>
     <Filter Include="Engine\EditorPanel">
       <UniqueIdentifier>{f03de160-2560-42a2-b500-b8776c7c9945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\3D\Rail">
+      <UniqueIdentifier>{0763dbd9-37f9-46d4-8436-f273c4146350}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

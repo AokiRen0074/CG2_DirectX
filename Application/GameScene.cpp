@@ -167,6 +167,14 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	------------------------------*/
 	collisionManager_ = new CollisionManager();
 
+	/*------------------------------
+	レールカメラ
+	-------------------------------------*/
+	rail_ = new Rail();
+	rail_->Initialize();
+
+	railCamera_ = new RailCamera();
+	railCamera_->Initialize(rail_);
 
 
 	/*-----------------------
@@ -186,10 +194,21 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 void GameScene::Update() {
 
+	/*-------------------------
+レールカメラ
+---------------------------*/
+	if (railCamera_) {
+		railCamera_->Update();
+	}
+
 	/*-----------------------------
 	プレイヤー更新
 	--------------------------------*/
-	player_->Update();
+	if (player_) {
+		Matrix4x4 parentMat = railCamera_ ? railCamera_->GetWorldMatrix() : MakeIdentity4x4();
+
+		player_->Update(parentMat);
+	}
 
 	/*-----------------------------
 		エネミー更新
@@ -200,6 +219,7 @@ void GameScene::Update() {
 	天球
 	----------------------------------*/
 	skydome_->Update();
+
 
 
 
@@ -219,7 +239,16 @@ void GameScene::Update() {
 	}
 	else {
 		// 通常のカメラ更新
-		viewProjection_.UpdateMatrix();
+		if (railCamera_) {
+			viewProjection_ = railCamera_->GetViewProjection();
+		}
+		else {
+			viewProjection_.UpdateMatrix();
+		}
+	}
+#else 
+	if (railCamera_) {
+		viewProjection_ = railCamera_->GetViewProjection();
 	}
 #endif
 

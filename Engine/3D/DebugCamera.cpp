@@ -30,47 +30,53 @@ void DebugCamera::Update() {
 #endif
 
 	// =================================================
-	// マウス入力による角度・距離の更新
+	//  マウス入力による角度の更新
 	// =================================================
-	static float distance = 50.0f;
-
 	if (!isImGuiHovered) {
-		// 左ドラッグでカメラの角度
-		if (input->PushMouseLeft()) {
-			rotY_ += input->GetMouseMoveX() * 0.005f; // 左右に回る
-			rotX_ += input->GetMouseMoveY() * 0.005f; // 上下に回る
+
+		if (input->PushMouseRight()) {
+			rotY_ += input->GetMouseMoveX() * 0.005f;
+			rotX_ += input->GetMouseMoveY() * 0.005f;
 
 			// 真上・真下に行き過ぎて画面がひっくり返るのを防止
 			if (rotX_ > 1.5f) { rotX_ = 1.5f; }
 			if (rotX_ < -1.5f) { rotX_ = -1.5f; }
 		}
-
-		// ホイールでオブジェクトにズームイン・ズームアウト
-		float wheel = input->GetWheel();
-		if (wheel != 0.0f) {
-			distance -= wheel * 0.05f; // 感度調整
-			if (distance < 1.0f) { distance = 1.0f; }
-		}
 	}
 
 	// =================================================
-	//  カメラ行列の計算
+	// メラ行列の計算と、方向ベクトルの抽出
 	// =================================================
-	// まずは純粋な回転行列を作る
 	Matrix4x4 rotXMat = MakeRotateXMatrix(rotX_);
 	Matrix4x4 rotYMat = MakeRotateYMatrix(rotY_);
 	matRot_ = Multiply(rotXMat, rotYMat);
 
-	// 回転行列から、カメラのZ軸のベクトルを取り出す
+	// 回転行列ベクトルを取り出す
+	Vector3 right = { matRot_.m[0][0], matRot_.m[0][1], matRot_.m[0][2] };
+	Vector3 up = { matRot_.m[1][0], matRot_.m[1][1], matRot_.m[1][2] };
 	Vector3 forward = { matRot_.m[2][0], matRot_.m[2][1], matRot_.m[2][2] };
 
+	// =================================================
+	//  キーボード入力による座標の移動 
+	// =================================================
+	if (!isImGuiHovered) {
+		float moveSpeed = 0.5f; // カメラの移動スピード
 
+		// Shiftキーを押している間はダッシュ
+		if (input->PushKey(DIK_LSHIFT)) { moveSpeed = 2.0f; }
 
-	translation_.x = -forward.x * distance;
-	translation_.y = -forward.y * distance;
-	translation_.z = -forward.z * distance;
+		// Vector3の演算子オーバーロードのおかげで直感的に書けます
+		if (input->PushKey(DIK_W)) { translation_ = translation_ + forward * moveSpeed; }
+		if (input->PushKey(DIK_S)) { translation_ = translation_ - forward * moveSpeed; }
+		if (input->PushKey(DIK_D)) { translation_ = translation_ + right * moveSpeed; }
+		if (input->PushKey(DIK_A)) { translation_ = translation_ - right * moveSpeed; }
+		if (input->PushKey(DIK_E)) { translation_ = translation_ + up * moveSpeed; } // 上昇
+		if (input->PushKey(DIK_Q)) { translation_ = translation_ - up * moveSpeed; } // 下降
+	}
 
+	// =================================================
 	// ビュー行列の更新
+	// =================================================
 	Matrix4x4 matTrans = MakeTranslateMatrix(translation_);
 	Matrix4x4 matWorld = Multiply(matRot_, matTrans);
 	matView_ = Inverse(matWorld);
