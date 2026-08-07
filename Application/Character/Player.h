@@ -38,6 +38,8 @@ public:
 	// ImGui描画関数
 	void DrawImGui();
 
+	void SetEnemies(const std::list<Enemy*>* enemies) { enemies_ = enemies; }
+
 
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
@@ -64,6 +66,8 @@ public:
 	~Player();
 
 private:
+
+	const std::list<Enemy*>* enemies_ = nullptr;
 
 	WorldTransform worldTransform_;
 

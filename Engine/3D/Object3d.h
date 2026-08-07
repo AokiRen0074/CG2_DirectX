@@ -10,7 +10,6 @@
 
 
 
-
 #include "Model.h"
 
 
@@ -34,6 +33,8 @@ public:
 		Vector4 color;
 		Vector3 direction;
 		float intensity;
+		int32_t lightingType;
+		float padding2[3];
 	};
 
 	struct TransformationMatrix {
@@ -52,6 +53,7 @@ public:
 		uint32_t vertexCount = 0;
 		Microsoft::WRL::ComPtr<ID3D12Resource> textureResource;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureHandleGPU{}; // このパーツが使うテクスチャのハンドル
+		Transform uvTransform = { {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	};
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
@@ -60,23 +62,19 @@ public:
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
+
+	// テクスチャ有り
 	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle);
+
+	// テクスチャなし
+	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
 
 	void SetCameraMatrix(const Matrix4x4& view, const Matrix4x4& projection) {
 		viewMatrix_ = view;
 		projectionMatrix_ = projection;
 	}
 
-	// ネオン用の
-	void SetColor(float r, float g, float b, float a) {
-		for (auto& meshRes : meshResources_) {
-			if (meshRes.materialData != nullptr) {
-				meshRes.materialData->color = { r, g, b, a };
-			}
-		}
-	}
-
-
+	Transform& GetTransform() { return transform_; }
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureSrvHandleGPU() const { return textureSrvHandleGPU_; }
 
@@ -92,7 +90,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState_;
 
+	// テクスチャがない時のパイプライン
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureNoTexture_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoTexture_;
+
 	std::vector<MeshResource> meshResources_;
+
+	// 頂点データ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
 

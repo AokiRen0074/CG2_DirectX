@@ -13,6 +13,8 @@ public:
 	// 行列を取得するためのゲッター
 	const Matrix4x4& GetViewMatrix() const { return matView_; }
 	const Matrix4x4& GetProjectionMatrix() const { return matProjection_; }
+	const Vector3& GetTranslation() const { return translation_; }
+	Vector3 GetRotation() const { return { rotX_, rotY_, 0.0f }; }
 	
 private:
 	// 累積回転行列

@@ -1,6 +1,7 @@
 #include "PlayerBullet.h"
 #include <cassert>
 #include "CollisionConfig.h"
+#include "Enemy.h"
 
 // 初期化
 void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation) {
@@ -12,7 +13,8 @@ void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const V
 	velocity_ = velocity;
 
 	// テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("Resources/ring.png");
+	static uint32_t sSharedTextureHandle = TextureManager::Load("Resources/ring.png");
+	textureHandle_ = sSharedTextureHandle;
 
 
 	worldTransform_.Initialize();
@@ -22,6 +24,8 @@ void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const V
 
 
 	worldTransform_.scale_ = { 0.2f, 0.2f, 0.2f };
+
+	worldTransform_.rotation_ = rotation;
 
 	for (int i = 0; i < kMaxTrail; ++i) {
 		trailTransforms_[i].Initialize();
@@ -41,11 +45,73 @@ void PlayerBullet::OnCollision() {
 }
 
 // 更新処理
-void PlayerBullet::Update() {
+void PlayerBullet::Update(const std::list<Enemy*>& enemies) {
 
 	// 時間経過で消す
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
+	}
+
+	bool isTargetValid = false;
+	if (target_) {
+		for (Enemy* enemy : enemies) {
+			// 最新の敵リストの中に自分のターゲットがまだいて、かつ死んでいなければOK
+			if (enemy == target_ && !enemy->IsDead()) {
+				isTargetValid = true;
+				break;
+			}
+		}
+	}
+
+
+	if (!isTargetValid) {
+		target_ = nullptr;
+		float closestDist = 999999.0f; // 十分に大きな値で初期化
+
+		for (Enemy* enemy : enemies) {
+			if (enemy->IsDead()) continue;
+
+			Vector3 toEnemy = enemy->GetWorldPosition() - GetWorldPosition();
+			float dist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y + toEnemy.z * toEnemy.z);
+
+			// 弾から 250.0f 以内にいる一番近い敵をロックオン
+			if (dist < closestDist && dist < 250.0f) {
+				closestDist = dist;
+				target_ = enemy;
+			}
+		}
+	}
+
+	// ターゲットがいるなら、そちらへ曲がる
+	if (target_) {
+		const float kBulletSpeed = 2.0f;       // ミサイルの速さ
+		const float kHomingInterpolation = 0.15f; // 曲がる強さ
+
+		Vector3 toEnemy = target_->GetWorldPosition() - GetWorldPosition();
+		float lenToEnemy = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y + toEnemy.z * toEnemy.z);
+		if (lenToEnemy != 0.0f) {
+			toEnemy.x /= lenToEnemy;
+			toEnemy.y /= lenToEnemy;
+			toEnemy.z /= lenToEnemy;
+		}
+
+		float lenVelocity = std::sqrt(velocity_.x * velocity_.x + velocity_.y * velocity_.y + velocity_.z * velocity_.z);
+		if (lenVelocity != 0.0f) {
+			velocity_.x /= lenVelocity;
+			velocity_.y /= lenVelocity;
+			velocity_.z /= lenVelocity;
+		}
+
+		// 球面線形補間で、敵の方向へ少しずつベクトルを曲げる
+		Vector3 slerpVelocity = Slerp(velocity_, toEnemy, kHomingInterpolation);
+		velocity_.x = slerpVelocity.x * kBulletSpeed;
+		velocity_.y = slerpVelocity.y * kBulletSpeed;
+		velocity_.z = slerpVelocity.z * kBulletSpeed;
+
+		// 弾の「見た目（回転）」も進行方向に合わせる
+		worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+		float xzLength = std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z);
+		worldTransform_.rotation_.x = std::atan2(-velocity_.y, xzLength);
 	}
 
 	// 座標を移動させる
@@ -69,7 +135,7 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection) {
 	if (neonModel_) {
 
 		// ==========================================
-		// ✨ 色のグラデーション設定
+		// 色のグラデーション設定
 		// ==========================================
 		// 先端の色（水色）
 		Vector3 headColor = { 0.0f, 0.8f, 1.0f };

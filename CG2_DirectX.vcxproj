@@ -106,12 +106,14 @@
     <ClCompile Include="BaseCharacter.cpp" />
     <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="BodyModel.cpp" />
+    <ClCompile Include="WarpEffect.cpp" />
+    <ClCompile Include="WaveManager.cpp" />
     <None Include="BodyModel.VS.hlsl">
       <FileType>Document</FileType>
     </None>
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EditorPanel.cpp" />
-    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="BaseEnemy.cpp" />
     <ClCompile Include="EnemyBullet.cpp" />
     <ClCompile Include="EnemyStateApproach.cpp" />
     <ClCompile Include="EnemyStateLeave.cpp" />
@@ -193,7 +195,7 @@
     <ClInclude Include="CollisionConfig.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="EditorPanel.h" />
-    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
     <ClInclude Include="EnemyStateLeave.h" />
@@ -236,6 +238,8 @@
     <ClInclude Include="TimedCall.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector4.h" />
+    <ClInclude Include="WarpEffect.h" />
+    <ClInclude Include="WaveManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
@@ -259,6 +263,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Object3d.Notexture.PS.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Object3d.NoTexture.VS.hlsl">
+      <FileType>Document</FileType>
+    </None>
     <None Include="NeonModel.VS.hlsl">
       <FileType>Document</FileType>
     </None>

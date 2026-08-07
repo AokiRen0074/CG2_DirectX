@@ -11,8 +11,9 @@
 
 class BaseEnemyState;
 class Player;
+class GameScene;
 
-class Enemy: public Collider{
+class BaseEnemy: public Collider{
 public:
 
 	// 行動フェーズ
@@ -25,20 +26,32 @@ public:
 	static const int kFireInterval = 60;
 
 	// 初期化
-	void Initialize(Player* player);
+	virtual void Initialize(Player* player);
 
 	// 更新処理
-	void Update();
+	virtual void Update();
 
 	// 描画処理
-	void Draw(const ViewProjection& viewProjection);
+	virtual void Draw(const ViewProjection& viewProjection);
 
-	void DrawNeon(const ViewProjection& viewProjection);
+	virtual void DrawNeon(const ViewProjection& viewProjection);
 
-	void DrawImGui();
+	virtual void DrawImGui();
+
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
+
+	// 死活判定用のゲッター
+	bool IsDead() const { return isDead_; }
+
+	void SetPosition(const Vector3& pos) {
+		worldTransform_.translation_ = pos;
+
+		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.TransferMatrix();
+	}
 
 	// デストラクタ
-	~Enemy();
+	~BaseEnemy();
 
 	// 接近フェーズ初期化
 	void ApproachPhaseInitialize();
@@ -49,7 +62,7 @@ public:
 	// シーンを切り替える関数
 	void ChangeState(BaseEnemyState* newState);
 
-	// 指定した移動量だけ座標を変更する　カプセル化用
+	// 指定した移動量だけ座標を変更する
 	void Move(const Vector3& velocity);
 
 	// 座標のゲッター
@@ -58,7 +71,7 @@ public:
 
 
 	// 弾の発射
-	void Fire();
+	virtual void Fire();
 
 	//　弾を発射し、タイマーをリセットする
 	void FireAndReset();
@@ -72,11 +85,16 @@ public:
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
 
-	// 弾リストの取得
-		// 弾リストの取得
-	const std::list<EnemyBullet*>& GetBullets() const { return bullets_; }
+	void SetSpawnIndex(int index) { spawnIndex_ = index; }
+	int GetSpawnIndex() const { return spawnIndex_; }
 
-private:
+protected:
+
+	int spawnIndex_ = -1;
+
+	GameScene* gameScene_ = nullptr;
+
+	bool isDead_ = false;
 
 	WorldTransform worldTransform_;
 
@@ -92,12 +110,8 @@ private:
 	// 状態を管理するポインタ
 	BaseEnemyState* state_ = nullptr;
 
-	/*---------------------------------------
-	弾
-	-----------------------------------*/
-	EnemyBullet* bullet_ = nullptr;
-	std::list<EnemyBullet*> bullets_;
-	Enemy* enemy_ = nullptr;
+
+
 
 	bool isFired_ = false;
 

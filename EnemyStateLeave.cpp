@@ -1,5 +1,5 @@
 #include "EnemyStateLeave.h"
-#include "Enemy.h"
+#include "BaseEnemy.h"
 
 void EnemyStateLeave::Update() {
 	// EnemyのMove関数を使って移動させる

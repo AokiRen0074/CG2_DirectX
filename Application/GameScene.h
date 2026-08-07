@@ -5,7 +5,7 @@
 #include "Audio/Audio.h"
 #include "ViewProjection.h"
 #include "Application/Character/Player.h"
-#include "Enemy.h"
+#include "BaseEnemy.h"
 #include "NeonSign.h"
 #include "DirectXCommon.h"
 #include "Bloom.h"
@@ -17,6 +17,9 @@
 #include "FlickerTimer.h"
 #include "Rail.h"
 #include "RailCamera.h"
+#include "RailEditor.h"
+#include "WarpEffect.h"
+#include <list>
 
 class Skydome;
 
@@ -28,12 +31,16 @@ class CollisionManager;
 
 class DirectXCommon;
 
+class WaveManager;
+
 class GameScene {
 public:
 
 	void Initialize(DirectXCommon* dxCommon);
 	void Update();
 	void Draw();
+
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
 
 	// 衝突マネージャーのポインタ
 	CollisionManager* collisionManager_ = nullptr;
@@ -53,7 +60,8 @@ private:
 	/*---------------------
 	敵キャラ
 	-----------------------------*/
-	Enemy* enemy_ = nullptr;
+	std::list<BaseEnemy*> enemies_;
+	std::list<EnemyBullet*> enemyBullets_;
 	Object3d* enemyObject_ = nullptr;
 	uint32_t enemyTex_ = 0u;
 
@@ -110,7 +118,7 @@ private:
 	/*------------------------
 	エディター
 	------------------------*/
-	//EditorPanel* editorPanel_ = nullptr;
+	RailEditor* railEditor_ = nullptr;
 
 	/*--------------------
 	地面
@@ -124,4 +132,14 @@ private:
 	-------------------------*/
 	Rail* rail_ = nullptr;
 	RailCamera* railCamera_ = nullptr;
+
+	/*-------------------------
+	ウェーブ,敵スポーン管理
+	----------------------*/
+
+
+	WaveManager* waveManager_ = nullptr;
+
+	// ワープエフェクト
+	WarpEffect* warpEffect_ = nullptr;
 };

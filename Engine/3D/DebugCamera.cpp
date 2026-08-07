@@ -35,8 +35,8 @@ void DebugCamera::Update() {
 	if (!isImGuiHovered) {
 
 		if (input->PushMouseRight()) {
-			rotY_ += input->GetMouseMoveX() * 0.005f;
-			rotX_ += input->GetMouseMoveY() * 0.005f;
+			rotY_ += input->GetMouseMoveX() * 0.0005f;
+			rotX_ += input->GetMouseMoveY() * 0.0005f;
 
 			// 真上・真下に行き過ぎて画面がひっくり返るのを防止
 			if (rotX_ > 1.5f) { rotX_ = 1.5f; }

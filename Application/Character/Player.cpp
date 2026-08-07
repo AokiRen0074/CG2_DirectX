@@ -227,8 +227,13 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 
 	// 弾更新
 	for (PlayerBullet* bullet : bullets_) {
-		bullet->Update();
-
+		if (enemies_) {
+			bullet->Update(*enemies_); // 敵情報を渡す！
+		}
+		else {
+			std::list<Enemy*> empty;
+			bullet->Update(empty);
+		}
 	}
 
 // メモリの開放

@@ -87,7 +87,7 @@
     <ClCompile Include="PlayerBullet.cpp">
       <Filter>Application\Character\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
+    <ClCompile Include="BaseEnemy.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBullet.cpp">
@@ -140,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="RailEditor.cpp">
       <Filter>Engine\3D\Rail</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveManager.cpp">
+      <Filter>Engine\3D\waveManager</Filter>
+    </ClCompile>
+    <ClCompile Include="WarpEffect.cpp">
+      <Filter>Engine\3D\Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -235,7 +241,7 @@
     <ClInclude Include="PlayerBullet.h">
       <Filter>Application\Character\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
+    <ClInclude Include="BaseEnemy.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyBullet.h">
@@ -298,6 +304,12 @@
     <ClInclude Include="RailEditor.h">
       <Filter>Engine\3D\Rail</Filter>
     </ClInclude>
+    <ClInclude Include="WaveManager.h">
+      <Filter>Engine\3D\waveManager</Filter>
+    </ClInclude>
+    <ClInclude Include="WarpEffect.h">
+      <Filter>Engine\3D\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
@@ -337,6 +349,12 @@
       <Filter>Resources\Shaders</Filter>
     </None>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Object3d.Notexture.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Object3d.NoTexture.VS.hlsl">
       <Filter>Resources\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -405,6 +423,12 @@
     </Filter>
     <Filter Include="Engine\3D\Rail">
       <UniqueIdentifier>{0763dbd9-37f9-46d4-8436-f273c4146350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\3D\waveManager">
+      <UniqueIdentifier>{c87730b3-1d64-4952-bf38-cbffa909fd99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\3D\Effect">
+      <UniqueIdentifier>{1c069604-cf1b-44f7-a331-d4de8a5a15a5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

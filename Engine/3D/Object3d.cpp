@@ -164,6 +164,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 
 	assert(pixelShaderBlob != nullptr);
 
+
+
 	// PSOを作成する
 
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
@@ -186,10 +188,10 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	//書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	//利用するトポロジ(形状)のタイプ。三角形
+	//利用するトポロジのタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType =
 		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	//どのように画面に色を打ち込むかの設定(気にしなくて良い)
+
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	//実際に生成
@@ -203,7 +205,46 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	assert(SUCCEEDED(hr));
 
 
-	/*
+	D3D12_ROOT_PARAMETER rootParamsNoTex[3] = {};
+	rootParamsNoTex[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParamsNoTex[0].Descriptor.ShaderRegister = 0; // マテリアル(b0)
+
+	rootParamsNoTex[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParamsNoTex[1].Descriptor.ShaderRegister = 0; // WVP(b0)
+
+	rootParamsNoTex[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParamsNoTex[2].Descriptor.ShaderRegister = 1; // ライト
+
+	D3D12_ROOT_SIGNATURE_DESC rootSigDescNoTex{};
+	rootSigDescNoTex.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSigDescNoTex.pParameters = rootParamsNoTex;
+	rootSigDescNoTex.NumParameters = _countof(rootParamsNoTex);
+
+	ID3DBlob* sigBlobNoTex = nullptr;
+	ID3DBlob* errBlobNoTex = nullptr;
+	hr = D3D12SerializeRootSignature(&rootSigDescNoTex, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlobNoTex, &errBlobNoTex);
+	assert(SUCCEEDED(hr));
+	hr = device->CreateRootSignature(0, sigBlobNoTex->GetBufferPointer(), sigBlobNoTex->GetBufferSize(), IID_PPV_ARGS(&rootSignatureNoTexture_));
+	assert(SUCCEEDED(hr));
+
+	// 新しいShaderのコンパイル
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlobNoTex = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.NoTexture.VS.hlsl", L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+	Microsoft::WRL::ComPtr<IDxcBlob> psBlobNoTex = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.NoTexture.PS.hlsl", L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+
+	// パイプラインの作成
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDescNoTex = graphicsPipelineStateDesc;
+	psoDescNoTex.pRootSignature = rootSignatureNoTexture_.Get();
+	psoDescNoTex.VS = { vsBlobNoTex->GetBufferPointer(), vsBlobNoTex->GetBufferSize() };
+	psoDescNoTex.PS = { psBlobNoTex->GetBufferPointer(), psBlobNoTex->GetBufferSize() };
+
+	hr = device->CreateGraphicsPipelineState(&psoDescNoTex, IID_PPV_ARGS(&graphicsPipelineStateNoTexture_));
+	assert(SUCCEEDED(hr));
+
+
+
 	// ==========================================
 	// 球体の頂点・インデックスデータの計算
 	// ==========================================
@@ -272,7 +313,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		}
 	}
 
-	*/
+
 
 
 	// ==========================================
@@ -282,7 +323,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	ModelData modelData = LoadObjectFile(directoryPath, filename);
 
 	// SRVの割り当て用インデックス
-	static uint32_t srvIndex = 50;
+	static uint32_t srvIndex = 10;
 	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
 	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
 
@@ -315,18 +356,38 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		meshRes.materialData->color = matData.diffuseColor;
 		meshRes.materialData->enableLighting = 1;
 
-		Matrix4x4 uvTransformMatrix = MakeScaleMatrix(matData.textureScale);
-		uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(matData.textureOffset));
-		meshRes.materialData->uvTransform = uvTransformMatrix;
+		meshRes.uvTransform.scale = matData.textureScale;
+		meshRes.uvTransform.translate = matData.textureOffset;
+		meshRes.uvTransform.rotate = { 0.0f, 0.0f, 0.0f }; // 初期回転はゼロ
+
+		// SRTからAffine行列を作ってGPUに送る
+		meshRes.materialData->uvTransform = MakeAffineMatrix(
+			meshRes.uvTransform.scale,
+			meshRes.uvTransform.rotate,
+			meshRes.uvTransform.translate
+		);
 
 		// このパーツ専用のテクスチャを読み込んでSRVを作成
-		if (!matData.textureFilePath.empty() && matData.textureFilePath.find(".") != std::string::npos) {
-			uint32_t handle = TextureManager::Load(matData.textureFilePath);
-			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(handle);
-		}
-		else {
+		if (!matData.textureFilePath.empty()) {
+			DirectX::ScratchImage mipImages = TextureManager::LoadTexture(matData.textureFilePath);
+			const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
+			meshRes.textureResource = TextureManager::CreateTextureResource(device, metadata);
 
-			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(0);
+			Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = TextureManager::UploadTextureData(meshRes.textureResource.Get(), mipImages, device, dxCommon_->GetCommandList());
+			dxCommon_->FlushCommandList(); // コマンドを実行して転送を待つ
+
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+			srvDesc.Format = metadata.format;
+			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+			// SRVを空いている場所に作る
+			D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, srvIndex);
+			meshRes.textureHandleGPU = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, srvIndex);
+			device->CreateShaderResourceView(meshRes.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
+
+			srvIndex++; // 次のテクスチャが来たら被らないように+1する
 		}
 
 		// 完成したパーツを配列に追加！
@@ -344,6 +405,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	directionalLightData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData_->intensity = 1.0f;
+	directionalLightData_->lightingType = 1;
 
 	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
 	transformMatrixSize = (transformMatrixSize + 255) & ~255;
@@ -361,13 +423,22 @@ void Object3d::Update() {
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
 	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
-	
+
 
 	wvpData_->WVP = worldViewProjectionMatrix;
 	wvpData_->World = worldMatrix;
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
+
+	if (ImGui::TreeNode("Object3D Transform")) {
+		ImGui::DragFloat3("Translate", &transform_.translate.x, 0.1f);
+		ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
+		ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
+		ImGui::TreePop();
+	}
+
+
 	if (ImGui::TreeNode("Camera")) {
 		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
 		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
@@ -386,72 +457,119 @@ void Object3d::Update() {
 			}
 		}
 		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+		const char* lightingTypes[] = { "None", "Lambert", "Half Lambert" };
+		ImGui::Combo("Lighting Type", &directionalLightData_->lightingType, lightingTypes, 3);
+
 		ImGui::TreePop();
 	}
+
+
+	for (size_t i = 0; i < meshResources_.size(); ++i) {
+		ImGui::PushID(static_cast<int>(i));
+
+		if (ImGui::TreeNode("Material")) {
+			ImGui::DragFloat3("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
+			ImGui::DragFloat3("UVRotate", &meshResources_[i].uvTransform.rotate.x, 0.01f);
+			ImGui::DragFloat3("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
+			ImGui::ColorEdit4("Color", &meshResources_[i].materialData->color.x);
+
+			bool isLighting = meshResources_[i].materialData->enableLighting != 0;
+			if (ImGui::Checkbox("Enable Lighting", &isLighting)) {
+				meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+
+		// 動かしたUVのSRTをもとに、最新の行列を計算してGPUに送る
+		meshResources_[i].materialData->uvTransform = MakeAffineMatrix(
+			meshResources_[i].uvTransform.scale,
+			meshResources_[i].uvTransform.rotate,
+			meshResources_[i].uvTransform.translate
+		);
+	}
+
 	ImGui::End();
 #endif
-	
 }
 
 // ==========================================
 // 描画
 // ==========================================
+
 void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;
 	viewport.Height = WindowApp::kClientHeight;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0; viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
 	D3D12_RECT scissorRect{};
-	scissorRect.left = 0;
-	scissorRect.right = WindowApp::kClientWidth;
-	scissorRect.top = 0;
-	scissorRect.bottom = WindowApp::kClientHeight;
+	scissorRect.left = 0; scissorRect.right = WindowApp::kClientWidth; scissorRect.top = 0; scissorRect.bottom = WindowApp::kClientHeight;
 
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);
-	commandList->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList->SetPipelineState(graphicsPipelineState_.Get());
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { dxCommon_->GetSrvDescriptorHeap() };
 	commandList->SetDescriptorHeaps(1, descriptorHeaps);
 
-	// 全体で共有する WVP と ライト は先にセットしておく
-	Matrix4x4 wvpMatrix = Multiply(worldTransform.matWorld_, Multiply(viewProjection.matView, viewProjection.matProjection));
-	worldTransform.constMap_->WVP = wvpMatrix;
-	worldTransform.constMap_->World = worldTransform.matWorld_;
-
-	// 全体で共有する WVP と ライト は先にセットしておく
-	commandList->SetGraphicsRootConstantBufferView(1, worldTransform.constBuff_->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
-
-	// ==========================================
-	// パーツの数だけループして描画する！
-	// ==========================================
 	for (const auto& meshRes : meshResources_) {
-		// そのパーツの頂点データ
 		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
 
-		// そのパーツのマテリアルデータ（色やUV）
-		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootSignature(rootSignature_.Get());
+		commandList->SetPipelineState(graphicsPipelineState_.Get());
 
-		// そのパーツのテクスチャ
-		if (textureHandle == 0) {
-			// 0（指定なし）の場合は、モデル本来のテクスチャを使う（これで右上の軸の表示も守られます！）
+		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+
+		if (meshRes.textureHandleGPU.ptr != 0) {
 			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
 		}
 		else {
-			// 弾や敵など、着せ替えテクスチャ（1番以降）が渡されたら上書きする！
-			commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle));
+			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle);
+			commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
 		}
+		commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 
-		// 描画
 		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);
 	}
+}
+
+// テクスチャなし
+void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
+	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+	D3D12_VIEWPORT viewport{};
+	viewport.Width = WindowApp::kClientWidth;
+	viewport.Height = WindowApp::kClientHeight;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0; viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0; scissorRect.right = WindowApp::kClientWidth; scissorRect.top = 0; scissorRect.bottom = WindowApp::kClientHeight;
+
+	commandList->RSSetViewports(1, &viewport);
+	commandList->RSSetScissorRects(1, &scissorRect);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// 後続のスプライト描画のためにヒープだけはセットしておく
+	ID3D12DescriptorHeap* descriptorHeaps[] = { dxCommon_->GetSrvDescriptorHeap() };
+	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+	for (const auto& meshRes : meshResources_) {
+		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
+
+		// テクスチャなし専用のパイプライン！
+		commandList->SetGraphicsRootSignature(rootSignatureNoTexture_.Get());
+		commandList->SetPipelineState(graphicsPipelineStateNoTexture_.Get());
+
+		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(2, directionalLightResource_->GetGPUVirtualAddress()); // ライトは2番
+
+		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);
+	}
+
+	// スプライト描画のクラッシュを防ぐ
+	commandList->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList->SetPipelineState(graphicsPipelineState_.Get());
 }
 
 // ==========================================
@@ -473,4 +591,3 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Object3d::CreateBufferResource(ID3D12Devi
 	assert(SUCCEEDED(hr));
 	return resource;
 }
-

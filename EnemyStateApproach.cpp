@@ -1,5 +1,5 @@
 #include "EnemyStateApproach.h"
-#include "Enemy.h"
+#include "BaseEnemy.h"
 #include "EnemyStateLeave.h"
 
 void EnemyStateApproach::Update() {

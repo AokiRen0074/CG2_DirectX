@@ -1,9 +1,10 @@
-#include "Enemy.h"
+#include "BaseEnemy.h"
 #include "EnemyStateApproach.h"
 #include <cassert>
 #include "cmath"
 #include "Application/Character/Player.h"
 #include "CollisionConfig.h"
+#include "GameScene.h"
 
 
 #ifdef USE_IMGUI
@@ -15,20 +16,16 @@
 
 
 // デストラクタ
-Enemy::~Enemy() {
-	for (EnemyBullet* bullet : bullets_) {
-		delete bullet;
+BaseEnemy::~BaseEnemy() {
 
-	}
 
 	for (TimedCall* timedCall : timedCalls_) {
 		delete timedCall;
 	}
 
-	delete bulletModel_;
 }
 
-void Enemy::Initialize(Player* player) {
+void BaseEnemy::Initialize(Player* player) {
 
 	assert(player);
 	player_ = player;
@@ -39,30 +36,44 @@ void Enemy::Initialize(Player* player) {
 	for (int i = 0; i < 5; ++i) {
 		transformTails_[i].Initialize();
 	}
+	static uint32_t sDummyTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+	static uint32_t sTailTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+	dummyTexture_ = sDummyTexture;
+	tailTexture_ = sTailTexture;
 
-	dummyTexture_ = TextureManager::Load("Resources/Enemy/PlayerTex.png");
-	tailTexture_ = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+	static BodyModel* sModelBase = nullptr;
+	static NeonModel* sModelLines = nullptr;
+	static NeonModel* sModelTails[5] = { nullptr };
+	static NeonModel* sModelRing = nullptr;
+	static NeonModel* sBulletModel = nullptr;
 
+	if (sModelBase == nullptr) {
+		sModelBase = new BodyModel();
+		sModelBase->Initialize("Resources/Enemy", "Enemy_Base.obj");
 
-	// --- 暗いパーツ ---
-	modelBase_ = new BodyModel();
-	modelBase_->Initialize("Resources/Enemy", "Enemy_Base.obj");
+		sModelLines = new NeonModel();
+		sModelLines->Initialize("Resources/Enemy", "enemy_lines.obj");
 
-	// --- 光るパーツ ---
-	modelLines_ = new NeonModel();
-	modelLines_->Initialize("Resources/Enemy", "enemy_lines.obj");
+		for (int i = 0; i < 5; ++i) {
+			sModelTails[i] = new NeonModel();
+			sModelTails[i]->Initialize("Resources/Enemy", "enemy_tail.obj");
+		}
 
-	for (int i = 0; i < 5; ++i) {
-		modelTails_[i] = new NeonModel();
-		modelTails_[i]->Initialize("Resources/Enemy", "enemy_tail.obj");
+		sModelRing = new NeonModel();
+		sModelRing->Initialize("Resources/Enemy", "Enemy_ring.obj");
+
+		sBulletModel = new NeonModel();
+		sBulletModel->Initialize("Resources/Bullet", "EnemyBuillet.obj");
 	}
-	
-	modelRing_ = new NeonModel();
-	modelRing_->Initialize("Resources/Enemy", "Enemy_ring.obj");
 
-
-	bulletModel_ = new NeonModel();
-	bulletModel_->Initialize("Resources/Bullet", "EnemyBuillet.obj");
+	// 全員、共有のポインタを受け取って使い回す
+	modelBase_ = sModelBase;
+	modelLines_ = sModelLines;
+	for (int i = 0; i < 5; ++i) {
+		modelTails_[i] = sModelTails[i];
+	}
+	modelRing_ = sModelRing;
+	bulletModel_ = sBulletModel;
 
 	// 初期座標
 	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
@@ -87,20 +98,20 @@ void Enemy::Initialize(Player* player) {
 }
 
 // 接近フェーズ初期化
-void Enemy::ApproachPhaseInitialize() {
+void BaseEnemy::ApproachPhaseInitialize() {
 	// 最初の発射を予約
 	FireAndReset();
 
 }
 
 // 発射してリセット
-void Enemy::FireAndReset() {
+void BaseEnemy::FireAndReset() {
 
 	// 弾を発射
 	Fire();
 
 	timedCalls_.push_back(
-		new TimedCall(std::bind(&Enemy::FireAndReset, this), kFireInterval)
+		new TimedCall(std::bind(&BaseEnemy::FireAndReset, this), kFireInterval)
 	);
 
 }
@@ -109,7 +120,7 @@ void Enemy::FireAndReset() {
 /*-------------------------------
 攻撃
 --------------------------------*/
-void Enemy::Fire() {
+void BaseEnemy::Fire() {
 
 	assert(player_);
 
@@ -145,7 +156,9 @@ void Enemy::Fire() {
 	newBullet->Initialize(bulletModel_, enemyPos, velocity, dummyTexture_);
 
 	// 弾を登録する
-	bullets_.push_back(newBullet);
+	if (gameScene_) {
+		gameScene_->AddEnemyBullet(newBullet);
+	}
 
 
 
@@ -155,15 +168,15 @@ void Enemy::Fire() {
 /*----------------------------------------
 衝突時コールバック
 -----------------------------------*/
-void Enemy::OnCollision() {
-
+void BaseEnemy::OnCollision() {
+	isDead_ = true;
 }
 
 
 /*--------------------------
 更新処理
 ------------------------------------*/
-void Enemy::Update() {
+void BaseEnemy::Update() {
 	// 終了したイベントを削除
 	timedCalls_.remove_if([](TimedCall* timedCall) {
 		if (timedCall->isFinished()) {
@@ -179,22 +192,13 @@ void Enemy::Update() {
 	}
 
 
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
-	}
+
 	// 状態遷移
 	if (state_) {
 		state_->Update();
 	}
 
-	// デスフラグの立った弾を削除
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-		});
+
 
 
 	// 時間の更新
@@ -239,13 +243,13 @@ void Enemy::Update() {
 
 // 描画処理
 
-void Enemy::Draw(const ViewProjection& viewProjection) {
+void BaseEnemy::Draw(const ViewProjection& viewProjection) {
 
 
 
 }
 
-void Enemy::DrawNeon(const ViewProjection& viewProjection) {
+void BaseEnemy::DrawNeon(const ViewProjection& viewProjection) {
 	if (modelBase_) {
 		modelBase_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 		Vector3 lightDir = { -1.0f, -1.0f, 1.0f };
@@ -292,13 +296,10 @@ void Enemy::DrawNeon(const ViewProjection& viewProjection) {
 		modelRing_->Draw(worldTransform_, viewProjection, dummyTexture_);
 	}
 
-	// 弾の描画
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection);
-	}
+
 }
 
-void Enemy::DrawImGui() {
+void BaseEnemy::DrawImGui() {
 #ifdef USE_IMGUI
 	// 座標の操作
 	ImGui::DragFloat3("Position", &worldTransform_.translation_.x, 0.1f);
@@ -322,7 +323,7 @@ void Enemy::DrawImGui() {
 }
 
 // 状態を切り替える関数
-void Enemy::ChangeState(BaseEnemyState* newState) {
+void BaseEnemy::ChangeState(BaseEnemyState* newState) {
 	// いあの状態を消して、新しい状態を入れる
 	if (state_) {
 		delete state_;
@@ -333,26 +334,26 @@ void Enemy::ChangeState(BaseEnemyState* newState) {
 }
 
 // 移動関数
-void Enemy::Move(const Vector3& velocity) {
+void BaseEnemy::Move(const Vector3& velocity) {
 	worldTransform_.translation_.x += velocity.x;
 	worldTransform_.translation_.y += velocity.y;
 	worldTransform_.translation_.z += velocity.z;
 }
 
 // 座標のゲッター
-Vector3 Enemy::GetTranslation() const {
+Vector3 BaseEnemy::GetTranslation() const {
 	return worldTransform_.translation_;
 }
 
 // 時限発動イベントのクリア
-void Enemy::ClearTimedCalls() {
+void BaseEnemy::ClearTimedCalls() {
 	for (TimedCall* timedCall : timedCalls_) {
 		delete timedCall;
 	}
 	timedCalls_.clear();
 }
 
-Vector3 Enemy::GetWorldPosition() {
+Vector3 BaseEnemy::GetWorldPosition() {
 	// ワールド座標を入れる変数
 	Vector3 worldPos;
 	// ワールド行列の平行移動成分を取得

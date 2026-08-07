@@ -5,11 +5,14 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "TextureManager.h"
+#include <list>
 #include "NeonModel.h"
 
 // 親クラス
 #include "BaseCharacter.h"
 #include "Collider.h"
+
+class Enemy;
 
 class PlayerBullet : public BaseCharacter, public Collider{
 
@@ -24,7 +27,7 @@ public:
 
 
 	// 更新処理
-	void Update();
+	void Update(const std::list<Enemy*>& enemies);
 
 	void Draw(const ViewProjection& viewProjection) override;
 
@@ -45,11 +48,12 @@ private:
 	Vector3 velocity_;
 	NeonModel* neonModel_ = nullptr;
 
+	Enemy* target_ = nullptr;
+
 	// 軌道の履歴を保存するリスト
 	std::list<Vector3> trailHistory_;
 	static const int32_t kMaxTrail = 10; // 軌道の長さ
 
-	// ✨ 追加：描画用の WorldTransform をローカル変数ではなく、メンバ配列として持っておく！
 	WorldTransform trailTransforms_[kMaxTrail];
 
 	static const int32_t kLifeTime = 60 * 5;

@@ -8,49 +8,50 @@
 #include <cmath>
 #include "CollisionManager.h"
 #include "Skydome.h"
+#include "WaveManager.h"
+
+#include "BaseEnemy.h"
+#include <random>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
 #endif
 
-
-
-		
-
-
-
-
-
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete player_;
-	delete enemy_;
+	for (BaseEnemy* enemy : enemies_) { delete enemy; } 
+	for (EnemyBullet* bullet : enemyBullets_) { delete bullet; }
 	delete collisionManager_;
 	delete skydomeModel_;
 	delete skydome_;
-	//delete bulletModel_;
 	delete groundModel_;
+	delete railEditor_;
+	delete waveManager_;
 }
+
+void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
+	enemyBullets_.push_back(enemyBullet);
+}
+
+
+
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
+	GlobalVariables::GetInstance()->LoadFiles();
+
 	dxCommon_ = dxCommon;
-	
-	//
+
 	enemyObject_ = new Object3d();
 	Object3d::StaticInitialize(dxCommon);
 	NeonModel::StaticInitialize(dxCommon);
 	BodyModel::StaticInitialize(dxCommon);
 
-
-	
-
-
 	/*-------------------------------
 	ワールドトランスフォーム
 	----------------------------------*/
 	WorldTransform::SetDevice(dxCommon->GetDevice());
-
 
 	// カメラの生成と初期化
 	debugCamera_ = new DebugCamera();
@@ -63,13 +64,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	viewProjection_.translation_.z = -20.0f;
 	viewProjection_.UpdateMatrix();
 
-
 	/*-------------------------------
 	3Dオブジェクトの生成と初期化
 	----------------------------------*/
-
-	// プレイヤー
-
 	/*----------------------
 	地面
 	-----------------------------*/
@@ -78,14 +75,11 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	groundTex_ = TextureManager::Load("Resources/Ground/ground.png");
 
 	groundTransform_.Initialize();
-
 	groundTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
 	groundTransform_.rotation_ = { 0.0f, 0.0f, 0.0f };
 	groundTransform_.translation_ = { 0.0f, -15.0f, 0.0f }; // 原点に配置
-
 	groundTransform_.matWorld_ = MakeAffineMatrix(groundTransform_.scale_, groundTransform_.rotation_, groundTransform_.translation_);
 	groundTransform_.TransferMatrix();
-
 
 	// ネオン
 	neonText_Open_ = new NeonText();
@@ -102,65 +96,36 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	neonModel_ = new NeonModel();
 
-
 	bloom_ = new Bloom();
-	bloom_->Initialize(dxCommon_, 1280,720);
-	
-
+	bloom_->Initialize(dxCommon_, 1280, 720);
 
 	// エネミー
-
 	enemyObject_->Initialize("Resources", "block.obj");
 	enemyTex_ = TextureManager::Load("Resources/monsterBall.png");
-
-
-
-	/*----------------------
-	スプライトの生成と初期化
-	-------------------------*/
 
 	/*-----------------------
 	天球の生成と初期化
 	-----------------------------*/
-	// 天球モデル
 	skydomeModel_ = new Object3d();
 	skydomeModel_->Initialize("Resources/skyDome", "AL3_skyDome.obj");
-
-	// 天球のテクスチャ
 	skydomeTex_ = TextureManager::Load("Resources/skyDome/AL3_skydome.png");
 
 	skydome_ = new Skydome();
 	skydome_->Initialize(skydomeModel_, skydomeTex_);
 
-	/*--------------------------------
-	エディターパネルの描画
-	-------------------------------*/
-
-
 	/*-------------------------------
 	自キャラ生成と初期化
 	----------------------------------*/
 	Player::RegisterGlobalVariables();
-	// 自キャラの生成
 	player_ = new Player();
-
-	// 自キャラの初期化
 	player_->Initialize();
+	player_->SetEnemies(reinterpret_cast<const std::list<Enemy*>*>(&enemies_));
 
-
-	// 敵キャラの生成
-	enemy_ = new Enemy();
-
-	// 敵キャラに自キャラのアドレスを渡す
-	enemy_->SetPlayer(player_);
-
-	// 敵キャラの生成
-
-
-	enemy_ = new Enemy();
-	enemy_->Initialize(player_);
-
-
+	/*------------------------------
+	waveManager
+	------------------------------*/
+	waveManager_ = new WaveManager();
+	waveManager_->Initialize();
 
 	/*-------------------------
 	衝突マネージャー
@@ -176,29 +141,55 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	railCamera_ = new RailCamera();
 	railCamera_->Initialize(rail_);
 
+	// editor 
+	railEditor_ = new RailEditor();
+	railEditor_->Initialize(rail_);
 
 	/*-----------------------
 	軸表示
 	------------------------*/
 	AxisIndicator::GetInstance()->Initialize();
-
-	// 軸方向の表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
-
-	// 軸方向表示が参照するビュープロジェクションの指定
 	AxisIndicator::GetInstance()->SetTargetCamera(&viewProjection_);
 
+	/*-----------------
+	ワープエフェクト
+	-----------------------*/
+	warpEffect_ = new WarpEffect();
+	warpEffect_->Initialize(dxCommon_);
 }
-
-
 
 void GameScene::Update() {
 
+	/*-----------------------
+	ワープエフェクト
+	---------------------------*/
+	float currentWarpIntensity = 1.0f;
+	warpEffect_->Update(currentWarpIntensity);
+
 	/*-------------------------
-レールカメラ
----------------------------*/
+	レールカメラ
+	---------------------------*/
 	if (railCamera_) {
 		railCamera_->Update();
+	}
+
+	// エディター
+	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewMatrix();
+		viewProjection_.matProjection = debugCamera_->GetProjectionMatrix();
+
+		// レールエディターを動かす
+		if (railEditor_) railEditor_->Update(debugCamera_, railCamera_);
+	}
+
+	if (groundModel_) {
+		groundModel_->GetTransform().scale = groundTransform_.scale_;
+		groundModel_->GetTransform().rotate = groundTransform_.rotation_;
+		groundModel_->GetTransform().translate = groundTransform_.translation_;
+		groundModel_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
+		groundModel_->Update();
 	}
 
 	/*-----------------------------
@@ -206,23 +197,47 @@ void GameScene::Update() {
 	--------------------------------*/
 	if (player_) {
 		Matrix4x4 parentMat = railCamera_ ? railCamera_->GetWorldMatrix() : MakeIdentity4x4();
-
 		player_->Update(parentMat);
 	}
 
+	
+
 	/*-----------------------------
-		エネミー更新
---------------------------------*/
-	if (enemy_) enemy_->Update();
+	エネミー更新
+	--------------------------------*/
+	for (BaseEnemy* enemy : enemies_) { 
+		enemy->Update();
+	}
+
+	// デスフラグが立った敵をリストから除外してメモリ解放
+	enemies_.remove_if([](BaseEnemy* enemy) { 
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		}
+		return false;
+		});
+
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Update();
+	}
+
+	// デスフラグが立った敵弾をリストから除外してメモリ解放
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+		});
+
+	//waveManagerの更新
+	waveManager_->Update(enemies_, player_, this);
 
 	/*-------------------------------
 	天球
 	----------------------------------*/
 	skydome_->Update();
-
-
-
-
 
 	// 軸表示
 	AxisIndicator::GetInstance()->Update();
@@ -236,6 +251,10 @@ void GameScene::Update() {
 		debugCamera_->Update();
 		viewProjection_.matView = debugCamera_->GetViewMatrix();
 		viewProjection_.matProjection = debugCamera_->GetProjectionMatrix();
+
+		viewProjection_.translation_ = debugCamera_->GetTranslation();
+		viewProjection_.rotation_ = debugCamera_->GetRotation();
+		viewProjection_.UpdateMatrix();
 	}
 	else {
 		// 通常のカメラ更新
@@ -257,7 +276,6 @@ void GameScene::Update() {
 	// ==========================================
 	Vector3 camPos = viewProjection_.translation_;
 	if (isDebugCameraActive_ && debugCamera_ != nullptr) {
-		// ビュー行列からカメラのワールド座標を逆算
 		Matrix4x4 v = debugCamera_->GetViewMatrix();
 		camPos.x = -(v.m[3][0] * v.m[0][0] + v.m[3][1] * v.m[1][0] + v.m[3][2] * v.m[2][0]);
 		camPos.y = -(v.m[3][0] * v.m[0][1] + v.m[3][1] * v.m[1][1] + v.m[3][2] * v.m[2][1]);
@@ -272,7 +290,6 @@ void GameScene::Update() {
 	if (myNeonBar_ != nullptr) {
 		myNeonBar_->Update(camPos);
 
-		// ネオンの光を自機(Player)へ送る
 		if (player_ != nullptr) {
 			Vector3 neonPos = myNeonBar_->GetPosition();
 			Vector3 nColor = myNeonBar_->GetNeonColor();
@@ -280,7 +297,6 @@ void GameScene::Update() {
 			player_->SetPointLight(neonPos, nColor, nIntensity, 30.0f, camPos);
 		}
 
-		// ネオンバー自体が発する点光源の設定
 		NeonModel::DirectionalLight* lightData = myNeonBar_->GetModel()->GetLightData();
 		if (lightData != nullptr && player_ != nullptr) {
 			lightData->pointPos = player_->GetWorldPosition();
@@ -315,12 +331,14 @@ void GameScene::Update() {
 			if (!pBullet->IsDead()) collisionManager_->AddCollider(pBullet);
 		}
 	}
-	if (enemy_) {
-		collisionManager_->AddCollider(enemy_);
-		for (EnemyBullet* eBullet : enemy_->GetBullets()) {
-			if (!eBullet->IsDead()) collisionManager_->AddCollider(eBullet);
-		}
+
+	for (BaseEnemy* enemy : enemies_) { // ✨ 変更
+		collisionManager_->AddCollider(enemy);
 	}
+	for (EnemyBullet* eBullet : enemyBullets_) {
+		collisionManager_->AddCollider(eBullet);
+	}
+
 	collisionManager_->CheckAllCollisions();
 
 	// ==========================================
@@ -338,7 +356,16 @@ void GameScene::Update() {
 
 	// 敵
 	if (ImGui::TreeNodeEx("Enemy Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
-		if (enemy_) enemy_->DrawImGui();
+		int i = 0;
+		for (BaseEnemy* enemy : enemies_) { // ✨ 変更
+			ImGui::PushID(i);
+			if (ImGui::TreeNode((std::string("Enemy ") + std::to_string(i)).c_str())) {
+				enemy->DrawImGui();
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+			i++;
+		}
 		ImGui::TreePop();
 	}
 
@@ -374,6 +401,9 @@ void GameScene::Update() {
 		ImGui::TreePop();
 	}
 
+	// WaveManager
+	waveManager_->DrawImGui();
+
 	ImGui::End(); // Master Controlの終了
 
 #endif
@@ -390,53 +420,25 @@ void GameScene::Draw() {
 		groundModel_->Draw(groundTransform_, viewProjection_, groundTex_);
 	}
 
-	/*
-	if (enemy_) {
-		enemy_->Draw(viewProjection_);
-	}
-	*/
-
-
-	// 暗いパーツ
-	//player_->Draw(viewProjection_);
-
-
 	// ==========================================
 	//  ネオン
 	// ==========================================
 	bloom_->PreDraw();
 
-	
+	//warpEffect_->Draw(viewProjection_);
+
 	if (player_) {
 		player_->Draw(viewProjection_);      // 暗いパーツ
 		player_->DrawNeon(viewProjection_);  // 光るパーツ
 	}
-	
-	if (enemy_) enemy_->DrawNeon(viewProjection_);
-	
 
-	
-	//if (neonText_Border_ != nullptr) { neonText_Border_->Draw(); }
-	//if (neonText_Open_ != nullptr) { neonText_Open_->Draw(); }
-
-	
-	/*
-	if (myNeonBar_ != nullptr) {
-		myNeonBar_->Draw(viewProjection_);
+	for (BaseEnemy* enemy : enemies_) { 
+		enemy->DrawNeon(viewProjection_);
 	}
-	*/
-	
-	
-
 
 	// HDRキャンバスへの書き込み終了、普通の画面(R8)に戻る
 	bloom_->PostDraw();
 
-
 	bloom_->Execute();
 	bloom_->DrawResult();
 }
-
-
-
-
