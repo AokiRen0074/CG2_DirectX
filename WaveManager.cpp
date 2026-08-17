@@ -1,6 +1,9 @@
 #include "WaveManager.h"
 #include "BaseEnemy.h" 
 #include "GlobalValiables.h"
+#include "WeakEnemyCross.h"
+#include "WeakEnemySpinCore.h"
+#include "WeakEnemyTriangle.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -103,6 +106,18 @@ void WaveManager::SpawnEnemy(int wave, int enemyIndex, std::list<BaseEnemy*>& en
 	// 将来的な敵種類の分岐
 	if (data.type == 1) {
 		newEnemy = new BaseEnemy();
+	}
+	else if (data.type == 2) {
+		// クロス敵
+		newEnemy = new WeakEnemyCross();
+	}
+
+	else if (data.type == 3) {
+		newEnemy = new WeakEnemySpinCore();
+	}
+	
+	else if (data.type == 4) {
+		newEnemy = new WeakEnemyTriangle();
 	}
 	else {
 		newEnemy = new BaseEnemy();

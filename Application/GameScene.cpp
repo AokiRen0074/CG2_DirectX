@@ -9,6 +9,9 @@
 #include "CollisionManager.h"
 #include "Skydome.h"
 #include "WaveManager.h"
+#include "WeakEnemyCross.h"
+#include "WeakEnemySpinCore.h"
+#include "WeakEnemyTriangle.h"
 
 #include "BaseEnemy.h"
 #include <random>
@@ -100,8 +103,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	bloom_->Initialize(dxCommon_, 1280, 720);
 
 	// エネミー
-	enemyObject_->Initialize("Resources", "block.obj");
-	enemyTex_ = TextureManager::Load("Resources/monsterBall.png");
+	BaseEnemy::StaticInitialize();
+	WeakEnemyCross::StaticInitialize();
+	WeakEnemySpinCore::StaticInitialize();
+	WeakEnemyTriangle::StaticInitialize();
 
 	/*-----------------------
 	天球の生成と初期化
@@ -119,7 +124,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	Player::RegisterGlobalVariables();
 	player_ = new Player();
 	player_->Initialize();
-	player_->SetEnemies(reinterpret_cast<const std::list<Enemy*>*>(&enemies_));
+	player_->SetEnemies(&enemies_);
+	TextureManager::Load("Resources/ring.png");
 
 	/*------------------------------
 	waveManager
@@ -157,6 +163,16 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	-----------------------*/
 	warpEffect_ = new WarpEffect();
 	warpEffect_->Initialize(dxCommon_);
+
+	/*------------------------
+	パーティクル
+	--------------------------*/
+	particleModel_ = new NeonModel();
+	particleModel_->Initialize("Resources", "block.obj");
+
+	particleManager_ = new ParticleManager();
+	particleManager_->Initialize(particleModel_, TextureManager::Load("Resources/white.png"));
+
 }
 
 void GameScene::Update() {
@@ -164,8 +180,15 @@ void GameScene::Update() {
 	/*-----------------------
 	ワープエフェクト
 	---------------------------*/
-	float currentWarpIntensity = 1.0f;
-	warpEffect_->Update(currentWarpIntensity);
+	float targetWarpIntensity = 0.0f;
+
+	// ウェーブ間のインターバル中なら
+	if (waveManager_ && !waveManager_->IsWaveActive()) {
+		// 目標スピードを跳ね上げる 
+		targetWarpIntensity = 15.0f;
+	}
+
+	warpEffect_->Update(targetWarpIntensity);
 
 	/*-------------------------
 	レールカメラ
@@ -210,8 +233,10 @@ void GameScene::Update() {
 	}
 
 	// デスフラグが立った敵をリストから除外してメモリ解放
-	enemies_.remove_if([](BaseEnemy* enemy) { 
+	enemies_.remove_if([this](BaseEnemy* enemy) {
 		if (enemy->IsDead()) {
+			particleManager_->Emit(enemy->GetTranslation(), 60, { 1.0f, 0.0f, 0.8f });
+
 			delete enemy;
 			return true;
 		}
@@ -242,6 +267,11 @@ void GameScene::Update() {
 	// 軸表示
 	AxisIndicator::GetInstance()->Update();
 
+	/*------------------
+	パーティクル
+	------------------------------*/
+	particleManager_->Update();
+
 #ifdef _DEBUG 
 	if (Input::GetInstance()->TriggerKey(DIK_P)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
@@ -270,6 +300,20 @@ void GameScene::Update() {
 		viewProjection_ = railCamera_->GetViewProjection();
 	}
 #endif
+
+	if (player_) {
+		
+		float targetCameraRoll = player_->GetRotation().z * 0.4f;
+
+		// 滑らかに目標の傾きへ近づける
+		cameraRoll_ += (targetCameraRoll - cameraRoll_) * 0.1f;
+
+		// ビュー行列にZ回転を足す
+		viewProjection_.rotation_.z = cameraRoll_;
+
+		// 傾きを反映した上で、最終的な行列を更新！
+		viewProjection_.UpdateMatrix();
+	}
 
 	// ==========================================
 	// カメラとネオンの連動処理
@@ -332,7 +376,7 @@ void GameScene::Update() {
 		}
 	}
 
-	for (BaseEnemy* enemy : enemies_) { // ✨ 変更
+	for (BaseEnemy* enemy : enemies_) { 
 		collisionManager_->AddCollider(enemy);
 	}
 	for (EnemyBullet* eBullet : enemyBullets_) {
@@ -425,18 +469,27 @@ void GameScene::Draw() {
 	// ==========================================
 	bloom_->PreDraw();
 
-	//warpEffect_->Draw(viewProjection_);
+	warpEffect_->Draw(viewProjection_);
 
 	if (player_) {
-		player_->Draw(viewProjection_);      // 暗いパーツ
-		player_->DrawNeon(viewProjection_);  // 光るパーツ
+
+				player_->DrawNeon(viewProjection_);  // 光るパーツ
+				player_->Draw(viewProjection_);      // 暗いパーツ
+
 	}
 
 	for (BaseEnemy* enemy : enemies_) { 
 		enemy->DrawNeon(viewProjection_);
 	}
 
-	// HDRキャンバスへの書き込み終了、普通の画面(R8)に戻る
+	for (EnemyBullet* bullet : enemyBullets_) {
+		bullet->Draw(viewProjection_);
+	}
+
+	// パーティクル
+	particleManager_->Draw(viewProjection_);
+
+	// HDRキャンバスへの書き込み終了、普通の画面に戻る
 	bloom_->PostDraw();
 
 	bloom_->Execute();

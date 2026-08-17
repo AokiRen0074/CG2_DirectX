@@ -2,17 +2,33 @@
 #include <cmath>
 
 void WarpEffect::Initialize(DirectXCommon* dxCommon) {
-	// 🌟 用意した真っ白なテクスチャを読み込む（これで丸っこくならない！）
-	textureHandle_ = TextureManager::Load("Resources/block.png");
+	// ⚠️ 超重要：ここは絶対に「フチのない完全な真っ白な画像」を指定してください！
+	// もし ring.png などになっていると、動画前半のような点線になってしまいます。
+	textureHandle_ = TextureManager::Load("Resources/white.png");
 
 	std::random_device seed_gen;
 	randomEngine_.seed(seed_gen());
 
-	for (int i = 0; i < kMaxLines; ++i) {
-		// 🌟 線ごとに専用のモデルを生成する（DirectXの仕様上、こうしないと色が全部同じになる）
+	for (int i = 0; i < kColorPatterns; ++i) {
 		models_[i] = new NeonModel();
 		models_[i]->Initialize("Resources", "block.obj");
+	}
 
+	// ==========================================
+	// 🌟 ネオンの魔法：コアを白くするために、0.0f ではなく 0.4f などを混ぜる！
+	// ==========================================
+	float intensity = 12.0f; // 輝度（ブルームの強さ）
+
+	// ① マゼンタ (白コア + ピンクオーラ)
+	models_[0]->SetNeonColor(intensity, 1.0f, 0.4f, 1.0f);
+
+	// ② シアン (白コア + 水色オーラ)
+	models_[1]->SetNeonColor(intensity, 0.4f, 1.0f, 1.0f);
+
+	// ③ パープル (白コア + 青紫オーラ)
+	models_[2]->SetNeonColor(intensity, 0.6f, 0.4f, 1.0f);
+
+	for (int i = 0; i < kMaxLines; ++i) {
 		lines_[i].transform.Initialize();
 		ResetLine(i, true);
 	}
@@ -21,26 +37,20 @@ void WarpEffect::Initialize(DirectXCommon* dxCommon) {
 void WarpEffect::ResetLine(int index, bool isInitialSpawn) {
 	WarpLine& line = lines_[index];
 
-	// ==========================================
-	// 🌟 動画の色味を再現（青紫、ピンク、水色などが混ざるように）
-	// ==========================================
-	std::uniform_real_distribution<float> rDist(0.0f, 1.0f);
-	std::uniform_real_distribution<float> bDist(0.8f, 1.0f);
-	line.color[0] = rDist(randomEngine_); // 赤成分ランダム
-	line.color[1] = 0.0f;                 // 緑は0（これでサイバーパンクな紫〜ピンク系になる）
-	line.color[2] = bDist(randomEngine_); // 青成分は高め
+	std::uniform_int_distribution<int> colorDist(0, 2);
+	line.colorIndex = colorDist(randomEngine_);
 
-	// 動画のようなハイスピード感を出すための速度設定
-	std::uniform_real_distribution<float> speedDist(5.0f, 15.0f);
+	// 速度の幅を広げる（速い線と遅い線が入り乱れることで奥行きが出る）
+	std::uniform_real_distribution<float> speedDist(8.0f, 25.0f);
 	line.baseSpeed = speedDist(randomEngine_);
 
-	// 長さのランダム幅
-	std::uniform_real_distribution<float> lengthDist(10.0f, 30.0f);
+	// 線のベースの長さを大幅に長くする
+	std::uniform_real_distribution<float> lengthDist(30.0f, 80.0f);
 	line.baseLength = lengthDist(randomEngine_);
 
-	// 画面中央を空けて、奥から手前へのトンネル状に配置
+	// 発生範囲を広げて、画面全体を包み込むようにする
 	std::uniform_real_distribution<float> angleDist(0.0f, 3.141592f * 2.0f);
-	std::uniform_real_distribution<float> radiusDist(15.0f, 70.0f);
+	std::uniform_real_distribution<float> radiusDist(20.0f, 120.0f);
 
 	float angle = angleDist(randomEngine_);
 	float radius = radiusDist(randomEngine_);
@@ -49,35 +59,44 @@ void WarpEffect::ResetLine(int index, bool isInitialSpawn) {
 	line.transform.translation_.y = std::sin(angle) * radius;
 
 	if (isInitialSpawn) {
-		std::uniform_real_distribution<float> zDist(0.0f, 500.0f);
+		std::uniform_real_distribution<float> zDist(0.0f, 800.0f);
 		line.distanceZ = zDist(randomEngine_);
 	}
 	else {
-		std::uniform_real_distribution<float> zDist(500.0f, 600.0f);
+		// 再スタート位置をさらに奥へ
+		std::uniform_real_distribution<float> zDist(800.0f, 1000.0f);
 		line.distanceZ = zDist(randomEngine_);
 	}
 }
 
 void WarpEffect::Update(float intensity) {
+	currentIntensity_ += (intensity - currentIntensity_) * 0.015f;
+
+
+	if (intensity == 0.0f && currentIntensity_ < 1.0f) {
+		currentIntensity_ = 0.0f;
+	}
+
+	float ratio = currentIntensity_ / 15.0f;
+	if (ratio < 0.0f) ratio = 0.0f;
+
 	for (int i = 0; i < kMaxLines; ++i) {
 		WarpLine& line = lines_[i];
 
-		// 手前に向かって移動
-		line.distanceZ -= line.baseSpeed * intensity;
+		line.distanceZ -= line.baseSpeed * currentIntensity_;
+
+		line.transform.scale_.x = 0.08f * ratio;
+		line.transform.scale_.y = 0.08f * ratio;
 
 		// ==========================================
-		// 🌟 動画のような「細長い針」にするためのスケーリング魔法
+		// 🌟 修正：長さ（Z）全体にも ratio を掛ける。
+		// これにより、消える瞬間は線が「短く」なりながらスッと消滅する！
 		// ==========================================
-		line.transform.scale_.x = 0.05f; // Xを極細に
-		line.transform.scale_.y = 0.05f; // Yを極細に
-
-		// Z(奥行き)は、移動速度と強度に合わせて「残像」のように超絶長く伸ばす！
-		line.transform.scale_.z = (line.baseLength * intensity) + 30.0f;
+		line.transform.scale_.z = ((line.baseLength * currentIntensity_) + 50.0f) * ratio;
 
 		line.transform.translation_.z = line.distanceZ;
 
-		// カメラを通り過ぎたら奥でリセット
-		if (line.distanceZ < -30.0f) {
+		if (line.distanceZ < -50.0f) {
 			ResetLine(i, false);
 		}
 
@@ -87,9 +106,11 @@ void WarpEffect::Update(float intensity) {
 }
 
 void WarpEffect::Draw(const ViewProjection& viewProjection) {
+	// 🌟 修正：0.1f 未満ではなく、完全に 0.0f 以下の時だけスキップする
+	if (currentIntensity_ <= 0.0f) return;
+
 	for (int i = 0; i < kMaxLines; ++i) {
-		// 🌟 色をバッチリ飛ばすために輝度を20.0fなどに設定
-		models_[i]->SetNeonColor(20.0f, lines_[i].color[0], lines_[i].color[1], lines_[i].color[2]);
-		models_[i]->Draw(lines_[i].transform, viewProjection, textureHandle_);
+		int cIdx = lines_[i].colorIndex;
+		models_[cIdx]->Draw(lines_[i].transform, viewProjection, textureHandle_);
 	}
 }

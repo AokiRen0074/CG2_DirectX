@@ -27,6 +27,7 @@ public:
 
 	// 初期化
 	virtual void Initialize(Player* player);
+	static void StaticInitialize();
 
 	// 更新処理
 	virtual void Update();

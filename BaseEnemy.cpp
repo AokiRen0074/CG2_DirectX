@@ -11,7 +11,13 @@
 #include "externals/imgui/imgui.h"
 #endif
 
-
+static uint32_t sDummyTexture = 0;
+static uint32_t sTailTexture = 0;
+static BodyModel* sModelBase = nullptr;
+static NeonModel* sModelLines = nullptr;
+static NeonModel* sModelTails[5] = { nullptr };
+static NeonModel* sModelRing = nullptr;
+static NeonModel* sBulletModel = nullptr;
 
 
 
@@ -25,29 +31,11 @@ BaseEnemy::~BaseEnemy() {
 
 }
 
-void BaseEnemy::Initialize(Player* player) {
-
-	assert(player);
-	player_ = player;
-
-	worldTransform_.Initialize();
-	transformLines_.Initialize();
-
-	for (int i = 0; i < 5; ++i) {
-		transformTails_[i].Initialize();
-	}
-	static uint32_t sDummyTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
-	static uint32_t sTailTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
-	dummyTexture_ = sDummyTexture;
-	tailTexture_ = sTailTexture;
-
-	static BodyModel* sModelBase = nullptr;
-	static NeonModel* sModelLines = nullptr;
-	static NeonModel* sModelTails[5] = { nullptr };
-	static NeonModel* sModelRing = nullptr;
-	static NeonModel* sBulletModel = nullptr;
-
+void BaseEnemy::StaticInitialize() {
 	if (sModelBase == nullptr) {
+		sDummyTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+		sTailTexture = TextureManager::Load("Resources/Enemy/PlayerTex.png");
+
 		sModelBase = new BodyModel();
 		sModelBase->Initialize("Resources/Enemy", "Enemy_Base.obj");
 
@@ -65,8 +53,22 @@ void BaseEnemy::Initialize(Player* player) {
 		sBulletModel = new NeonModel();
 		sBulletModel->Initialize("Resources/Bullet", "EnemyBuillet.obj");
 	}
+}
 
-	// 全員、共有のポインタを受け取って使い回す
+void BaseEnemy::Initialize(Player* player) {
+
+	assert(player);
+	player_ = player;
+
+	worldTransform_.Initialize();
+	transformLines_.Initialize();
+
+	for (int i = 0; i < 5; ++i) {
+		transformTails_[i].Initialize();
+	}
+
+	dummyTexture_ = sDummyTexture;
+	tailTexture_ = sTailTexture;
 	modelBase_ = sModelBase;
 	modelLines_ = sModelLines;
 	for (int i = 0; i < 5; ++i) {

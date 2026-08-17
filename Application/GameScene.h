@@ -19,6 +19,7 @@
 #include "RailCamera.h"
 #include "RailEditor.h"
 #include "WarpEffect.h"
+#include "ParticleManager.h"
 #include <list>
 
 class Skydome;
@@ -142,4 +143,13 @@ private:
 
 	// ワープエフェクト
 	WarpEffect* warpEffect_ = nullptr;
+
+	// カメラの傾き量
+	float cameraRoll_ = 0.0f;
+
+	/*------------------------------
+	パーティクル
+	------------------------------*/
+	ParticleManager* particleManager_ = nullptr;
+	NeonModel* particleModel_ = nullptr;
 };

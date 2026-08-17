@@ -3,6 +3,7 @@
 #include <string>
 #include <wrl.h>
 #include <vector>
+#include <unordered_map>
 #include "externals/DirectXTex/DirectXTex.h"
 #include "externals/DirectXTex/d3dx12.h"
 
@@ -47,6 +48,8 @@ private:
     DirectXCommon* dxCommon_ = nullptr;
 
     std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> textureResources_;
+
+    std::unordered_map<std::string, uint32_t> loadedTextures_;
 
 
 };

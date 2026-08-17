@@ -201,6 +201,20 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 		move.y -= kCharacterSpeed;
 	}
 
+	float targetRoll = 0.0f;
+
+	// 押した方向へ移動ベクトルを変更
+	if (input_->PushKey(DIK_LEFT)) {
+		move.x -= kCharacterSpeed;
+		targetRoll = 0.5f;  // 左移動中は左に傾ける
+	}
+	else if (input_->PushKey(DIK_RIGHT)) {
+		move.x += kCharacterSpeed;
+		targetRoll = -0.5f; // 右移動中は右に傾ける
+	}
+
+	// 現在の傾きから目標の傾きへ、滑らかに近づける
+	worldTransform_.rotation_.z += (targetRoll - worldTransform_.rotation_.z) * 0.1f;
 
 	// 座標移動
 	worldTransform_.translation_.x += move.x;
@@ -208,8 +222,8 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 	worldTransform_.translation_.z += move.z;
 
 	// 移動限界座標
-	const float kMoveLimitX = 5.5f;
-	const float kMoveLimitY = 2.7f;
+	const float kMoveLimitX = 12.0f;
+	const float kMoveLimitY = 8.0f;
 
 	// 範囲を超えない処理
 	worldTransform_.translation_.x = (std::max)(worldTransform_.translation_.x, -kMoveLimitX);
@@ -231,7 +245,7 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 			bullet->Update(*enemies_); // 敵情報を渡す！
 		}
 		else {
-			std::list<Enemy*> empty;
+			std::list<BaseEnemy*> empty;
 			bullet->Update(empty);
 		}
 	}

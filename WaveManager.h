@@ -33,6 +33,7 @@ public:
 	// jsonデータの保存っと読み込み
 	void SaveData();
 	void LoadData();
+	bool IsWaveActive() const { return isWaveActive_; }
 
 private:
 	void StartWave(int wave);

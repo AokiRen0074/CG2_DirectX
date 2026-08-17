@@ -147,6 +147,21 @@
     <ClCompile Include="WarpEffect.cpp">
       <Filter>Engine\3D\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="NeonParticle.cpp">
+      <Filter>Engine\Neon</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleManager.cpp">
+      <Filter>Engine\3D\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="WeakEnemyCross.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="WeakEnemySpinCore.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="WeakEnemyTriangle.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -309,6 +324,21 @@
     </ClInclude>
     <ClInclude Include="WarpEffect.h">
       <Filter>Engine\3D\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="NeonParticle.h">
+      <Filter>Engine\Neon</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleManager.h">
+      <Filter>Engine\3D\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="WeakEnemyCross.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="WeakEnemySpinCore.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="WeakEnemyTriangle.h">
+      <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

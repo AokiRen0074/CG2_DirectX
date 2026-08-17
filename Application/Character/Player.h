@@ -9,6 +9,8 @@
 #include "NeonModel.h"
 #include "BodyModel.h"
 
+class BaseEnemy;
+
 class Player: public Collider {
 public:
 
@@ -38,7 +40,7 @@ public:
 	// ImGui描画関数
 	void DrawImGui();
 
-	void SetEnemies(const std::list<Enemy*>* enemies) { enemies_ = enemies; }
+	void SetEnemies(const std::list<BaseEnemy*>* enemies) { enemies_ = enemies; }
 
 
 	void OnCollision() override;
@@ -60,6 +62,10 @@ public:
 	// 弾リストの取得
 	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; }
 
+	const Vector3& GetTranslation() const { return worldTransform_.translation_; }
+
+	const Vector3& GetRotation() const { return worldTransform_.rotation_; }
+
 	/*------------------
 	デストラクタ
 	----------------------------*/
@@ -67,7 +73,7 @@ public:
 
 private:
 
-	const std::list<Enemy*>* enemies_ = nullptr;
+	const std::list<BaseEnemy*>* enemies_ = nullptr;
 
 	WorldTransform worldTransform_;
 
@@ -106,7 +112,9 @@ private:
 
 
 	WorldTransform transformRot_;  // 回るパーツ用
-	WorldTransform transformStat_; // 回らないパーツ用）
+	WorldTransform transformStat_; // 回らないパーツ用
+
+
 
 	float coreSpinAngle_ = 0.0f;   // 回転角度タイマー
 

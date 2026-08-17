@@ -12,7 +12,7 @@
 #include "BaseCharacter.h"
 #include "Collider.h"
 
-class Enemy;
+class BaseEnemy;
 
 class PlayerBullet : public BaseCharacter, public Collider{
 
@@ -27,7 +27,7 @@ public:
 
 
 	// 更新処理
-	void Update(const std::list<Enemy*>& enemies);
+	void Update(const std::list<BaseEnemy*>& enemies);
 
 	void Draw(const ViewProjection& viewProjection) override;
 
@@ -48,7 +48,7 @@ private:
 	Vector3 velocity_;
 	NeonModel* neonModel_ = nullptr;
 
-	Enemy* target_ = nullptr;
+	BaseEnemy* target_ = nullptr;
 
 	// 軌道の履歴を保存するリスト
 	std::list<Vector3> trailHistory_;

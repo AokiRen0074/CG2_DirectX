@@ -19,6 +19,7 @@ void TextureManager::Finalize() {
 
     GetInstance()->textureResources_.clear();
     GetInstance()->srvHandles_.clear();
+    GetInstance()->loadedTextures_.clear();
 }
 
 uint32_t TextureManager::Load(const std::string& filePath) {
@@ -31,6 +32,12 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureHand
 }
 
 uint32_t TextureManager::LoadInternal(const std::string& filePath) {
+
+    // 読み込み済みなら作らない
+    if (loadedTextures_.find(filePath) != loadedTextures_.end()) {
+        return loadedTextures_[filePath];
+    }
+
     // 画像ファイルを読み込んでミップマップを生成
     DirectX::ScratchImage mipImages = LoadTexture(filePath);
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
@@ -71,7 +78,10 @@ uint32_t TextureManager::LoadInternal(const std::string& filePath) {
     device->CreateShaderResourceView(textureResource.Get(), &srvDesc, cpuHandle);
 
     srvHandles_.push_back(gpuHandle);
-    return static_cast<uint32_t>(srvHandles_.size() - 1);
+    uint32_t handle = static_cast<uint32_t>(srvHandles_.size() - 1);
+    loadedTextures_[filePath] = handle;
+
+    return handle;
 
 }
 

@@ -1,7 +1,7 @@
 #include "PlayerBullet.h"
 #include <cassert>
 #include "CollisionConfig.h"
-#include "Enemy.h"
+#include "BaseEnemy.h"
 
 // 初期化
 void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation) {
@@ -45,7 +45,7 @@ void PlayerBullet::OnCollision() {
 }
 
 // 更新処理
-void PlayerBullet::Update(const std::list<Enemy*>& enemies) {
+void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 
 	// 時間経過で消す
 	if (--deathTimer_ <= 0) {
@@ -54,7 +54,7 @@ void PlayerBullet::Update(const std::list<Enemy*>& enemies) {
 
 	bool isTargetValid = false;
 	if (target_) {
-		for (Enemy* enemy : enemies) {
+		for (BaseEnemy* enemy : enemies) {
 			// 最新の敵リストの中に自分のターゲットがまだいて、かつ死んでいなければOK
 			if (enemy == target_ && !enemy->IsDead()) {
 				isTargetValid = true;
@@ -68,7 +68,7 @@ void PlayerBullet::Update(const std::list<Enemy*>& enemies) {
 		target_ = nullptr;
 		float closestDist = 999999.0f; // 十分に大きな値で初期化
 
-		for (Enemy* enemy : enemies) {
+		for (BaseEnemy* enemy : enemies) {
 			if (enemy->IsDead()) continue;
 
 			Vector3 toEnemy = enemy->GetWorldPosition() - GetWorldPosition();

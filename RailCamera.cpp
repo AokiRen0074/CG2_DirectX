@@ -7,6 +7,7 @@ void RailCamera::Initialize(Rail* rail) {
 	speed_ = 0.001f; // カメラが進むスピード
 
 	viewProjection_.Initialize();
+    viewProjection_.matProjection = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
 }
 
 void RailCamera::Update() {
@@ -29,9 +30,19 @@ void RailCamera::Update() {
     rotate_.z = 0.0f;
 
     translate_ = eye;
-
     worldMatrix_ = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, rotate_, translate_);
-    viewProjection_.translation_ = translate_;
+    Vector3 localOffset = { 0.0f, 0.0f, -50.0f };
+
+    Matrix4x4 rotMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, rotate_, { 0,0,0 });
+    Vector3 worldOffset = TransformNormal(localOffset, rotMatrix);
+
+
+    viewProjection_.translation_.x = translate_.x + worldOffset.x;
+    viewProjection_.translation_.y = translate_.y + worldOffset.y;
+    viewProjection_.translation_.z = translate_.z + worldOffset.z;
+
+
     viewProjection_.rotation_ = rotate_;
+
     viewProjection_.UpdateMatrix();
 }

@@ -8,7 +8,9 @@
 class WarpEffect {
 public:
 	// 線の最大数
-	static const int kMaxLines = 80;
+	static const int kMaxLines = 30;
+
+	static const int kColorPatterns = 3;
 
 	void Initialize(DirectXCommon* dxCommon);
 
@@ -24,12 +26,17 @@ private:
 		float baseSpeed;    // 基本の移動速度
 		float baseLength;   // 基本の長さ
 		float color[3];     // ネオンカラー
+		int colorIndex;
 		float distanceZ;    // 現在のZ座標
 	};
 
+	// スピード
+	float currentIntensity_ = 1.0f;
+
+	// 線
 	WarpLine lines_[kMaxLines];
 
-	NeonModel* models_[kMaxLines] = { nullptr };
+	NeonModel* models_[kColorPatterns] = { nullptr };
 
 	NeonModel* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
