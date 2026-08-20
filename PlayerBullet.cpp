@@ -3,38 +3,59 @@
 #include "CollisionConfig.h"
 #include "BaseEnemy.h"
 
+NeonModel* PlayerBullet::sLockOnModel_ = nullptr;
+uint32_t PlayerBullet::sLockOnTextureHandle_ = 0;
+uint32_t PlayerBullet::sBulletTextureHandle_ = 0;
+
+
+void PlayerBullet::StaticInitialize() {
+	// 板モデルの事前ロード
+	if (sLockOnModel_ == nullptr) {
+		sLockOnModel_ = new NeonModel();
+		sLockOnModel_->Initialize("Resources", "UI_Plane.obj");
+	}
+	// ロックオン画像の事前ロード
+	sLockOnTextureHandle_ = TextureManager::Load("Resources/lockon.png");
+
+	// 弾
+	sBulletTextureHandle_ = TextureManager::Load("Resources/ring.png");
+}
+
+
+void PlayerBullet::Create() {
+	worldTransform_.Initialize();
+	for (int i = 0; i < kMaxTrail; ++i) {
+		trailTransforms_[i].Initialize();
+	}
+	lockOnTransform_.Initialize();
+}
+
 // 初期化
 void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation) {
 	// Nullポインタチェック
 	assert(model);
-
 	neonModel_ = model;
-
 	velocity_ = velocity;
-
-	// テクスチャ読み込み
-	static uint32_t sSharedTextureHandle = TextureManager::Load("Resources/ring.png");
-	textureHandle_ = sSharedTextureHandle;
-
-
-	worldTransform_.Initialize();
+	textureHandle_ = sBulletTextureHandle_;
 
 	// 引数で受け取った初期座標をセット
-	worldTransform_.translation_ =position;
-
-
+	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = { 0.2f, 0.2f, 0.2f };
-
 	worldTransform_.rotation_ = rotation;
-
-	for (int i = 0; i < kMaxTrail; ++i) {
-		trailTransforms_[i].Initialize();
-	}
 
 	// 自分の属性をプレイヤーに設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
-	// 当たる相手をプレイヤー以外」に設定
+	// 当たる相手をプレイヤー以外に設定
 	SetCollisionMask(~kCollisionAttributePlayer);
+
+	// 変数の初期化
+	target_ = nullptr;
+	prevTarget_ = nullptr;
+	lockOnAnimTimer_ = 0;
+	trailHistory_.clear(); 
+
+	isDead_ = false;
+	deathTimer_ = 60;
 }
 
 /*----------------------------------
@@ -46,6 +67,8 @@ void PlayerBullet::OnCollision() {
 
 // 更新処理
 void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
+
+	if (isDead_) return;
 
 	// 時間経過で消す
 	if (--deathTimer_ <= 0) {
@@ -81,37 +104,52 @@ void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 			}
 		}
 	}
-
 	// ターゲットがいるなら、そちらへ曲がる
 	if (target_) {
-		const float kBulletSpeed = 2.0f;       // ミサイルの速さ
-		const float kHomingInterpolation = 0.15f; // 曲がる強さ
+		const float kBulletSpeed = 4.0f;
 
 		Vector3 toEnemy = target_->GetWorldPosition() - GetWorldPosition();
 		float lenToEnemy = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y + toEnemy.z * toEnemy.z);
-		if (lenToEnemy != 0.0f) {
-			toEnemy.x /= lenToEnemy;
-			toEnemy.y /= lenToEnemy;
-			toEnemy.z /= lenToEnemy;
+
+		float kHomingInterpolation = 0.05f; // 遠い時はふんわり曲がる
+		if (lenToEnemy < 100.0f) {
+			kHomingInterpolation = 0.2f;    // 射程圏内に入ったら急カーブ
+		}
+		if (lenToEnemy < 50.0f) {
+			kHomingInterpolation = 1.0f;    
 		}
 
-		float lenVelocity = std::sqrt(velocity_.x * velocity_.x + velocity_.y * velocity_.y + velocity_.z * velocity_.z);
-		if (lenVelocity != 0.0f) {
-			velocity_.x /= lenVelocity;
-			velocity_.y /= lenVelocity;
-			velocity_.z /= lenVelocity;
+		if (lenToEnemy <= kBulletSpeed * 2.0f) {
+			worldTransform_.translation_ = target_->GetWorldPosition(); // 敵の位置にワープ
+			isDead_ = true; // 当たった扱いにして消滅させる
+
+		target_->OnCollision(); 
 		}
+		else {
+			if (lenToEnemy != 0.0f) {
+				toEnemy.x /= lenToEnemy;
+				toEnemy.y /= lenToEnemy;
+				toEnemy.z /= lenToEnemy;
+			}
 
-		// 球面線形補間で、敵の方向へ少しずつベクトルを曲げる
-		Vector3 slerpVelocity = Slerp(velocity_, toEnemy, kHomingInterpolation);
-		velocity_.x = slerpVelocity.x * kBulletSpeed;
-		velocity_.y = slerpVelocity.y * kBulletSpeed;
-		velocity_.z = slerpVelocity.z * kBulletSpeed;
+			float lenVelocity = std::sqrt(velocity_.x * velocity_.x + velocity_.y * velocity_.y + velocity_.z * velocity_.z);
+			if (lenVelocity != 0.0f) {
+				velocity_.x /= lenVelocity;
+				velocity_.y /= lenVelocity;
+				velocity_.z /= lenVelocity;
+			}
 
-		// 弾の「見た目（回転）」も進行方向に合わせる
-		worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
-		float xzLength = std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z);
-		worldTransform_.rotation_.x = std::atan2(-velocity_.y, xzLength);
+			// 球面線形補間で、敵の方向へベクトルを曲げる
+			Vector3 slerpVelocity = Slerp(velocity_, toEnemy, kHomingInterpolation);
+			velocity_.x = slerpVelocity.x * kBulletSpeed;
+			velocity_.y = slerpVelocity.y * kBulletSpeed;
+			velocity_.z = slerpVelocity.z * kBulletSpeed;
+
+			// 弾の「見た目（回転）」も進行方向に合わせる
+			worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+			float xzLength = std::sqrt(velocity_.x * velocity_.x + velocity_.z * velocity_.z);
+			worldTransform_.rotation_.x = std::atan2(-velocity_.y, xzLength);
+		}
 	}
 
 	// 座標を移動させる
@@ -124,6 +162,20 @@ void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 	if (trailHistory_.size() > kMaxTrail) {
 		trailHistory_.pop_back();
 	}
+	
+	/*------------------------
+	UI表示
+	---------------------------*/
+	if (target_ != prevTarget_) {
+		if (target_ != nullptr) {
+			lockOnAnimTimer_ = 15; 
+		}
+		prevTarget_ = target_;
+	}
+
+	if (lockOnAnimTimer_ > 0) {
+		lockOnAnimTimer_--;
+	}
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
@@ -132,6 +184,9 @@ void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection) {
+
+	if (isDead_) return;
+
 	if (neonModel_) {
 
 		// ==========================================
@@ -142,7 +197,6 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection) {
 		// 尻尾の色（ピンクや紫）
 		Vector3 tailColor = { 1.0f, 0.0f, 0.8f };
 
-		// 1. 「弾本体（頭）」の描画（一番強くて水色）
 		neonModel_->SetNeonColor(15.0f, headColor.x, headColor.y, headColor.z);
 		neonModel_->Draw(worldTransform_, viewProjection, textureHandle_);
 
@@ -170,10 +224,10 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection) {
 			);
 			trailTransforms_[index].TransferMatrix();
 
-			// ✨ 光の強さを徐々に暗くする
+			// 光の強さを徐々に暗くする
 			float intensity = 15.0f * ratio;
 
-			// ✨ 色のグラデーション計算（尻尾の色から先端の色へ滑らかに混ぜる魔法！）
+			// 色のグラデーション計算（尻尾の色から先端の色へ滑らかに混ぜる魔法！）
 			float r = tailColor.x + (headColor.x - tailColor.x) * ratio;
 			float g = tailColor.y + (headColor.y - tailColor.y) * ratio;
 			float b = tailColor.z + (headColor.z - tailColor.z) * ratio;
@@ -195,3 +249,54 @@ Vector3 PlayerBullet::GetWorldPosition() {
 	return worldPos;
 }
 
+void PlayerBullet::DrawUI(const ViewProjection& viewProjection) {
+	if (isDead_) return;
+	if (!target_ || !sLockOnModel_) return;
+
+	float ratio = (float)lockOnAnimTimer_ / 15.0f;
+	float easeRatio = ratio * ratio;
+
+	float baseScale = 3.0f;
+	float scale = baseScale + (baseScale * 2.0f * easeRatio);
+	float rotationZ = 3.141592f * 2.0f * easeRatio;
+
+	Vector3 enemyPos = target_->GetWorldPosition();
+	Vector3 camPos = viewProjection.translation_;
+
+	// カメラへ向かうベクトル
+	Vector3 toCam = { camPos.x - enemyPos.x, camPos.y - enemyPos.y, camPos.z - enemyPos.z };
+	float len = std::sqrt(toCam.x * toCam.x + toCam.y * toCam.y + toCam.z * toCam.z);
+	if (len > 0.0f) {
+		toCam.x /= len; toCam.y /= len; toCam.z /= len;
+	}
+
+	// 敵の体内に埋もれないよう、カメラの手前に引き出す
+	lockOnTransform_.translation_ = {
+		enemyPos.x + toCam.x * 5.0f,
+		enemyPos.y + toCam.y * 5.0f,
+		enemyPos.z + toCam.z * 5.0f
+	};
+
+
+	// Y軸回転 (yaw): XとZから計算
+	lockOnTransform_.rotation_.y = std::atan2(toCam.x, toCam.z);
+
+	// X軸回転 (pitch): YとXZ距離から計算
+	float xzLen = std::sqrt(toCam.x * toCam.x + toCam.z * toCam.z);
+	lockOnTransform_.rotation_.x = std::atan2(-toCam.y, xzLen);
+
+	// Z軸回転 (roll): グルグル回るアニメーション
+	lockOnTransform_.rotation_.z = rotationZ;
+
+	// もしこれでUIが裏面を向いて透明になってしまう場合は、以下のコメントを外して反転させてください。
+	// lockOnTransform_.rotation_.y += 3.141592f;
+
+	lockOnTransform_.scale_ = { scale, scale, 1.0f };
+
+	lockOnTransform_.matWorld_ = MakeAffineMatrix(lockOnTransform_.scale_, lockOnTransform_.rotation_, lockOnTransform_.translation_);
+	lockOnTransform_.TransferMatrix();
+
+	// バチバチに発光させる
+	sLockOnModel_->SetNeonColor(-1.0f, 0.0f, 15.0f, 20.0f);
+	sLockOnModel_->Draw(lockOnTransform_, viewProjection, sLockOnTextureHandle_);
+}

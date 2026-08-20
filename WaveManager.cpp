@@ -4,6 +4,9 @@
 #include "WeakEnemyCross.h"
 #include "WeakEnemySpinCore.h"
 #include "WeakEnemyTriangle.h"
+#include "Application/Character/Player.h"
+#include "EnemyStateHold.h"
+#include "EnemyStateStraight.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -118,6 +121,15 @@ void WaveManager::SpawnEnemy(int wave, int enemyIndex, std::list<BaseEnemy*>& en
 	
 	else if (data.type == 4) {
 		newEnemy = new WeakEnemyTriangle();
+		newEnemy->Initialize(player);
+
+		newEnemy->ChangeState(new EnemyStateHold());
+	}
+	else if (data.type == 5) {
+		newEnemy = new WeakEnemyTriangle();
+		newEnemy->Initialize(player);
+
+		newEnemy->ChangeState(new EnemyStateStraight());
 	}
 	else {
 		newEnemy = new BaseEnemy();
@@ -125,16 +137,27 @@ void WaveManager::SpawnEnemy(int wave, int enemyIndex, std::list<BaseEnemy*>& en
 
 	newEnemy->Initialize(player);
 	newEnemy->SetGameScene(gameScene);
-	newEnemy->SetPosition(data.position);
+	Vector3 finalPos = data.position;
+	finalPos.z += player->GetWorldPosition().z;
+	newEnemy->SetPosition(finalPos);
+
+	newEnemy->SetMoveDirection(data.direction);
+	newEnemy->SetMoveSpeed(data.speed);
+
+	if (data.moveState == 1) {
+		newEnemy->ChangeState(new EnemyStateHold());
+	}
+	else if (data.moveState == 2) {
+		newEnemy->ChangeState(new EnemyStateStraight());
+	}
 
 	newEnemy->SetSpawnIndex(enemyIndex);
-
 	enemies.push_back(newEnemy);
 }
 
 void WaveManager::DrawImGui() {
 #ifdef USE_IMGUI
-	if (ImGui::TreeNodeEx("Wave Editor", ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::Begin("Wave Editor")) {
 
 		ImGui::Text("Current Playing Wave : %d", currentWave_ + 1);
 		ImGui::Text("Enemies Spawned : %d / %d", enemiesSpawned_, enemiesToSpawn_);
@@ -154,9 +177,6 @@ void WaveManager::DrawImGui() {
 		}
 
 		ImGui::Separator();
-
-		ImGui::Separator();
-
 		ImGui::SliderInt("Edit Wave", &editWaveIndex_, 0, kMaxWaves - 1);
 		if (ImGui::IsItemDeactivatedAfterEdit()) {
 			isReloadRequested_ = true;
@@ -169,19 +189,31 @@ void WaveManager::DrawImGui() {
 			isReloadRequested_ = true;
 		}
 
+		// リストのスクロール領域
 		ImGui::BeginChild("EnemyListRegion", ImVec2(0, 250), true);
 
 		for (int i = 0; i < currentEditWave.enemyCount; ++i) {
 			ImGui::PushID(i);
-			if (ImGui::TreeNode((std::string("Enemy ") + std::to_string(i)).c_str())) {
+
+			std::string treeName = "Enemy " + std::to_string(i) + "###EnemyTree" + std::to_string(i);
+
+			if (ImGui::TreeNode(treeName.c_str())) {
 
 				ImGui::InputInt("Type (1=Normal)", &currentEditWave.enemies[i].type);
-				// Typeも入力が確定した時だけリロード
-				if (ImGui::IsItemDeactivatedAfterEdit()) {
-					isReloadRequested_ = true;
-				}
+				if (ImGui::IsItemDeactivatedAfterEdit()) isReloadRequested_ = true;
 
-				// （位置の変更はドラッグ中にリアルタイム反映させたいのでそのまま）
+		
+				ImGui::Combo("State", &currentEditWave.enemies[i].moveState, "0: Approach\0 1: Hold\0 2: Straight\0");
+				if (ImGui::IsItemDeactivatedAfterEdit()) isReloadRequested_ = true;
+
+				// 方向とスピードのスライダー
+				ImGui::DragFloat3("Direction", &currentEditWave.enemies[i].direction.x, 0.05f);
+				if (ImGui::IsItemDeactivatedAfterEdit()) isReloadRequested_ = true;
+
+				ImGui::DragFloat("Speed", &currentEditWave.enemies[i].speed, 0.05f);
+				if (ImGui::IsItemDeactivatedAfterEdit()) isReloadRequested_ = true;
+
+
 				if (ImGui::DragFloat3("Spawn Pos", &currentEditWave.enemies[i].position.x, 0.5f)) {
 					isDataModifiedThisFrame_ = true;
 				}
@@ -189,14 +221,14 @@ void WaveManager::DrawImGui() {
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
-		
 		}
 		ImGui::EndChild();
-		ImGui::TreePop();
 	}
+
+	ImGui::End();
+
 #endif
 }
-
 /*---------------------------
 データのロード
 -------------------------*/
@@ -217,12 +249,18 @@ void WaveManager::LoadData() {
 		for (int e = 0; e < 30; ++e) { // 最大30体
 			std::string enemyPrefix = wavePrefix + "_Enemy_" + std::to_string(e);
 
-			// タイプと座標を登録・取得
 			global->AddItem(groupName, enemyPrefix + "_Type", waveDatas_[w].enemies[e].type);
 			global->AddItem(groupName, enemyPrefix + "_Pos", waveDatas_[w].enemies[e].position);
+			global->AddItem(groupName, enemyPrefix + "_MoveState", 0);
+			global->AddItem(groupName, enemyPrefix + "_Direction", Vector3(0.0f, 0.0f, -1.0f));
+			global->AddItem(groupName, enemyPrefix + "_Speed", 0.3f);
 
+			// JSONから読み込んで変数にセット
 			waveDatas_[w].enemies[e].type = global->GetIntValue(groupName, enemyPrefix + "_Type");
 			waveDatas_[w].enemies[e].position = global->GetVector3Value(groupName, enemyPrefix + "_Pos");
+			waveDatas_[w].enemies[e].moveState = global->GetIntValue(groupName, enemyPrefix + "_MoveState");
+			waveDatas_[w].enemies[e].direction = global->GetVector3Value(groupName, enemyPrefix + "_Direction");
+			waveDatas_[w].enemies[e].speed = global->GetFloatValue(groupName, enemyPrefix + "_Speed");
 		}
 	}
 }
@@ -245,6 +283,9 @@ void WaveManager::SaveData() {
 
 			global->SetValue(groupName, enemyPrefix + "_Type", waveDatas_[w].enemies[e].type);
 			global->SetValue(groupName, enemyPrefix + "_Pos", waveDatas_[w].enemies[e].position);
+			global->SetValue(groupName, enemyPrefix + "_MoveState", waveDatas_[w].enemies[e].moveState);
+			global->SetValue(groupName, enemyPrefix + "_Direction", waveDatas_[w].enemies[e].direction);
+			global->SetValue(groupName, enemyPrefix + "_Speed", waveDatas_[w].enemies[e].speed);
 		}
 	}
 

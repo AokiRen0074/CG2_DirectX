@@ -42,6 +42,9 @@ public:
 
 	void SetPosition(const Vector2& position);
 
+	void SetScale(const Vector2& scale);
+	void SetRotation(float rotation);
+
 	// 位置や大きさを変えるためのゲッター・セッター
 	struct Transform& GetTransform() { return transform_; }
 

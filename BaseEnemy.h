@@ -69,6 +69,15 @@ public:
 	// 座標のゲッター
 	Vector3 GetTranslation() const;
 
+	Player* GetPlayer() const { return player_; }
+
+	// 移動の向き
+	const Vector3& GetMoveDirection() const { return moveDirection_; }
+	void SetMoveDirection(const Vector3& direction) { moveDirection_ = direction; }
+
+	// 移動速度
+	float GetMoveSpeed() const { return moveSpeed_; }
+	void SetMoveSpeed(float speed) { moveSpeed_ = speed; }
 
 
 	// 弾の発射
@@ -156,5 +165,11 @@ protected:
 	*/
 	// 時限発動のリスト
 	std::list<TimedCall*> timedCalls_;
+
+	// 移動向き
+	Vector3 moveDirection_ = { 0.0f, 0.0f, -1.0f };
+
+	// スピード
+	float moveSpeed_ = 0.3f;
 
 };

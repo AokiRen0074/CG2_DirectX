@@ -9,8 +9,12 @@ class GameScene;
 
 // 1体分の出現データ
 struct EnemySpawnData {
-	int type = 1;
-	Vector3 position = { 0.0f, 0.0f, 150.0f };
+	int type;
+	Vector3 position;
+
+	int moveState;     
+	Vector3 direction; 
+	float speed;     
 };
 
 // 1ウェーブ分のデータ

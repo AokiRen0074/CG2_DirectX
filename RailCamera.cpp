@@ -4,7 +4,7 @@
 void RailCamera::Initialize(Rail* rail) {
 	rail_ = rail;
 	t_ = 0.0f;
-	speed_ = 0.001f; // カメラが進むスピード
+    speed_ = 0.5f;
 
 	viewProjection_.Initialize();
     viewProjection_.matProjection = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
@@ -14,7 +14,13 @@ void RailCamera::Update() {
     if (!rail_) return;
 
     if (isPlay_) {
-        t_ += speed_;
+    
+        int pointCount = (int)rail_->GetControlPoints().size();
+        float totalLength = (pointCount - 3) * 50.0f; 
+
+        float stepT = speed_ / totalLength;
+        t_ += stepT;
+
         if (t_ > 1.0f) {
             t_ = 1.0f;
             isPlay_ = false; // 終点で自動停止

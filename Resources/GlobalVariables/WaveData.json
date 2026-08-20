@@ -1,1814 +1,3914 @@
 {
     "WaveData": {
         "Wave_0_Count": 3,
+        "Wave_0_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_0_MoveState": 0,
         "Wave_0_Enemy_0_Pos": [
             -15.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_0_Speed": 0.30000001192092896,
         "Wave_0_Enemy_0_Type": 1,
+        "Wave_0_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_10_MoveState": 0,
         "Wave_0_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_10_Speed": 0.30000001192092896,
         "Wave_0_Enemy_10_Type": 1,
+        "Wave_0_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_11_MoveState": 0,
         "Wave_0_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_11_Speed": 0.30000001192092896,
         "Wave_0_Enemy_11_Type": 1,
+        "Wave_0_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_12_MoveState": 0,
         "Wave_0_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_12_Speed": 0.30000001192092896,
         "Wave_0_Enemy_12_Type": 1,
+        "Wave_0_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_13_MoveState": 0,
         "Wave_0_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_13_Speed": 0.30000001192092896,
         "Wave_0_Enemy_13_Type": 1,
+        "Wave_0_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_14_MoveState": 0,
         "Wave_0_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_14_Speed": 0.30000001192092896,
         "Wave_0_Enemy_14_Type": 1,
+        "Wave_0_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_15_MoveState": 0,
         "Wave_0_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_15_Speed": 0.30000001192092896,
         "Wave_0_Enemy_15_Type": 1,
+        "Wave_0_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_16_MoveState": 0,
         "Wave_0_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_16_Speed": 0.30000001192092896,
         "Wave_0_Enemy_16_Type": 1,
+        "Wave_0_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_17_MoveState": 0,
         "Wave_0_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_17_Speed": 0.30000001192092896,
         "Wave_0_Enemy_17_Type": 1,
+        "Wave_0_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_18_MoveState": 0,
         "Wave_0_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_18_Speed": 0.30000001192092896,
         "Wave_0_Enemy_18_Type": 1,
+        "Wave_0_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_19_MoveState": 0,
         "Wave_0_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_19_Speed": 0.30000001192092896,
         "Wave_0_Enemy_19_Type": 1,
+        "Wave_0_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_1_MoveState": 0,
         "Wave_0_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_1_Speed": 0.30000001192092896,
         "Wave_0_Enemy_1_Type": 1,
+        "Wave_0_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_20_MoveState": 0,
         "Wave_0_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_20_Speed": 0.30000001192092896,
         "Wave_0_Enemy_20_Type": 1,
+        "Wave_0_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_21_MoveState": 0,
         "Wave_0_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_21_Speed": 0.30000001192092896,
         "Wave_0_Enemy_21_Type": 1,
+        "Wave_0_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_22_MoveState": 0,
         "Wave_0_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_22_Speed": 0.30000001192092896,
         "Wave_0_Enemy_22_Type": 1,
+        "Wave_0_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_23_MoveState": 0,
         "Wave_0_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_23_Speed": 0.30000001192092896,
         "Wave_0_Enemy_23_Type": 1,
+        "Wave_0_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_24_MoveState": 0,
         "Wave_0_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_24_Speed": 0.30000001192092896,
         "Wave_0_Enemy_24_Type": 1,
+        "Wave_0_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_25_MoveState": 0,
         "Wave_0_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_25_Speed": 0.30000001192092896,
         "Wave_0_Enemy_25_Type": 1,
+        "Wave_0_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_26_MoveState": 0,
         "Wave_0_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_26_Speed": 0.30000001192092896,
         "Wave_0_Enemy_26_Type": 1,
+        "Wave_0_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_27_MoveState": 0,
         "Wave_0_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_27_Speed": 0.30000001192092896,
         "Wave_0_Enemy_27_Type": 1,
+        "Wave_0_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_28_MoveState": 0,
         "Wave_0_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_28_Speed": 0.30000001192092896,
         "Wave_0_Enemy_28_Type": 1,
+        "Wave_0_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_29_MoveState": 0,
         "Wave_0_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_29_Speed": 0.30000001192092896,
         "Wave_0_Enemy_29_Type": 1,
+        "Wave_0_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_2_MoveState": 0,
         "Wave_0_Enemy_2_Pos": [
             15.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_2_Speed": 0.30000001192092896,
         "Wave_0_Enemy_2_Type": 1,
+        "Wave_0_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_3_MoveState": 0,
         "Wave_0_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_3_Speed": 0.30000001192092896,
         "Wave_0_Enemy_3_Type": 1,
+        "Wave_0_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_4_MoveState": 0,
         "Wave_0_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_4_Speed": 0.30000001192092896,
         "Wave_0_Enemy_4_Type": 1,
+        "Wave_0_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_5_MoveState": 0,
         "Wave_0_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_5_Speed": 0.30000001192092896,
         "Wave_0_Enemy_5_Type": 1,
+        "Wave_0_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_6_MoveState": 0,
         "Wave_0_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_6_Speed": 0.30000001192092896,
         "Wave_0_Enemy_6_Type": 1,
+        "Wave_0_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_7_MoveState": 0,
         "Wave_0_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_7_Speed": 0.30000001192092896,
         "Wave_0_Enemy_7_Type": 1,
+        "Wave_0_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_8_MoveState": 0,
         "Wave_0_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_8_Speed": 0.30000001192092896,
         "Wave_0_Enemy_8_Type": 1,
+        "Wave_0_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_0_Enemy_9_MoveState": 0,
         "Wave_0_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_0_Enemy_9_Speed": 0.30000001192092896,
         "Wave_0_Enemy_9_Type": 1,
-        "Wave_1_Count": 5,
+        "Wave_1_Count": 11,
+        "Wave_1_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_0_MoveState": 0,
         "Wave_1_Enemy_0_Pos": [
             0.0,
-            0.0,
-            150.0
+            6.5,
+            194.0
         ],
+        "Wave_1_Enemy_0_Speed": 0.30000001192092896,
         "Wave_1_Enemy_0_Type": 2,
+        "Wave_1_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_10_MoveState": 0,
         "Wave_1_Enemy_10_Pos": [
             0.0,
-            0.0,
-            150.0
+            1.5,
+            197.0
         ],
-        "Wave_1_Enemy_10_Type": 1,
+        "Wave_1_Enemy_10_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_10_Type": 4,
+        "Wave_1_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_11_MoveState": 0,
         "Wave_1_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_11_Speed": 0.30000001192092896,
         "Wave_1_Enemy_11_Type": 1,
+        "Wave_1_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_12_MoveState": 0,
         "Wave_1_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_12_Speed": 0.30000001192092896,
         "Wave_1_Enemy_12_Type": 1,
+        "Wave_1_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_13_MoveState": 0,
         "Wave_1_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_13_Speed": 0.30000001192092896,
         "Wave_1_Enemy_13_Type": 1,
+        "Wave_1_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_14_MoveState": 0,
         "Wave_1_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_14_Speed": 0.30000001192092896,
         "Wave_1_Enemy_14_Type": 1,
+        "Wave_1_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_15_MoveState": 0,
         "Wave_1_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_15_Speed": 0.30000001192092896,
         "Wave_1_Enemy_15_Type": 1,
+        "Wave_1_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_16_MoveState": 0,
         "Wave_1_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_16_Speed": 0.30000001192092896,
         "Wave_1_Enemy_16_Type": 1,
+        "Wave_1_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_17_MoveState": 0,
         "Wave_1_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_17_Speed": 0.30000001192092896,
         "Wave_1_Enemy_17_Type": 1,
+        "Wave_1_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_18_MoveState": 0,
         "Wave_1_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_18_Speed": 0.30000001192092896,
         "Wave_1_Enemy_18_Type": 1,
+        "Wave_1_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_19_MoveState": 0,
         "Wave_1_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_19_Speed": 0.30000001192092896,
         "Wave_1_Enemy_19_Type": 1,
-        "Wave_1_Enemy_1_Pos": [
-            -10.0,
+        "Wave_1_Enemy_1_Direction": [
             0.0,
-            160.0
+            0.0,
+            -1.0
         ],
+        "Wave_1_Enemy_1_MoveState": 0,
+        "Wave_1_Enemy_1_Pos": [
+            -14.5,
+            5.0,
+            183.5
+        ],
+        "Wave_1_Enemy_1_Speed": 0.30000001192092896,
         "Wave_1_Enemy_1_Type": 2,
+        "Wave_1_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_20_MoveState": 0,
         "Wave_1_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_20_Speed": 0.30000001192092896,
         "Wave_1_Enemy_20_Type": 1,
+        "Wave_1_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_21_MoveState": 0,
         "Wave_1_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_21_Speed": 0.30000001192092896,
         "Wave_1_Enemy_21_Type": 1,
+        "Wave_1_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_22_MoveState": 0,
         "Wave_1_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_22_Speed": 0.30000001192092896,
         "Wave_1_Enemy_22_Type": 1,
+        "Wave_1_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_23_MoveState": 0,
         "Wave_1_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_23_Speed": 0.30000001192092896,
         "Wave_1_Enemy_23_Type": 1,
+        "Wave_1_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_24_MoveState": 0,
         "Wave_1_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_24_Speed": 0.30000001192092896,
         "Wave_1_Enemy_24_Type": 1,
+        "Wave_1_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_25_MoveState": 0,
         "Wave_1_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_25_Speed": 0.30000001192092896,
         "Wave_1_Enemy_25_Type": 1,
+        "Wave_1_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_26_MoveState": 0,
         "Wave_1_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_26_Speed": 0.30000001192092896,
         "Wave_1_Enemy_26_Type": 1,
+        "Wave_1_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_27_MoveState": 0,
         "Wave_1_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_27_Speed": 0.30000001192092896,
         "Wave_1_Enemy_27_Type": 1,
+        "Wave_1_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_28_MoveState": 0,
         "Wave_1_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_28_Speed": 0.30000001192092896,
         "Wave_1_Enemy_28_Type": 1,
+        "Wave_1_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_29_MoveState": 0,
         "Wave_1_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_1_Enemy_29_Speed": 0.30000001192092896,
         "Wave_1_Enemy_29_Type": 1,
+        "Wave_1_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_2_MoveState": 0,
         "Wave_1_Enemy_2_Pos": [
-            10.0,
-            0.0,
-            160.0
+            14.5,
+            -3.0,
+            373.0
         ],
+        "Wave_1_Enemy_2_Speed": 0.30000001192092896,
         "Wave_1_Enemy_2_Type": 2,
+        "Wave_1_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_3_MoveState": 0,
         "Wave_1_Enemy_3_Pos": [
-            -20.0,
-            0.0,
-            170.0
+            9.5,
+            6.5,
+            173.5
         ],
+        "Wave_1_Enemy_3_Speed": 0.30000001192092896,
         "Wave_1_Enemy_3_Type": 4,
+        "Wave_1_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_4_MoveState": 0,
         "Wave_1_Enemy_4_Pos": [
-            20.0,
-            0.0,
-            170.0
+            -5.5,
+            11.0,
+            158.0
         ],
+        "Wave_1_Enemy_4_Speed": 0.30000001192092896,
         "Wave_1_Enemy_4_Type": 3,
+        "Wave_1_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_5_MoveState": 0,
         "Wave_1_Enemy_5_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -10.5,
+            8.0,
+            232.5
         ],
-        "Wave_1_Enemy_5_Type": 1,
+        "Wave_1_Enemy_5_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_5_Type": 4,
+        "Wave_1_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_6_MoveState": 0,
         "Wave_1_Enemy_6_Pos": [
-            0.0,
-            0.0,
+            10.5,
+            2.5,
             150.0
         ],
-        "Wave_1_Enemy_6_Type": 1,
+        "Wave_1_Enemy_6_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_6_Type": 3,
+        "Wave_1_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_7_MoveState": 0,
         "Wave_1_Enemy_7_Pos": [
-            0.0,
-            0.0,
-            150.0
+            1.5,
+            6.5,
+            60.5
         ],
-        "Wave_1_Enemy_7_Type": 1,
+        "Wave_1_Enemy_7_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_7_Type": 4,
+        "Wave_1_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_8_MoveState": 0,
         "Wave_1_Enemy_8_Pos": [
-            0.0,
-            0.0,
-            150.0
+            4.0,
+            9.5,
+            212.5
         ],
-        "Wave_1_Enemy_8_Type": 1,
+        "Wave_1_Enemy_8_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_8_Type": 2,
+        "Wave_1_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_1_Enemy_9_MoveState": 0,
         "Wave_1_Enemy_9_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -7.5,
+            -1.0,
+            228.0
         ],
-        "Wave_1_Enemy_9_Type": 1,
-        "Wave_2_Count": 0,
+        "Wave_1_Enemy_9_Speed": 0.30000001192092896,
+        "Wave_1_Enemy_9_Type": 3,
+        "Wave_2_Count": 20,
+        "Wave_2_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_0_MoveState": 0,
         "Wave_2_Enemy_0_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -13.5,
+            13.5,
+            300.0
         ],
-        "Wave_2_Enemy_0_Type": 1,
+        "Wave_2_Enemy_0_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_0_Type": 3,
+        "Wave_2_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_10_MoveState": 0,
         "Wave_2_Enemy_10_Pos": [
-            0.0,
-            0.0,
-            150.0
+            8.5,
+            36.5,
+            400.0
         ],
-        "Wave_2_Enemy_10_Type": 1,
+        "Wave_2_Enemy_10_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_10_Type": 3,
+        "Wave_2_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_11_MoveState": 0,
         "Wave_2_Enemy_11_Pos": [
             0.0,
-            0.0,
-            150.0
+            26.0,
+            400.0
         ],
-        "Wave_2_Enemy_11_Type": 1,
+        "Wave_2_Enemy_11_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_11_Type": 2,
+        "Wave_2_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_12_MoveState": 0,
         "Wave_2_Enemy_12_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -9.0,
+            14.5,
+            400.0
         ],
-        "Wave_2_Enemy_12_Type": 1,
+        "Wave_2_Enemy_12_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_12_Type": 2,
+        "Wave_2_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_13_MoveState": 0,
         "Wave_2_Enemy_13_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -18.0,
+            1.5,
+            400.0
         ],
-        "Wave_2_Enemy_13_Type": 1,
+        "Wave_2_Enemy_13_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_13_Type": 3,
+        "Wave_2_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_14_MoveState": 0,
         "Wave_2_Enemy_14_Pos": [
-            0.0,
-            0.0,
-            150.0
+            18.0,
+            26.0,
+            400.0
         ],
-        "Wave_2_Enemy_14_Type": 1,
+        "Wave_2_Enemy_14_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_14_Type": 2,
+        "Wave_2_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_15_MoveState": 0,
         "Wave_2_Enemy_15_Pos": [
-            0.0,
-            0.0,
-            150.0
+            25.5,
+            13.5,
+            400.0
         ],
-        "Wave_2_Enemy_15_Type": 1,
+        "Wave_2_Enemy_15_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_15_Type": 2,
+        "Wave_2_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_16_MoveState": 0,
         "Wave_2_Enemy_16_Pos": [
+            30.5,
             0.0,
-            0.0,
-            150.0
+            400.0
         ],
-        "Wave_2_Enemy_16_Type": 1,
+        "Wave_2_Enemy_16_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_16_Type": 3,
+        "Wave_2_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_17_MoveState": 0,
         "Wave_2_Enemy_17_Pos": [
-            0.0,
-            0.0,
-            150.0
+            8.5,
+            24.0,
+            400.0
         ],
-        "Wave_2_Enemy_17_Type": 1,
+        "Wave_2_Enemy_17_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_17_Type": 4,
+        "Wave_2_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_18_MoveState": 0,
         "Wave_2_Enemy_18_Pos": [
             0.0,
-            0.0,
-            150.0
+            14.0,
+            400.0
         ],
-        "Wave_2_Enemy_18_Type": 1,
+        "Wave_2_Enemy_18_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_18_Type": 4,
+        "Wave_2_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_19_MoveState": 0,
         "Wave_2_Enemy_19_Pos": [
-            0.0,
-            0.0,
-            150.0
+            14.0,
+            14.5,
+            400.0
         ],
-        "Wave_2_Enemy_19_Type": 1,
+        "Wave_2_Enemy_19_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_19_Type": 4,
+        "Wave_2_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_1_MoveState": 0,
         "Wave_2_Enemy_1_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -5.5,
+            8.0,
+            300.0
         ],
-        "Wave_2_Enemy_1_Type": 1,
+        "Wave_2_Enemy_1_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_1_Type": 3,
+        "Wave_2_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_20_MoveState": 0,
         "Wave_2_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_20_Speed": 0.30000001192092896,
         "Wave_2_Enemy_20_Type": 1,
+        "Wave_2_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_21_MoveState": 0,
         "Wave_2_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_21_Speed": 0.30000001192092896,
         "Wave_2_Enemy_21_Type": 1,
+        "Wave_2_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_22_MoveState": 0,
         "Wave_2_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_22_Speed": 0.30000001192092896,
         "Wave_2_Enemy_22_Type": 1,
+        "Wave_2_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_23_MoveState": 0,
         "Wave_2_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_23_Speed": 0.30000001192092896,
         "Wave_2_Enemy_23_Type": 1,
+        "Wave_2_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_24_MoveState": 0,
         "Wave_2_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_24_Speed": 0.30000001192092896,
         "Wave_2_Enemy_24_Type": 1,
+        "Wave_2_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_25_MoveState": 0,
         "Wave_2_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_25_Speed": 0.30000001192092896,
         "Wave_2_Enemy_25_Type": 1,
+        "Wave_2_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_26_MoveState": 0,
         "Wave_2_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_26_Speed": 0.30000001192092896,
         "Wave_2_Enemy_26_Type": 1,
+        "Wave_2_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_27_MoveState": 0,
         "Wave_2_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_27_Speed": 0.30000001192092896,
         "Wave_2_Enemy_27_Type": 1,
+        "Wave_2_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_28_MoveState": 0,
         "Wave_2_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_28_Speed": 0.30000001192092896,
         "Wave_2_Enemy_28_Type": 1,
+        "Wave_2_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_29_MoveState": 0,
         "Wave_2_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_2_Enemy_29_Speed": 0.30000001192092896,
         "Wave_2_Enemy_29_Type": 1,
+        "Wave_2_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_2_MoveState": 0,
         "Wave_2_Enemy_2_Pos": [
-            0.0,
-            0.0,
-            150.0
+            2.0,
+            1.0,
+            300.0
         ],
-        "Wave_2_Enemy_2_Type": 1,
+        "Wave_2_Enemy_2_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_2_Type": 3,
+        "Wave_2_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_3_MoveState": 0,
         "Wave_2_Enemy_3_Pos": [
-            0.0,
-            0.0,
-            150.0
+            28.5,
+            20.0,
+            300.0
         ],
-        "Wave_2_Enemy_3_Type": 1,
+        "Wave_2_Enemy_3_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_3_Type": 2,
+        "Wave_2_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_4_MoveState": 0,
         "Wave_2_Enemy_4_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -19.5,
+            20.0,
+            300.0
         ],
-        "Wave_2_Enemy_4_Type": 1,
+        "Wave_2_Enemy_4_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_4_Type": 2,
+        "Wave_2_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_5_MoveState": 0,
         "Wave_2_Enemy_5_Pos": [
-            0.0,
-            0.0,
-            150.0
+            24.5,
+            13.5,
+            300.0
         ],
-        "Wave_2_Enemy_5_Type": 1,
+        "Wave_2_Enemy_5_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_5_Type": 3,
+        "Wave_2_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_6_MoveState": 0,
         "Wave_2_Enemy_6_Pos": [
+            8.5,
             0.0,
-            0.0,
-            150.0
+            300.0
         ],
-        "Wave_2_Enemy_6_Type": 1,
+        "Wave_2_Enemy_6_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_6_Type": 4,
+        "Wave_2_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_7_MoveState": 0,
         "Wave_2_Enemy_7_Pos": [
+            3.0,
             0.0,
-            0.0,
-            150.0
+            300.0
         ],
-        "Wave_2_Enemy_7_Type": 1,
+        "Wave_2_Enemy_7_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_7_Type": 4,
+        "Wave_2_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_8_MoveState": 0,
         "Wave_2_Enemy_8_Pos": [
-            0.0,
-            0.0,
-            150.0
+            17.5,
+            7.0,
+            300.0
         ],
-        "Wave_2_Enemy_8_Type": 1,
+        "Wave_2_Enemy_8_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_8_Type": 2,
+        "Wave_2_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_2_Enemy_9_MoveState": 0,
         "Wave_2_Enemy_9_Pos": [
+            12.5,
             0.0,
-            0.0,
-            150.0
+            300.0
         ],
-        "Wave_2_Enemy_9_Type": 1,
-        "Wave_3_Count": 0,
+        "Wave_2_Enemy_9_Speed": 0.30000001192092896,
+        "Wave_2_Enemy_9_Type": 2,
+        "Wave_3_Count": 13,
+        "Wave_3_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_0_MoveState": 0,
         "Wave_3_Enemy_0_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -30.0,
+            23.0,
+            250.0
         ],
-        "Wave_3_Enemy_0_Type": 1,
+        "Wave_3_Enemy_0_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_0_Type": 3,
+        "Wave_3_Enemy_10_Direction": [
+            -3.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_10_MoveState": 2,
         "Wave_3_Enemy_10_Pos": [
-            0.0,
-            0.0,
-            150.0
+            57.0,
+            3.0,
+            142.0
         ],
-        "Wave_3_Enemy_10_Type": 1,
+        "Wave_3_Enemy_10_Speed": 0.10000000149011612,
+        "Wave_3_Enemy_10_Type": 2,
+        "Wave_3_Enemy_11_Direction": [
+            -3.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_11_MoveState": 2,
         "Wave_3_Enemy_11_Pos": [
-            0.0,
-            0.0,
-            150.0
+            43.0,
+            -11.0,
+            96.0
         ],
-        "Wave_3_Enemy_11_Type": 1,
+        "Wave_3_Enemy_11_Speed": 0.10000000149011612,
+        "Wave_3_Enemy_11_Type": 3,
+        "Wave_3_Enemy_12_Direction": [
+            2.950000047683716,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_12_MoveState": 2,
         "Wave_3_Enemy_12_Pos": [
+            -49.5,
             0.0,
-            0.0,
-            150.0
+            53.0
         ],
-        "Wave_3_Enemy_12_Type": 1,
+        "Wave_3_Enemy_12_Speed": 0.10000000149011612,
+        "Wave_3_Enemy_12_Type": 4,
+        "Wave_3_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_13_MoveState": 0,
         "Wave_3_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_13_Speed": 0.30000001192092896,
         "Wave_3_Enemy_13_Type": 1,
+        "Wave_3_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_14_MoveState": 0,
         "Wave_3_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_14_Speed": 0.30000001192092896,
         "Wave_3_Enemy_14_Type": 1,
+        "Wave_3_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_15_MoveState": 0,
         "Wave_3_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_15_Speed": 0.30000001192092896,
         "Wave_3_Enemy_15_Type": 1,
+        "Wave_3_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_16_MoveState": 0,
         "Wave_3_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_16_Speed": 0.30000001192092896,
         "Wave_3_Enemy_16_Type": 1,
+        "Wave_3_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_17_MoveState": 0,
         "Wave_3_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_17_Speed": 0.30000001192092896,
         "Wave_3_Enemy_17_Type": 1,
+        "Wave_3_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_18_MoveState": 0,
         "Wave_3_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_18_Speed": 0.30000001192092896,
         "Wave_3_Enemy_18_Type": 1,
+        "Wave_3_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_19_MoveState": 0,
         "Wave_3_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_19_Speed": 0.30000001192092896,
         "Wave_3_Enemy_19_Type": 1,
-        "Wave_3_Enemy_1_Pos": [
+        "Wave_3_Enemy_1_Direction": [
             0.0,
             0.0,
-            150.0
+            -1.0
         ],
-        "Wave_3_Enemy_1_Type": 1,
+        "Wave_3_Enemy_1_MoveState": 0,
+        "Wave_3_Enemy_1_Pos": [
+            -30.0,
+            -2.5,
+            250.0
+        ],
+        "Wave_3_Enemy_1_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_1_Type": 3,
+        "Wave_3_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_20_MoveState": 0,
         "Wave_3_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_20_Speed": 0.30000001192092896,
         "Wave_3_Enemy_20_Type": 1,
+        "Wave_3_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_21_MoveState": 0,
         "Wave_3_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_21_Speed": 0.30000001192092896,
         "Wave_3_Enemy_21_Type": 1,
+        "Wave_3_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_22_MoveState": 0,
         "Wave_3_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_22_Speed": 0.30000001192092896,
         "Wave_3_Enemy_22_Type": 1,
+        "Wave_3_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_23_MoveState": 0,
         "Wave_3_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_23_Speed": 0.30000001192092896,
         "Wave_3_Enemy_23_Type": 1,
+        "Wave_3_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_24_MoveState": 0,
         "Wave_3_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_24_Speed": 0.30000001192092896,
         "Wave_3_Enemy_24_Type": 1,
+        "Wave_3_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_25_MoveState": 0,
         "Wave_3_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_25_Speed": 0.30000001192092896,
         "Wave_3_Enemy_25_Type": 1,
+        "Wave_3_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_26_MoveState": 0,
         "Wave_3_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_26_Speed": 0.30000001192092896,
         "Wave_3_Enemy_26_Type": 1,
+        "Wave_3_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_27_MoveState": 0,
         "Wave_3_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_27_Speed": 0.30000001192092896,
         "Wave_3_Enemy_27_Type": 1,
+        "Wave_3_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_28_MoveState": 0,
         "Wave_3_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_28_Speed": 0.30000001192092896,
         "Wave_3_Enemy_28_Type": 1,
+        "Wave_3_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_29_MoveState": 0,
         "Wave_3_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_3_Enemy_29_Speed": 0.30000001192092896,
         "Wave_3_Enemy_29_Type": 1,
+        "Wave_3_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_2_MoveState": 0,
         "Wave_3_Enemy_2_Pos": [
-            0.0,
-            0.0,
-            150.0
+            30.0,
+            -4.0,
+            250.0
         ],
-        "Wave_3_Enemy_2_Type": 1,
+        "Wave_3_Enemy_2_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_2_Type": 3,
+        "Wave_3_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_3_MoveState": 0,
         "Wave_3_Enemy_3_Pos": [
-            0.0,
-            0.0,
-            150.0
+            30.0,
+            23.5,
+            250.0
         ],
-        "Wave_3_Enemy_3_Type": 1,
+        "Wave_3_Enemy_3_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_3_Type": 3,
+        "Wave_3_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_4_MoveState": 0,
         "Wave_3_Enemy_4_Pos": [
             0.0,
-            0.0,
-            150.0
+            8.5,
+            250.0
         ],
-        "Wave_3_Enemy_4_Type": 1,
+        "Wave_3_Enemy_4_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_4_Type": 2,
+        "Wave_3_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_5_MoveState": 0,
         "Wave_3_Enemy_5_Pos": [
-            0.0,
-            0.0,
-            150.0
+            21.0,
+            21.0,
+            300.0
         ],
-        "Wave_3_Enemy_5_Type": 1,
+        "Wave_3_Enemy_5_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_5_Type": 2,
+        "Wave_3_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_6_MoveState": 0,
         "Wave_3_Enemy_6_Pos": [
-            0.0,
-            0.0,
-            150.0
+            21.0,
+            0.5,
+            300.0
         ],
-        "Wave_3_Enemy_6_Type": 1,
+        "Wave_3_Enemy_6_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_6_Type": 2,
+        "Wave_3_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_7_MoveState": 0,
         "Wave_3_Enemy_7_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -21.0,
+            21.0,
+            300.0
         ],
-        "Wave_3_Enemy_7_Type": 1,
+        "Wave_3_Enemy_7_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_7_Type": 2,
+        "Wave_3_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_8_MoveState": 0,
         "Wave_3_Enemy_8_Pos": [
-            0.0,
-            0.0,
-            150.0
+            -21.0,
+            0.5,
+            300.0
         ],
-        "Wave_3_Enemy_8_Type": 1,
+        "Wave_3_Enemy_8_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_8_Type": 2,
+        "Wave_3_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_3_Enemy_9_MoveState": 0,
         "Wave_3_Enemy_9_Pos": [
             0.0,
-            0.0,
-            150.0
+            8.5,
+            300.0
         ],
-        "Wave_3_Enemy_9_Type": 1,
-        "Wave_4_Count": 0,
+        "Wave_3_Enemy_9_Speed": 0.30000001192092896,
+        "Wave_3_Enemy_9_Type": 3,
+        "Wave_4_Count": 13,
+        "Wave_4_Enemy_0_Direction": [
+            -0.6000000238418579,
+            0.0,
+            -0.6499999761581421
+        ],
+        "Wave_4_Enemy_0_MoveState": 2,
         "Wave_4_Enemy_0_Pos": [
-            0.0,
-            0.0,
-            150.0
+            21.5,
+            -6.5,
+            105.0
         ],
-        "Wave_4_Enemy_0_Type": 1,
+        "Wave_4_Enemy_0_Speed": 0.15000000596046448,
+        "Wave_4_Enemy_0_Type": 2,
+        "Wave_4_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_10_MoveState": 1,
         "Wave_4_Enemy_10_Pos": [
-            0.0,
+            -16.5,
             0.0,
             150.0
         ],
-        "Wave_4_Enemy_10_Type": 1,
+        "Wave_4_Enemy_10_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_10_Type": 4,
+        "Wave_4_Enemy_11_Direction": [
+            -0.30000001192092896,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_11_MoveState": 2,
         "Wave_4_Enemy_11_Pos": [
-            0.0,
-            0.0,
+            22.0,
+            15.5,
             150.0
         ],
-        "Wave_4_Enemy_11_Type": 1,
+        "Wave_4_Enemy_11_Speed": 0.44999998807907104,
+        "Wave_4_Enemy_11_Type": 3,
+        "Wave_4_Enemy_12_Direction": [
+            0.3499999940395355,
+            0.3499999940395355,
+            -1.0
+        ],
+        "Wave_4_Enemy_12_MoveState": 2,
         "Wave_4_Enemy_12_Pos": [
-            0.0,
-            0.0,
+            -22.0,
+            -17.5,
             150.0
         ],
-        "Wave_4_Enemy_12_Type": 1,
+        "Wave_4_Enemy_12_Speed": 0.6499999761581421,
+        "Wave_4_Enemy_12_Type": 2,
+        "Wave_4_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_13_MoveState": 0,
         "Wave_4_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_13_Speed": 0.30000001192092896,
         "Wave_4_Enemy_13_Type": 1,
+        "Wave_4_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_14_MoveState": 0,
         "Wave_4_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_14_Speed": 0.30000001192092896,
         "Wave_4_Enemy_14_Type": 1,
+        "Wave_4_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_15_MoveState": 0,
         "Wave_4_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_15_Speed": 0.30000001192092896,
         "Wave_4_Enemy_15_Type": 1,
+        "Wave_4_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_16_MoveState": 0,
         "Wave_4_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_16_Speed": 0.30000001192092896,
         "Wave_4_Enemy_16_Type": 1,
+        "Wave_4_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_17_MoveState": 0,
         "Wave_4_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_17_Speed": 0.30000001192092896,
         "Wave_4_Enemy_17_Type": 1,
+        "Wave_4_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_18_MoveState": 0,
         "Wave_4_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_18_Speed": 0.30000001192092896,
         "Wave_4_Enemy_18_Type": 1,
+        "Wave_4_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_19_MoveState": 0,
         "Wave_4_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_19_Speed": 0.30000001192092896,
         "Wave_4_Enemy_19_Type": 1,
-        "Wave_4_Enemy_1_Pos": [
+        "Wave_4_Enemy_1_Direction": [
+            2.25,
             0.0,
-            0.0,
-            150.0
+            -1.0
         ],
-        "Wave_4_Enemy_1_Type": 1,
+        "Wave_4_Enemy_1_MoveState": 2,
+        "Wave_4_Enemy_1_Pos": [
+            -49.5,
+            0.5,
+            176.0
+        ],
+        "Wave_4_Enemy_1_Speed": 0.05000000074505806,
+        "Wave_4_Enemy_1_Type": 3,
+        "Wave_4_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_20_MoveState": 0,
         "Wave_4_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_20_Speed": 0.30000001192092896,
         "Wave_4_Enemy_20_Type": 1,
+        "Wave_4_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_21_MoveState": 0,
         "Wave_4_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_21_Speed": 0.30000001192092896,
         "Wave_4_Enemy_21_Type": 1,
+        "Wave_4_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_22_MoveState": 0,
         "Wave_4_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_22_Speed": 0.30000001192092896,
         "Wave_4_Enemy_22_Type": 1,
+        "Wave_4_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_23_MoveState": 0,
         "Wave_4_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_23_Speed": 0.30000001192092896,
         "Wave_4_Enemy_23_Type": 1,
+        "Wave_4_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_24_MoveState": 0,
         "Wave_4_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_24_Speed": 0.30000001192092896,
         "Wave_4_Enemy_24_Type": 1,
+        "Wave_4_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_25_MoveState": 0,
         "Wave_4_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_25_Speed": 0.30000001192092896,
         "Wave_4_Enemy_25_Type": 1,
+        "Wave_4_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_26_MoveState": 0,
         "Wave_4_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_26_Speed": 0.30000001192092896,
         "Wave_4_Enemy_26_Type": 1,
+        "Wave_4_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_27_MoveState": 0,
         "Wave_4_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_27_Speed": 0.30000001192092896,
         "Wave_4_Enemy_27_Type": 1,
+        "Wave_4_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_28_MoveState": 0,
         "Wave_4_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_28_Speed": 0.30000001192092896,
         "Wave_4_Enemy_28_Type": 1,
+        "Wave_4_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_29_MoveState": 0,
         "Wave_4_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_4_Enemy_29_Speed": 0.30000001192092896,
         "Wave_4_Enemy_29_Type": 1,
+        "Wave_4_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_2_MoveState": 1,
         "Wave_4_Enemy_2_Pos": [
             0.0,
-            0.0,
-            150.0
+            6.0,
+            170.0
         ],
-        "Wave_4_Enemy_2_Type": 1,
+        "Wave_4_Enemy_2_Speed": 0.44999998807907104,
+        "Wave_4_Enemy_2_Type": 3,
+        "Wave_4_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_3_MoveState": 1,
         "Wave_4_Enemy_3_Pos": [
+            11.0,
             0.0,
-            0.0,
-            150.0
+            170.0
         ],
-        "Wave_4_Enemy_3_Type": 1,
+        "Wave_4_Enemy_3_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_3_Type": 2,
+        "Wave_4_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_4_MoveState": 1,
         "Wave_4_Enemy_4_Pos": [
             0.0,
-            0.0,
-            150.0
+            -7.5,
+            170.0
         ],
-        "Wave_4_Enemy_4_Type": 1,
+        "Wave_4_Enemy_4_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_4_Type": 2,
+        "Wave_4_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_5_MoveState": 1,
         "Wave_4_Enemy_5_Pos": [
+            -10.0,
             0.0,
-            0.0,
-            150.0
+            170.0
         ],
-        "Wave_4_Enemy_5_Type": 1,
+        "Wave_4_Enemy_5_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_5_Type": 3,
+        "Wave_4_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_6_MoveState": 1,
         "Wave_4_Enemy_6_Pos": [
             0.0,
             0.0,
-            150.0
+            170.0
         ],
-        "Wave_4_Enemy_6_Type": 1,
+        "Wave_4_Enemy_6_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_6_Type": 4,
+        "Wave_4_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_7_MoveState": 1,
         "Wave_4_Enemy_7_Pos": [
             0.0,
-            0.0,
-            150.0
+            13.5,
+            170.0
         ],
-        "Wave_4_Enemy_7_Type": 1,
+        "Wave_4_Enemy_7_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_7_Type": 4,
+        "Wave_4_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_8_MoveState": 1,
         "Wave_4_Enemy_8_Pos": [
             0.0,
-            0.0,
-            150.0
+            -14.5,
+            170.0
         ],
-        "Wave_4_Enemy_8_Type": 1,
+        "Wave_4_Enemy_8_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_8_Type": 4,
+        "Wave_4_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_4_Enemy_9_MoveState": 1,
         "Wave_4_Enemy_9_Pos": [
-            0.0,
+            17.0,
             0.0,
             150.0
         ],
-        "Wave_4_Enemy_9_Type": 1,
+        "Wave_4_Enemy_9_Speed": 0.30000001192092896,
+        "Wave_4_Enemy_9_Type": 4,
         "Wave_5_Count": 0,
+        "Wave_5_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_0_MoveState": 0,
         "Wave_5_Enemy_0_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_0_Speed": 0.30000001192092896,
         "Wave_5_Enemy_0_Type": 1,
+        "Wave_5_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_10_MoveState": 0,
         "Wave_5_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_10_Speed": 0.30000001192092896,
         "Wave_5_Enemy_10_Type": 1,
+        "Wave_5_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_11_MoveState": 0,
         "Wave_5_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_11_Speed": 0.30000001192092896,
         "Wave_5_Enemy_11_Type": 1,
+        "Wave_5_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_12_MoveState": 0,
         "Wave_5_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_12_Speed": 0.30000001192092896,
         "Wave_5_Enemy_12_Type": 1,
+        "Wave_5_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_13_MoveState": 0,
         "Wave_5_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_13_Speed": 0.30000001192092896,
         "Wave_5_Enemy_13_Type": 1,
+        "Wave_5_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_14_MoveState": 0,
         "Wave_5_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_14_Speed": 0.30000001192092896,
         "Wave_5_Enemy_14_Type": 1,
+        "Wave_5_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_15_MoveState": 0,
         "Wave_5_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_15_Speed": 0.30000001192092896,
         "Wave_5_Enemy_15_Type": 1,
+        "Wave_5_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_16_MoveState": 0,
         "Wave_5_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_16_Speed": 0.30000001192092896,
         "Wave_5_Enemy_16_Type": 1,
+        "Wave_5_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_17_MoveState": 0,
         "Wave_5_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_17_Speed": 0.30000001192092896,
         "Wave_5_Enemy_17_Type": 1,
+        "Wave_5_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_18_MoveState": 0,
         "Wave_5_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_18_Speed": 0.30000001192092896,
         "Wave_5_Enemy_18_Type": 1,
+        "Wave_5_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_19_MoveState": 0,
         "Wave_5_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_19_Speed": 0.30000001192092896,
         "Wave_5_Enemy_19_Type": 1,
+        "Wave_5_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_1_MoveState": 0,
         "Wave_5_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_1_Speed": 0.30000001192092896,
         "Wave_5_Enemy_1_Type": 1,
+        "Wave_5_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_20_MoveState": 0,
         "Wave_5_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_20_Speed": 0.30000001192092896,
         "Wave_5_Enemy_20_Type": 1,
+        "Wave_5_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_21_MoveState": 0,
         "Wave_5_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_21_Speed": 0.30000001192092896,
         "Wave_5_Enemy_21_Type": 1,
+        "Wave_5_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_22_MoveState": 0,
         "Wave_5_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_22_Speed": 0.30000001192092896,
         "Wave_5_Enemy_22_Type": 1,
+        "Wave_5_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_23_MoveState": 0,
         "Wave_5_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_23_Speed": 0.30000001192092896,
         "Wave_5_Enemy_23_Type": 1,
+        "Wave_5_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_24_MoveState": 0,
         "Wave_5_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_24_Speed": 0.30000001192092896,
         "Wave_5_Enemy_24_Type": 1,
+        "Wave_5_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_25_MoveState": 0,
         "Wave_5_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_25_Speed": 0.30000001192092896,
         "Wave_5_Enemy_25_Type": 1,
+        "Wave_5_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_26_MoveState": 0,
         "Wave_5_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_26_Speed": 0.30000001192092896,
         "Wave_5_Enemy_26_Type": 1,
+        "Wave_5_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_27_MoveState": 0,
         "Wave_5_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_27_Speed": 0.30000001192092896,
         "Wave_5_Enemy_27_Type": 1,
+        "Wave_5_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_28_MoveState": 0,
         "Wave_5_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_28_Speed": 0.30000001192092896,
         "Wave_5_Enemy_28_Type": 1,
+        "Wave_5_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_29_MoveState": 0,
         "Wave_5_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_29_Speed": 0.30000001192092896,
         "Wave_5_Enemy_29_Type": 1,
+        "Wave_5_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_2_MoveState": 0,
         "Wave_5_Enemy_2_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_2_Speed": 0.30000001192092896,
         "Wave_5_Enemy_2_Type": 1,
+        "Wave_5_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_3_MoveState": 0,
         "Wave_5_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_3_Speed": 0.30000001192092896,
         "Wave_5_Enemy_3_Type": 1,
+        "Wave_5_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_4_MoveState": 0,
         "Wave_5_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_4_Speed": 0.30000001192092896,
         "Wave_5_Enemy_4_Type": 1,
+        "Wave_5_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_5_MoveState": 0,
         "Wave_5_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_5_Speed": 0.30000001192092896,
         "Wave_5_Enemy_5_Type": 1,
+        "Wave_5_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_6_MoveState": 0,
         "Wave_5_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_6_Speed": 0.30000001192092896,
         "Wave_5_Enemy_6_Type": 1,
+        "Wave_5_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_7_MoveState": 0,
         "Wave_5_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_7_Speed": 0.30000001192092896,
         "Wave_5_Enemy_7_Type": 1,
+        "Wave_5_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_8_MoveState": 0,
         "Wave_5_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_8_Speed": 0.30000001192092896,
         "Wave_5_Enemy_8_Type": 1,
+        "Wave_5_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_5_Enemy_9_MoveState": 0,
         "Wave_5_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_5_Enemy_9_Speed": 0.30000001192092896,
         "Wave_5_Enemy_9_Type": 1,
         "Wave_6_Count": 0,
+        "Wave_6_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_0_MoveState": 0,
         "Wave_6_Enemy_0_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_0_Speed": 0.30000001192092896,
         "Wave_6_Enemy_0_Type": 1,
+        "Wave_6_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_10_MoveState": 0,
         "Wave_6_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_10_Speed": 0.30000001192092896,
         "Wave_6_Enemy_10_Type": 1,
+        "Wave_6_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_11_MoveState": 0,
         "Wave_6_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_11_Speed": 0.30000001192092896,
         "Wave_6_Enemy_11_Type": 1,
+        "Wave_6_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_12_MoveState": 0,
         "Wave_6_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_12_Speed": 0.30000001192092896,
         "Wave_6_Enemy_12_Type": 1,
+        "Wave_6_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_13_MoveState": 0,
         "Wave_6_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_13_Speed": 0.30000001192092896,
         "Wave_6_Enemy_13_Type": 1,
+        "Wave_6_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_14_MoveState": 0,
         "Wave_6_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_14_Speed": 0.30000001192092896,
         "Wave_6_Enemy_14_Type": 1,
+        "Wave_6_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_15_MoveState": 0,
         "Wave_6_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_15_Speed": 0.30000001192092896,
         "Wave_6_Enemy_15_Type": 1,
+        "Wave_6_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_16_MoveState": 0,
         "Wave_6_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_16_Speed": 0.30000001192092896,
         "Wave_6_Enemy_16_Type": 1,
+        "Wave_6_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_17_MoveState": 0,
         "Wave_6_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_17_Speed": 0.30000001192092896,
         "Wave_6_Enemy_17_Type": 1,
+        "Wave_6_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_18_MoveState": 0,
         "Wave_6_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_18_Speed": 0.30000001192092896,
         "Wave_6_Enemy_18_Type": 1,
+        "Wave_6_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_19_MoveState": 0,
         "Wave_6_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_19_Speed": 0.30000001192092896,
         "Wave_6_Enemy_19_Type": 1,
+        "Wave_6_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_1_MoveState": 0,
         "Wave_6_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_1_Speed": 0.30000001192092896,
         "Wave_6_Enemy_1_Type": 1,
+        "Wave_6_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_20_MoveState": 0,
         "Wave_6_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_20_Speed": 0.30000001192092896,
         "Wave_6_Enemy_20_Type": 1,
+        "Wave_6_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_21_MoveState": 0,
         "Wave_6_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_21_Speed": 0.30000001192092896,
         "Wave_6_Enemy_21_Type": 1,
+        "Wave_6_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_22_MoveState": 0,
         "Wave_6_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_22_Speed": 0.30000001192092896,
         "Wave_6_Enemy_22_Type": 1,
+        "Wave_6_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_23_MoveState": 0,
         "Wave_6_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_23_Speed": 0.30000001192092896,
         "Wave_6_Enemy_23_Type": 1,
+        "Wave_6_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_24_MoveState": 0,
         "Wave_6_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_24_Speed": 0.30000001192092896,
         "Wave_6_Enemy_24_Type": 1,
+        "Wave_6_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_25_MoveState": 0,
         "Wave_6_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_25_Speed": 0.30000001192092896,
         "Wave_6_Enemy_25_Type": 1,
+        "Wave_6_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_26_MoveState": 0,
         "Wave_6_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_26_Speed": 0.30000001192092896,
         "Wave_6_Enemy_26_Type": 1,
+        "Wave_6_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_27_MoveState": 0,
         "Wave_6_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_27_Speed": 0.30000001192092896,
         "Wave_6_Enemy_27_Type": 1,
+        "Wave_6_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_28_MoveState": 0,
         "Wave_6_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_28_Speed": 0.30000001192092896,
         "Wave_6_Enemy_28_Type": 1,
+        "Wave_6_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_29_MoveState": 0,
         "Wave_6_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_29_Speed": 0.30000001192092896,
         "Wave_6_Enemy_29_Type": 1,
+        "Wave_6_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_2_MoveState": 0,
         "Wave_6_Enemy_2_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_2_Speed": 0.30000001192092896,
         "Wave_6_Enemy_2_Type": 1,
+        "Wave_6_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_3_MoveState": 0,
         "Wave_6_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_3_Speed": 0.30000001192092896,
         "Wave_6_Enemy_3_Type": 1,
+        "Wave_6_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_4_MoveState": 0,
         "Wave_6_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_4_Speed": 0.30000001192092896,
         "Wave_6_Enemy_4_Type": 1,
+        "Wave_6_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_5_MoveState": 0,
         "Wave_6_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_5_Speed": 0.30000001192092896,
         "Wave_6_Enemy_5_Type": 1,
+        "Wave_6_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_6_MoveState": 0,
         "Wave_6_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_6_Speed": 0.30000001192092896,
         "Wave_6_Enemy_6_Type": 1,
+        "Wave_6_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_7_MoveState": 0,
         "Wave_6_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_7_Speed": 0.30000001192092896,
         "Wave_6_Enemy_7_Type": 1,
+        "Wave_6_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_8_MoveState": 0,
         "Wave_6_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_8_Speed": 0.30000001192092896,
         "Wave_6_Enemy_8_Type": 1,
+        "Wave_6_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_6_Enemy_9_MoveState": 0,
         "Wave_6_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_6_Enemy_9_Speed": 0.30000001192092896,
         "Wave_6_Enemy_9_Type": 1,
         "Wave_7_Count": 0,
+        "Wave_7_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_0_MoveState": 0,
         "Wave_7_Enemy_0_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_0_Speed": 0.30000001192092896,
         "Wave_7_Enemy_0_Type": 1,
+        "Wave_7_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_10_MoveState": 0,
         "Wave_7_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_10_Speed": 0.30000001192092896,
         "Wave_7_Enemy_10_Type": 1,
+        "Wave_7_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_11_MoveState": 0,
         "Wave_7_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_11_Speed": 0.30000001192092896,
         "Wave_7_Enemy_11_Type": 1,
+        "Wave_7_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_12_MoveState": 0,
         "Wave_7_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_12_Speed": 0.30000001192092896,
         "Wave_7_Enemy_12_Type": 1,
+        "Wave_7_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_13_MoveState": 0,
         "Wave_7_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_13_Speed": 0.30000001192092896,
         "Wave_7_Enemy_13_Type": 1,
+        "Wave_7_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_14_MoveState": 0,
         "Wave_7_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_14_Speed": 0.30000001192092896,
         "Wave_7_Enemy_14_Type": 1,
+        "Wave_7_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_15_MoveState": 0,
         "Wave_7_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_15_Speed": 0.30000001192092896,
         "Wave_7_Enemy_15_Type": 1,
+        "Wave_7_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_16_MoveState": 0,
         "Wave_7_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_16_Speed": 0.30000001192092896,
         "Wave_7_Enemy_16_Type": 1,
+        "Wave_7_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_17_MoveState": 0,
         "Wave_7_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_17_Speed": 0.30000001192092896,
         "Wave_7_Enemy_17_Type": 1,
+        "Wave_7_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_18_MoveState": 0,
         "Wave_7_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_18_Speed": 0.30000001192092896,
         "Wave_7_Enemy_18_Type": 1,
+        "Wave_7_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_19_MoveState": 0,
         "Wave_7_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_19_Speed": 0.30000001192092896,
         "Wave_7_Enemy_19_Type": 1,
+        "Wave_7_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_1_MoveState": 0,
         "Wave_7_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_1_Speed": 0.30000001192092896,
         "Wave_7_Enemy_1_Type": 1,
+        "Wave_7_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_20_MoveState": 0,
         "Wave_7_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_20_Speed": 0.30000001192092896,
         "Wave_7_Enemy_20_Type": 1,
+        "Wave_7_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_21_MoveState": 0,
         "Wave_7_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_21_Speed": 0.30000001192092896,
         "Wave_7_Enemy_21_Type": 1,
+        "Wave_7_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_22_MoveState": 0,
         "Wave_7_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_22_Speed": 0.30000001192092896,
         "Wave_7_Enemy_22_Type": 1,
+        "Wave_7_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_23_MoveState": 0,
         "Wave_7_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_23_Speed": 0.30000001192092896,
         "Wave_7_Enemy_23_Type": 1,
+        "Wave_7_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_24_MoveState": 0,
         "Wave_7_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_24_Speed": 0.30000001192092896,
         "Wave_7_Enemy_24_Type": 1,
+        "Wave_7_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_25_MoveState": 0,
         "Wave_7_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_25_Speed": 0.30000001192092896,
         "Wave_7_Enemy_25_Type": 1,
+        "Wave_7_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_26_MoveState": 0,
         "Wave_7_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_26_Speed": 0.30000001192092896,
         "Wave_7_Enemy_26_Type": 1,
+        "Wave_7_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_27_MoveState": 0,
         "Wave_7_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_27_Speed": 0.30000001192092896,
         "Wave_7_Enemy_27_Type": 1,
+        "Wave_7_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_28_MoveState": 0,
         "Wave_7_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_28_Speed": 0.30000001192092896,
         "Wave_7_Enemy_28_Type": 1,
+        "Wave_7_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_29_MoveState": 0,
         "Wave_7_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_29_Speed": 0.30000001192092896,
         "Wave_7_Enemy_29_Type": 1,
+        "Wave_7_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_2_MoveState": 0,
         "Wave_7_Enemy_2_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_2_Speed": 0.30000001192092896,
         "Wave_7_Enemy_2_Type": 1,
+        "Wave_7_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_3_MoveState": 0,
         "Wave_7_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_3_Speed": 0.30000001192092896,
         "Wave_7_Enemy_3_Type": 1,
+        "Wave_7_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_4_MoveState": 0,
         "Wave_7_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_4_Speed": 0.30000001192092896,
         "Wave_7_Enemy_4_Type": 1,
+        "Wave_7_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_5_MoveState": 0,
         "Wave_7_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_5_Speed": 0.30000001192092896,
         "Wave_7_Enemy_5_Type": 1,
+        "Wave_7_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_6_MoveState": 0,
         "Wave_7_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_6_Speed": 0.30000001192092896,
         "Wave_7_Enemy_6_Type": 1,
+        "Wave_7_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_7_MoveState": 0,
         "Wave_7_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_7_Speed": 0.30000001192092896,
         "Wave_7_Enemy_7_Type": 1,
+        "Wave_7_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_8_MoveState": 0,
         "Wave_7_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_8_Speed": 0.30000001192092896,
         "Wave_7_Enemy_8_Type": 1,
+        "Wave_7_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_7_Enemy_9_MoveState": 0,
         "Wave_7_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_7_Enemy_9_Speed": 0.30000001192092896,
         "Wave_7_Enemy_9_Type": 1,
         "Wave_8_Count": 0,
+        "Wave_8_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_0_MoveState": 0,
         "Wave_8_Enemy_0_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_0_Speed": 0.30000001192092896,
         "Wave_8_Enemy_0_Type": 1,
+        "Wave_8_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_10_MoveState": 0,
         "Wave_8_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_10_Speed": 0.30000001192092896,
         "Wave_8_Enemy_10_Type": 1,
+        "Wave_8_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_11_MoveState": 0,
         "Wave_8_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_11_Speed": 0.30000001192092896,
         "Wave_8_Enemy_11_Type": 1,
+        "Wave_8_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_12_MoveState": 0,
         "Wave_8_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_12_Speed": 0.30000001192092896,
         "Wave_8_Enemy_12_Type": 1,
+        "Wave_8_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_13_MoveState": 0,
         "Wave_8_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_13_Speed": 0.30000001192092896,
         "Wave_8_Enemy_13_Type": 1,
+        "Wave_8_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_14_MoveState": 0,
         "Wave_8_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_14_Speed": 0.30000001192092896,
         "Wave_8_Enemy_14_Type": 1,
+        "Wave_8_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_15_MoveState": 0,
         "Wave_8_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_15_Speed": 0.30000001192092896,
         "Wave_8_Enemy_15_Type": 1,
+        "Wave_8_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_16_MoveState": 0,
         "Wave_8_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_16_Speed": 0.30000001192092896,
         "Wave_8_Enemy_16_Type": 1,
+        "Wave_8_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_17_MoveState": 0,
         "Wave_8_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_17_Speed": 0.30000001192092896,
         "Wave_8_Enemy_17_Type": 1,
+        "Wave_8_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_18_MoveState": 0,
         "Wave_8_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_18_Speed": 0.30000001192092896,
         "Wave_8_Enemy_18_Type": 1,
+        "Wave_8_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_19_MoveState": 0,
         "Wave_8_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_19_Speed": 0.30000001192092896,
         "Wave_8_Enemy_19_Type": 1,
+        "Wave_8_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_1_MoveState": 0,
         "Wave_8_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_1_Speed": 0.30000001192092896,
         "Wave_8_Enemy_1_Type": 1,
+        "Wave_8_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_20_MoveState": 0,
         "Wave_8_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_20_Speed": 0.30000001192092896,
         "Wave_8_Enemy_20_Type": 1,
+        "Wave_8_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_21_MoveState": 0,
         "Wave_8_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_21_Speed": 0.30000001192092896,
         "Wave_8_Enemy_21_Type": 1,
+        "Wave_8_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_22_MoveState": 0,
         "Wave_8_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_22_Speed": 0.30000001192092896,
         "Wave_8_Enemy_22_Type": 1,
+        "Wave_8_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_23_MoveState": 0,
         "Wave_8_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_23_Speed": 0.30000001192092896,
         "Wave_8_Enemy_23_Type": 1,
+        "Wave_8_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_24_MoveState": 0,
         "Wave_8_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_24_Speed": 0.30000001192092896,
         "Wave_8_Enemy_24_Type": 1,
+        "Wave_8_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_25_MoveState": 0,
         "Wave_8_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_25_Speed": 0.30000001192092896,
         "Wave_8_Enemy_25_Type": 1,
+        "Wave_8_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_26_MoveState": 0,
         "Wave_8_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_26_Speed": 0.30000001192092896,
         "Wave_8_Enemy_26_Type": 1,
+        "Wave_8_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_27_MoveState": 0,
         "Wave_8_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_27_Speed": 0.30000001192092896,
         "Wave_8_Enemy_27_Type": 1,
+        "Wave_8_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_28_MoveState": 0,
         "Wave_8_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_28_Speed": 0.30000001192092896,
         "Wave_8_Enemy_28_Type": 1,
+        "Wave_8_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_29_MoveState": 0,
         "Wave_8_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_29_Speed": 0.30000001192092896,
         "Wave_8_Enemy_29_Type": 1,
+        "Wave_8_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_2_MoveState": 0,
         "Wave_8_Enemy_2_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_2_Speed": 0.30000001192092896,
         "Wave_8_Enemy_2_Type": 1,
+        "Wave_8_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_3_MoveState": 0,
         "Wave_8_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_3_Speed": 0.30000001192092896,
         "Wave_8_Enemy_3_Type": 1,
+        "Wave_8_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_4_MoveState": 0,
         "Wave_8_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_4_Speed": 0.30000001192092896,
         "Wave_8_Enemy_4_Type": 1,
+        "Wave_8_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_5_MoveState": 0,
         "Wave_8_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_5_Speed": 0.30000001192092896,
         "Wave_8_Enemy_5_Type": 1,
+        "Wave_8_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_6_MoveState": 0,
         "Wave_8_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_6_Speed": 0.30000001192092896,
         "Wave_8_Enemy_6_Type": 1,
+        "Wave_8_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_7_MoveState": 0,
         "Wave_8_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_7_Speed": 0.30000001192092896,
         "Wave_8_Enemy_7_Type": 1,
+        "Wave_8_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_8_MoveState": 0,
         "Wave_8_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_8_Speed": 0.30000001192092896,
         "Wave_8_Enemy_8_Type": 1,
+        "Wave_8_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_8_Enemy_9_MoveState": 0,
         "Wave_8_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_8_Enemy_9_Speed": 0.30000001192092896,
         "Wave_8_Enemy_9_Type": 1,
         "Wave_9_Count": 0,
+        "Wave_9_Enemy_0_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_0_MoveState": 0,
         "Wave_9_Enemy_0_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_0_Speed": 0.30000001192092896,
         "Wave_9_Enemy_0_Type": 1,
+        "Wave_9_Enemy_10_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_10_MoveState": 0,
         "Wave_9_Enemy_10_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_10_Speed": 0.30000001192092896,
         "Wave_9_Enemy_10_Type": 1,
+        "Wave_9_Enemy_11_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_11_MoveState": 0,
         "Wave_9_Enemy_11_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_11_Speed": 0.30000001192092896,
         "Wave_9_Enemy_11_Type": 1,
+        "Wave_9_Enemy_12_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_12_MoveState": 0,
         "Wave_9_Enemy_12_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_12_Speed": 0.30000001192092896,
         "Wave_9_Enemy_12_Type": 1,
+        "Wave_9_Enemy_13_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_13_MoveState": 0,
         "Wave_9_Enemy_13_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_13_Speed": 0.30000001192092896,
         "Wave_9_Enemy_13_Type": 1,
+        "Wave_9_Enemy_14_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_14_MoveState": 0,
         "Wave_9_Enemy_14_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_14_Speed": 0.30000001192092896,
         "Wave_9_Enemy_14_Type": 1,
+        "Wave_9_Enemy_15_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_15_MoveState": 0,
         "Wave_9_Enemy_15_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_15_Speed": 0.30000001192092896,
         "Wave_9_Enemy_15_Type": 1,
+        "Wave_9_Enemy_16_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_16_MoveState": 0,
         "Wave_9_Enemy_16_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_16_Speed": 0.30000001192092896,
         "Wave_9_Enemy_16_Type": 1,
+        "Wave_9_Enemy_17_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_17_MoveState": 0,
         "Wave_9_Enemy_17_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_17_Speed": 0.30000001192092896,
         "Wave_9_Enemy_17_Type": 1,
+        "Wave_9_Enemy_18_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_18_MoveState": 0,
         "Wave_9_Enemy_18_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_18_Speed": 0.30000001192092896,
         "Wave_9_Enemy_18_Type": 1,
+        "Wave_9_Enemy_19_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_19_MoveState": 0,
         "Wave_9_Enemy_19_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_19_Speed": 0.30000001192092896,
         "Wave_9_Enemy_19_Type": 1,
+        "Wave_9_Enemy_1_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_1_MoveState": 0,
         "Wave_9_Enemy_1_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_1_Speed": 0.30000001192092896,
         "Wave_9_Enemy_1_Type": 1,
+        "Wave_9_Enemy_20_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_20_MoveState": 0,
         "Wave_9_Enemy_20_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_20_Speed": 0.30000001192092896,
         "Wave_9_Enemy_20_Type": 1,
+        "Wave_9_Enemy_21_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_21_MoveState": 0,
         "Wave_9_Enemy_21_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_21_Speed": 0.30000001192092896,
         "Wave_9_Enemy_21_Type": 1,
+        "Wave_9_Enemy_22_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_22_MoveState": 0,
         "Wave_9_Enemy_22_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_22_Speed": 0.30000001192092896,
         "Wave_9_Enemy_22_Type": 1,
+        "Wave_9_Enemy_23_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_23_MoveState": 0,
         "Wave_9_Enemy_23_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_23_Speed": 0.30000001192092896,
         "Wave_9_Enemy_23_Type": 1,
+        "Wave_9_Enemy_24_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_24_MoveState": 0,
         "Wave_9_Enemy_24_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_24_Speed": 0.30000001192092896,
         "Wave_9_Enemy_24_Type": 1,
+        "Wave_9_Enemy_25_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_25_MoveState": 0,
         "Wave_9_Enemy_25_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_25_Speed": 0.30000001192092896,
         "Wave_9_Enemy_25_Type": 1,
+        "Wave_9_Enemy_26_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_26_MoveState": 0,
         "Wave_9_Enemy_26_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_26_Speed": 0.30000001192092896,
         "Wave_9_Enemy_26_Type": 1,
+        "Wave_9_Enemy_27_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_27_MoveState": 0,
         "Wave_9_Enemy_27_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_27_Speed": 0.30000001192092896,
         "Wave_9_Enemy_27_Type": 1,
+        "Wave_9_Enemy_28_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_28_MoveState": 0,
         "Wave_9_Enemy_28_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_28_Speed": 0.30000001192092896,
         "Wave_9_Enemy_28_Type": 1,
+        "Wave_9_Enemy_29_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_29_MoveState": 0,
         "Wave_9_Enemy_29_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_29_Speed": 0.30000001192092896,
         "Wave_9_Enemy_29_Type": 1,
+        "Wave_9_Enemy_2_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_2_MoveState": 0,
         "Wave_9_Enemy_2_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_2_Speed": 0.30000001192092896,
         "Wave_9_Enemy_2_Type": 1,
+        "Wave_9_Enemy_3_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_3_MoveState": 0,
         "Wave_9_Enemy_3_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_3_Speed": 0.30000001192092896,
         "Wave_9_Enemy_3_Type": 1,
+        "Wave_9_Enemy_4_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_4_MoveState": 0,
         "Wave_9_Enemy_4_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_4_Speed": 0.30000001192092896,
         "Wave_9_Enemy_4_Type": 1,
+        "Wave_9_Enemy_5_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_5_MoveState": 0,
         "Wave_9_Enemy_5_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_5_Speed": 0.30000001192092896,
         "Wave_9_Enemy_5_Type": 1,
+        "Wave_9_Enemy_6_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_6_MoveState": 0,
         "Wave_9_Enemy_6_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_6_Speed": 0.30000001192092896,
         "Wave_9_Enemy_6_Type": 1,
+        "Wave_9_Enemy_7_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_7_MoveState": 0,
         "Wave_9_Enemy_7_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_7_Speed": 0.30000001192092896,
         "Wave_9_Enemy_7_Type": 1,
+        "Wave_9_Enemy_8_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_8_MoveState": 0,
         "Wave_9_Enemy_8_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_8_Speed": 0.30000001192092896,
         "Wave_9_Enemy_8_Type": 1,
+        "Wave_9_Enemy_9_Direction": [
+            0.0,
+            0.0,
+            -1.0
+        ],
+        "Wave_9_Enemy_9_MoveState": 0,
         "Wave_9_Enemy_9_Pos": [
             0.0,
             0.0,
             150.0
         ],
+        "Wave_9_Enemy_9_Speed": 0.30000001192092896,
         "Wave_9_Enemy_9_Type": 1
     }
 }

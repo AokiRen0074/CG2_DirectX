@@ -17,4 +17,6 @@ private:
 	// 種族で共有するマスターカラー
 	static Vector3 sTriangleColor;
 	static float sTriangleIntensity;
+
+
 };

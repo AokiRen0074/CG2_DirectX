@@ -118,6 +118,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	skydome_ = new Skydome();
 	skydome_->Initialize(skydomeModel_, skydomeTex_);
 
+
+
+	PlayerBullet::StaticInitialize();
+
 	/*-------------------------------
 	自キャラ生成と初期化
 	----------------------------------*/
@@ -184,11 +188,13 @@ void GameScene::Update() {
 
 	// ウェーブ間のインターバル中なら
 	if (waveManager_ && !waveManager_->IsWaveActive()) {
-		// 目標スピードを跳ね上げる 
 		targetWarpIntensity = 15.0f;
 	}
 
-	warpEffect_->Update(targetWarpIntensity);
+
+	Matrix4x4 warpParentMat = railCamera_ ? railCamera_->GetWorldMatrix() : MakeIdentity4x4();
+
+	warpEffect_->Update(targetWarpIntensity, warpParentMat);
 
 	/*-------------------------
 	レールカメラ
@@ -213,14 +219,6 @@ void GameScene::Update() {
 		groundModel_->GetTransform().translate = groundTransform_.translation_;
 		groundModel_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
 		groundModel_->Update();
-	}
-
-	/*-----------------------------
-	プレイヤー更新
-	--------------------------------*/
-	if (player_) {
-		Matrix4x4 parentMat = railCamera_ ? railCamera_->GetWorldMatrix() : MakeIdentity4x4();
-		player_->Update(parentMat);
 	}
 
 	
@@ -255,6 +253,14 @@ void GameScene::Update() {
 		}
 		return false;
 		});
+
+	/*-----------------------------
+プレイヤー更新
+--------------------------------*/
+	if (player_) {
+		Matrix4x4 parentMat = railCamera_ ? railCamera_->GetWorldMatrix() : MakeIdentity4x4();
+		player_->Update(parentMat);
+	}
 
 	//waveManagerの更新
 	waveManager_->Update(enemies_, player_, this);
@@ -445,6 +451,7 @@ void GameScene::Update() {
 		ImGui::TreePop();
 	}
 
+
 	// WaveManager
 	waveManager_->DrawImGui();
 
@@ -486,6 +493,11 @@ void GameScene::Draw() {
 		bullet->Draw(viewProjection_);
 	}
 
+	// ロックオンUI
+	if (player_) {
+		player_->DrawUI(viewProjection_);
+	}
+
 	// パーティクル
 	particleManager_->Draw(viewProjection_);
 
@@ -494,4 +506,5 @@ void GameScene::Draw() {
 
 	bloom_->Execute();
 	bloom_->DrawResult();
+
 }

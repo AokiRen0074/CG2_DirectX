@@ -15,7 +15,7 @@ public:
 	void Initialize(DirectXCommon* dxCommon);
 
 	// 引数 演出の強さ
-	void Update(float intensity);
+	void Update(float intensity, const Matrix4x4& parentMatrix);
 
 	void Draw(const ViewProjection& viewProjection);
 

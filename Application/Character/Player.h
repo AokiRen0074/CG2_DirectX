@@ -40,6 +40,9 @@ public:
 	// ImGui描画関数
 	void DrawImGui();
 
+	// ロックオンUI
+	void DrawUI(const ViewProjection& viewProjection);
+
 	void SetEnemies(const std::list<BaseEnemy*>* enemies) { enemies_ = enemies; }
 
 

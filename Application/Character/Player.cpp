@@ -44,7 +44,6 @@ void Player::Initialize() {
 	worldTransform_.Initialize();
 	transformRot_.Initialize();
 	transformStat_.Initialize();
-
 	// 動かないring
 	modelOuterRing_ = new BodyModel();
 	modelOuterRing_->Initialize("Resources/Player", "mech_PlayerRing.obj");
@@ -144,12 +143,23 @@ void Player::Attack() {
 
 		Vector3 spawnPos = GetWorldPosition();
 
-		// 弾を生成し初期イカ
-		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(bulletModel_, spawnPos, velocity, worldTransform_.rotation_);
 
-		// 弾を登録する
-		bullets_.push_back(newBullet);
+		PlayerBullet* newBullet = nullptr;
+		for (PlayerBullet* bullet : bullets_) {
+			if (bullet->IsDead()) {
+				newBullet = bullet;
+				break; 
+			}
+		}
+
+		if (newBullet == nullptr) {
+			newBullet = new PlayerBullet();
+			newBullet->Create();
+			bullets_.push_back(newBullet);
+		}
+
+		// 弾を初期化して発射！
+		newBullet->Initialize(bulletModel_, spawnPos, velocity, worldTransform_.rotation_);
 	}
 }
 
@@ -250,14 +260,6 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 		}
 	}
 
-// メモリの開放
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true; 
-		}
-		return false;
-		});
 
 
 
@@ -377,4 +379,10 @@ void Player::DrawImGui() {
 	ImGui::Text("--- Body Settings ---");
 	ImGui::ColorEdit3("Body Color", bodyColor_);
 #endif
+}
+
+void Player::DrawUI(const ViewProjection& viewProjection) {
+	for (PlayerBullet* bullet : bullets_) {
+		bullet->DrawUI(viewProjection);
+	}
 }

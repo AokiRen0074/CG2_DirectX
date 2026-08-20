@@ -93,12 +93,6 @@
     <ClCompile Include="EnemyBullet.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyStateApproach.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyStateLeave.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="BaseCharacter.cpp">
       <Filter>Application\Character</Filter>
     </ClCompile>
@@ -153,14 +147,26 @@
     <ClCompile Include="ParticleManager.cpp">
       <Filter>Engine\3D\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyStateHold.cpp">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateApproach.cpp">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateLeave.cpp">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClCompile>
     <ClCompile Include="WeakEnemyCross.cpp">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
     </ClCompile>
     <ClCompile Include="WeakEnemySpinCore.cpp">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
     </ClCompile>
     <ClCompile Include="WeakEnemyTriangle.cpp">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyStateStraight.cpp">
+      <Filter>Application\Character\Enemy\State</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -262,17 +268,8 @@
     <ClInclude Include="EnemyBullet.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyStateApproach.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyStateLeave.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="BaseCharacter.h">
       <Filter>Application\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseEnemyState.h">
-      <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
       <Filter>externals\imgui</Filter>
@@ -331,14 +328,29 @@
     <ClInclude Include="ParticleManager.h">
       <Filter>Engine\3D\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="EnemyStateHold.h">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseEnemyState.h">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateApproach.h">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateLeave.h">
+      <Filter>Application\Character\Enemy\State</Filter>
+    </ClInclude>
     <ClInclude Include="WeakEnemyCross.h">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
     </ClInclude>
     <ClInclude Include="WeakEnemySpinCore.h">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
     </ClInclude>
     <ClInclude Include="WeakEnemyTriangle.h">
-      <Filter>Application\Character\Enemy</Filter>
+      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyStateStraight.h">
+      <Filter>Application\Character\Enemy\State</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -459,6 +471,12 @@
     </Filter>
     <Filter Include="Engine\3D\Effect">
       <UniqueIdentifier>{1c069604-cf1b-44f7-a331-d4de8a5a15a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Enemy\State">
+      <UniqueIdentifier>{f33578ee-e0e0-4701-ad54-f78c11c0da81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Enemy\WeakEnemy">
+      <UniqueIdentifier>{903047c9-83c6-4615-a673-4a49ba30c179}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

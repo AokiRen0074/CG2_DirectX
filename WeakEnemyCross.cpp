@@ -1,6 +1,6 @@
 #include "WeakEnemyCross.h"
 #include "GlobalValiables.h"
-
+#include "EnemyStateHold.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -31,6 +31,8 @@ void WeakEnemyCross::Initialize(Player* player) {
 	// 親の初期化
 	BaseEnemy::Initialize(player);
 
+	ClearTimedCalls();
+
 	// モデルのセット
 	modelBase_ = sBodyModelCross;   // 暗いボディ
 	modelLines_ = sNeonModelCross;  // 光るネオン
@@ -42,6 +44,7 @@ void WeakEnemyCross::Initialize(Player* player) {
 	}
 
 	ApplyGlobalVariables();
+	ChangeState(new EnemyStateHold());
 }
 
 /*-------------------------

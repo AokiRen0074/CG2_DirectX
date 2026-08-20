@@ -96,6 +96,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnemyStateHold.cpp" />
+    <ClCompile Include="EnemyStateStraight.cpp" />
     <ClCompile Include="WeakEnemyTriangle.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp" />
@@ -203,7 +205,9 @@
     <ClInclude Include="BaseEnemy.h" />
     <ClInclude Include="EnemyBullet.h" />
     <ClInclude Include="EnemyStateApproach.h" />
+    <ClInclude Include="EnemyStateHold.h" />
     <ClInclude Include="EnemyStateLeave.h" />
+    <ClInclude Include="EnemyStateStraight.h" />
     <ClInclude Include="FlickerTimer.h" />
     <ClInclude Include="MathUtility.h" />
     <ClInclude Include="NeonModel.h" />

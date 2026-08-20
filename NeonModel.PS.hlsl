@@ -16,6 +16,9 @@ struct Material
 
 ConstantBuffer<Material> gMaterial : register(b0);
 
+Texture2D<float4> gTexture : register(t0);
+SamplerState gSampler : register(s0);
+
 struct VSOutput
 {
     float4 position : SV_POSITION;
@@ -26,24 +29,30 @@ struct VSOutput
 
 float4 main(VSOutput input) : SV_TARGET
 {
+    float4 texColor = gTexture.Sample(gSampler, input.texcoord);
+
+    // テクスチャの透明度(Alpha)がほぼゼロなら描画を破棄
+    if (texColor.a <= 0.1f)
+    {
+        discard;
+    }
+
     // ==========================================
-    // Playerネオンの計算
+    // Playerネオン / ロックオンUIの計算
     // ==========================================
     if (gMaterial.intensity <= 0.0f)
     {
-        float3 glowColor = gMaterial.color.rgb;
+        // 描いた絵の色(texColor)に、設定カラーを乗算
+        float3 glowColor = gMaterial.color.rgb * texColor.rgb;
         
         if (gMaterial.usePlasma > 0.5f)
         {
-            // UVのY座標と時間を使って、波を作る
             float plasma = sin(input.texcoord.y * 15.0f - gMaterial.time * 10.0f);
-            // 波
             plasma = (plasma * 0.5f + 0.5f) * 0.5f + 0.5f;
-            
-            glowColor *= plasma; // 光に波を掛け算
+            glowColor *= plasma;
         }
         
-        return float4(glowColor, gMaterial.color.a);
+        return float4(glowColor, gMaterial.color.a * texColor.a);
     }
 
     // ==========================================
@@ -78,7 +87,7 @@ float4 main(VSOutput input) : SV_TARGET
     }
 
     // 芯の純白（白飛び）
-    float3 coreColor = float3(1.0f, 1.0f, 1.0f) * (core * 2.0f);
+    float3 coreColor = float3(1.0f, 1.0f, 1.0f) * (core * 2.0f) * texColor.rgb;
     
     // 最終的な色
     float3 finalColor = glowColor + coreColor;

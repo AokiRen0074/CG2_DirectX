@@ -6,7 +6,6 @@
 #include "WorldTransform.h"
 #include "TextureManager.h"
 #include <list>
-#include "NeonModel.h"
 
 // 親クラス
 #include "BaseCharacter.h"
@@ -25,6 +24,7 @@ public:
 	// 更新処理
 	void Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation);
 
+	static void StaticInitialize();
 
 	// 更新処理
 	void Update(const std::list<BaseEnemy*>& enemies);
@@ -34,10 +34,13 @@ public:
 	// デスフラグのゲッター
 	bool IsDead() const { return isDead_; }
 
-
+	// ロックオンのUI
+	void DrawUI(const ViewProjection& viewProjection);
 
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
+
+	void Create();
 
 private:
 	
@@ -47,6 +50,8 @@ private:
 	-----------------------*/
 	Vector3 velocity_;
 	NeonModel* neonModel_ = nullptr;
+	static uint32_t sBulletTextureHandle_;
+
 
 	BaseEnemy* target_ = nullptr;
 
@@ -61,6 +66,15 @@ private:
 	bool isDead_ = false;
 
 
+	/*--------------------
+	UI表示
+	-----------------------*/
+	static uint32_t sLockOnTextureHandle_;
+	WorldTransform lockOnTransform_;
 
+	BaseEnemy* prevTarget_ = nullptr; // 前フレームのターゲット
+	int32_t lockOnAnimTimer_ = 0;     // 15フレームで完了するタイマー
+
+	static NeonModel* sLockOnModel_;
 
 };

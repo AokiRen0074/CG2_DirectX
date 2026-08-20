@@ -69,7 +69,7 @@ void WarpEffect::ResetLine(int index, bool isInitialSpawn) {
 	}
 }
 
-void WarpEffect::Update(float intensity) {
+void WarpEffect::Update(float intensity, const Matrix4x4& parentMatrix) {
 	currentIntensity_ += (intensity - currentIntensity_) * 0.015f;
 
 
@@ -87,11 +87,6 @@ void WarpEffect::Update(float intensity) {
 
 		line.transform.scale_.x = 0.08f * ratio;
 		line.transform.scale_.y = 0.08f * ratio;
-
-		// ==========================================
-		// 🌟 修正：長さ（Z）全体にも ratio を掛ける。
-		// これにより、消える瞬間は線が「短く」なりながらスッと消滅する！
-		// ==========================================
 		line.transform.scale_.z = ((line.baseLength * currentIntensity_) + 50.0f) * ratio;
 
 		line.transform.translation_.z = line.distanceZ;
@@ -99,8 +94,8 @@ void WarpEffect::Update(float intensity) {
 		if (line.distanceZ < -50.0f) {
 			ResetLine(i, false);
 		}
-
-		line.transform.matWorld_ = MakeAffineMatrix(line.transform.scale_, line.transform.rotation_, line.transform.translation_);
+		Matrix4x4 localMat = MakeAffineMatrix(line.transform.scale_, line.transform.rotation_, line.transform.translation_);
+		line.transform.matWorld_ = Multiply(localMat, parentMatrix);
 		line.transform.TransferMatrix();
 	}
 }

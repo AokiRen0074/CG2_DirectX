@@ -73,7 +73,7 @@ void RailEditor::Update(DebugCamera* dCamera, RailCamera* rCamera) {
         rCamera->SetT(t);
         *isPlay = false;
     }
-    ImGui::SliderFloat("Speed", rCamera->GetSpeedPtr(), 0.0001f, 0.01f, "%.4f");
+    ImGui::SliderFloat("Speed", rCamera->GetSpeedPtr(), 0.01f, 5.0f, "%.2f");
 
     ImGui::Separator();
     ImGui::Text("--- Points Control ---");

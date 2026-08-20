@@ -29,7 +29,7 @@ Sprite* Sprite::Create(uint32_t textureHandle, Vector2 position) {
     //  座標をセット
     sprite->SetPosition(position);
 
-    // 4. 完成品を返す
+    // 完成品を返す
     return sprite;
 }
 
@@ -66,6 +66,19 @@ void Sprite::Initialize(DirectXCommon* dxCommon, uint32_t textureHandle) {
     vertexData[3].position = { 640.0f, 0.0f, 0.0f, 1.0f };   // 右上
     vertexData[3].texcoord = { 1.0f, 0.0f };
     vertexData[3].normal = { 0.0f, 0.0f, -1.0f };           //　法線
+
+    // 四角
+    vertexData[0].position = { -0.5f,  0.5f, 0.0f, 1.0f }; // 左下
+    vertexData[0].texcoord = { 0.0f, 1.0f };
+
+    vertexData[1].position = { -0.5f, -0.5f, 0.0f, 1.0f }; // 左上
+    vertexData[1].texcoord = { 0.0f, 0.0f };
+
+    vertexData[2].position = { 0.5f,  0.5f, 0.0f, 1.0f }; // 右下
+    vertexData[2].texcoord = { 1.0f, 1.0f };
+
+    vertexData[3].position = { 0.5f, -0.5f, 0.0f, 1.0f }; // 右上
+    vertexData[3].texcoord = { 1.0f, 0.0f };
 
 
     /*-------------------------------
@@ -117,7 +130,7 @@ void Sprite::Initialize(DirectXCommon* dxCommon, uint32_t textureHandle) {
 void Sprite::Update() {
 
 
-
+    /*
 #ifdef USE_IMGUI
     ImGui::Begin("Settings");
 
@@ -140,6 +153,7 @@ void Sprite::Update() {
 
     ImGui::End();
 #endif
+*/
 
     //UVTransform行列の計算
     Matrix4x4 uvTransformMatrix = MakeScaleMatrix(uvTransformSprite_.scale);
@@ -225,4 +239,13 @@ void Sprite::SetPosition(const Vector2& position) {
     transform_.translate.x = position.x;
     transform_.translate.y = position.y;
     //  transform_.translate.z = 0.0f; 
+}
+
+void Sprite::SetScale(const Vector2& scale) {
+    transform_.scale.x = scale.x;
+    transform_.scale.y = scale.y;
+}
+
+void Sprite::SetRotation(float rotation) {
+    transform_.rotate.z = rotation;
 }

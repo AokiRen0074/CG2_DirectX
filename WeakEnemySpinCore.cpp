@@ -1,5 +1,6 @@
 #include "WeakEnemySpinCore.h"
 #include "GlobalValiables.h" 
+#include "EnemyStateHold.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -26,6 +27,7 @@ void WeakEnemySpinCore::Initialize(Player* player) {
 	// 親の初期化
 	BaseEnemy::Initialize(player);
 
+	ClearTimedCalls();
 
 	modelBase_ = nullptr;
 	modelLines_ = nullptr;
@@ -39,6 +41,8 @@ void WeakEnemySpinCore::Initialize(Player* player) {
 
 	// 色情報の読み込み
 	ApplyGlobalVariables();
+
+	ChangeState(new EnemyStateHold());
 }
 
 void WeakEnemySpinCore::ApplyGlobalVariables() {

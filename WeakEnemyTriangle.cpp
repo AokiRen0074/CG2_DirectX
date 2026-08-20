@@ -1,5 +1,6 @@
 #include "WeakEnemyTriangle.h"
 #include "GlobalValiables.h"
+#include "EnemyStateHold.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -21,6 +22,8 @@ void WeakEnemyTriangle::StaticInitialize() {
 void WeakEnemyTriangle::Initialize(Player* player) {
 	BaseEnemy::Initialize(player);
 
+	ClearTimedCalls();
+
 	modelBase_ = nullptr;
 	modelLines_ = nullptr;
 	modelRing_ = nullptr;
@@ -29,6 +32,8 @@ void WeakEnemyTriangle::Initialize(Player* player) {
 	}
 
 	ApplyGlobalVariables();
+
+	ChangeState(new EnemyStateHold());
 }
 
 void WeakEnemyTriangle::ApplyGlobalVariables() {
