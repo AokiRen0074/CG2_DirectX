@@ -267,7 +267,7 @@ void PlayerBullet::DrawUI(const ViewProjection& viewProjection) {
 	if (isDead_ || !target_ || !lockOnSprite_) return;
 
 	// 敵の3D座標を、画面の2D座標に変換する
-	Vector3 p = target_->GetWorldPosition();
+ 	Vector3 p = target_->GetWorldPosition();
 	Matrix4x4 matVP = Multiply(viewProjection.matView, viewProjection.matProjection);
 	float w = p.x * matVP.m[0][3] + p.y * matVP.m[1][3] + p.z * matVP.m[2][3] + matVP.m[3][3];
 

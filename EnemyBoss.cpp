@@ -568,7 +568,7 @@ void EnemyBoss::AttackLaser() {
 			float diff = targetAngle - transformLaser_.rotation_.y;
 			while (diff > 3.14159f) diff -= 3.14159f * 2.0f;
 			while (diff < -3.14159f) diff += 3.14159f * 2.0f;
-			transformLaser_.rotation_.y += diff * 0.1f; 
+			transformLaser_.rotation_.y += diff * 0.06f; 
 		}
 
 		// レーザーのスケール演出

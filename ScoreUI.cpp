@@ -83,17 +83,32 @@ void ScoreUI::Initialize(DirectXCommon* dxCommon, uint32_t whiteTex) {
 void ScoreUI::Update() {
 	if (currentDisplayScore_ < targetScore_) {
 		float diff = targetScore_ - currentDisplayScore_;
-		currentDisplayScore_ += (std::max)(1.0f, diff * 0.1f);
+
+		if (diff < 1.5f) {
+			currentDisplayScore_ = (float)targetScore_;
+		}
+		else {
+			currentDisplayScore_ += (std::max)(1.0f, diff * 0.1f);
+		}
+
 		if (currentDisplayScore_ > targetScore_) currentDisplayScore_ = (float)targetScore_;
 
+	
 		if (scoreVoice_ == nullptr) {
-			scoreVoice_ = Audio::GetInstance()->SoundPlayWave(scoreSound_, true);
+			scoreVoice_ = Audio::GetInstance()->SoundPlayWave(scoreSound_);
+			soundDelayTimer_ = 60; // 音がしっかり鳴り切るまでの猶予フレーム
 		}
 	}
 	else {
-		if (scoreVoice_) {
-			Audio::GetInstance()->SoundStopWave(scoreVoice_);
-			scoreVoice_ = nullptr;
+		// カウントアップが終わっても、余韻タイマーが残っている間は自然に鳴らし続ける
+		if (soundDelayTimer_ > 0) {
+			soundDelayTimer_--;
+		}
+		else {
+			if (scoreVoice_) {
+				Audio::GetInstance()->SoundStopWave(scoreVoice_);
+				scoreVoice_ = nullptr;
+			}
 		}
 	}
 

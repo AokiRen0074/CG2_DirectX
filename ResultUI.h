@@ -5,14 +5,23 @@
 #include <string>
 #include "NeonText.h"
 
+
+
 struct ResultUIState {
 	bool isActive = false;
 	bool isFinished = false;
 	float timer = 0.0f;
+
+	bool isExiting = false;       // 退出アニメーション中か？
+	bool isExitFinished = false;  // 退出アニメーションが完了したか？
+	float exitTimer = 0.0f;       // 退出用タイマー
 };
 
 class ResultUI {
 public:
+
+
+
 	void Initialize(const std::string& directoryPath, DirectXCommon* dxCommon);
 	void Start(int score, float clearTime);
 	void Update(float deltaTime);
@@ -23,6 +32,10 @@ public:
 	bool IsFinished() const { return state_.isFinished; }
 	void Stop() { state_.isActive = false; }
 
+	void StartExit() { state_.isExiting = true; }
+	bool IsExiting() const { return state_.isExiting; }
+	bool IsExitFinished() const { return state_.isExitFinished; }
+
 private:
 	void RebuildText();
 
@@ -32,7 +45,6 @@ private:
 	NeonModel* mainTextModel_ = nullptr;
 	NeonModel* promptModel_ = nullptr;
 
-	// 🌟 おしゃれな枠（WarningUIからの流用）
 	NeonModel* frameModel_ = nullptr;
 	WorldTransform transformFrameTop_;
 	WorldTransform transformFrameBottom_;
@@ -49,12 +61,14 @@ private:
 	WorldTransform transformPrompt_;
 	float promptBlink_ = 0.0f;
 
+	float currentTextFade_ = 0.0f;
+
 	ViewProjection uiViewProjection_;
 
 	// ==========================================
-	// 🌟 ImGui / JSON パラメータ
+	//  ImGui / JSON パラメータ
 	// ==========================================
-	float mainTextRotY_ = 0.0f; // 🌟 これで裏返しを一発で直せます！
+	float mainTextRotY_ = 0.0f;
 	float mainTextColor_[3] = { 0.0f, 1.0f, 1.0f };
 	float mainTextIntensity_ = 5.0f;
 	float mainTextOffsetY_ = 5.0f;
@@ -67,7 +81,7 @@ private:
 	float scoreTextScale_ = 1.0f;
 	float timeTextOffsetY_ = -3.0f;
 
-	float textRadius_ = 0.01f;   // 🌟 四角く潰れないように初期値を「極細」に設定！
+	float textRadius_ = 0.01f;  
 	float textSoftness_ = 5.0f;
 	float textLengthOffset_ = 0.0f;
 
@@ -81,5 +95,5 @@ private:
 	float frameOffsetY_ = 9.0f;
 
 	float uiBaseZ_ = 0.0f;
-	float animMainInTime_ = 1.0f; // 🌟 不足していたアニメーション時間変数
+	float animMainInTime_ = 1.0f; 
 };

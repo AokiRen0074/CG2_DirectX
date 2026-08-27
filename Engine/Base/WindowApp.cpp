@@ -72,7 +72,7 @@ void WindowApp::Initialize() {
     SetUnhandledExceptionFilter(ExportDump);
 
     wc_.lpfnWndProc = WindowProc;
-    wc_.lpszClassName = L"CG2";
+    wc_.lpszClassName = L"光速サイバーランナー";
     wc_.hInstance = GetModuleHandle(nullptr);
     wc_.hCursor = LoadCursor(nullptr, IDC_ARROW);
     RegisterClass(&wc_);
@@ -81,7 +81,7 @@ void WindowApp::Initialize() {
     AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
     hwnd_ = CreateWindow(
-        wc_.lpszClassName, L"CG2", WS_OVERLAPPEDWINDOW,
+        wc_.lpszClassName, L"光速サイバーランナー", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         wrc.right - wrc.left, wrc.bottom - wrc.top,
         nullptr, nullptr, wc_.hInstance, nullptr

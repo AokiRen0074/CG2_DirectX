@@ -207,6 +207,9 @@
     <ClCompile Include="TutorialUI.cpp">
       <Filter>Engine\UI</Filter>
     </ClCompile>
+    <ClCompile Include="BossUI.cpp">
+      <Filter>Engine\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -428,6 +431,9 @@
       <Filter>Engine\UI</Filter>
     </ClInclude>
     <ClInclude Include="TutorialUI.h">
+      <Filter>Engine\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="BossUI..h">
       <Filter>Engine\UI</Filter>
     </ClInclude>
   </ItemGroup>

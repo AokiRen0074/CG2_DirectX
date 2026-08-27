@@ -29,6 +29,7 @@
 #include "WaveUI.h"
 #include "RebootUI.h"
 #include "TutorialUI.h"
+#include "BossUI..h"
 
 
 
@@ -54,6 +55,16 @@ public:
 		Playing,      // いつものゲームプレイ
 		ClearWarp,    // ボス撃破後の離脱ワープ演出
 		Rebooting
+	};
+
+	struct AmbientParticle {
+		Vector3 position;
+		Vector3 rotation;
+		float scale;
+		Vector3 rotSpeed;
+		float zSpeed;
+		Vector3 color;
+		float intensity;
 	};
 
 	void Initialize(DirectXCommon* dxCommon);
@@ -195,6 +206,7 @@ private:
 	WaveUI* waveUI_ = nullptr;
 	RebootUI* rebootUI_ = nullptr;
 	TutorialUI* tutorialUI_ = nullptr;
+	BossUI* bossUI_ = nullptr;
 	bool wasPlayerDead_ = false;
 	float playTime_ = 0.0f;
 	int totalScore_ = 0;
@@ -211,5 +223,8 @@ private:
 	IXAudio2SourceVoice* bgmVoice_ = nullptr;
 	IXAudio2SourceVoice* warpVoice_ = nullptr;
 
-
+	// パーティクル
+	static const int kMaxAmbientParticles = 60; // 空間を埋めるために多めに
+	AmbientParticle ambientParticles_[kMaxAmbientParticles];
+	WorldTransform ambientTransforms_[kMaxAmbientParticles];
 };

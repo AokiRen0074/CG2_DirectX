@@ -96,6 +96,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BossUI.cpp" />
     <ClCompile Include="CameraShake.cpp" />
     <ClCompile Include="EnemyBoss.cpp" />
     <ClCompile Include="EnemyLaserBeam.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="BaseEnemyState.h" />
     <ClInclude Include="Bloom.h" />
     <ClInclude Include="BodyModel.h" />
+    <ClInclude Include="BossUI..h" />
     <ClInclude Include="CameraShake.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionConfig.h" />

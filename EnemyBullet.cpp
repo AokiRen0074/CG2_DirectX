@@ -67,7 +67,7 @@ void EnemyBullet::Update() {
 	// ホーミング
 	if (player_) {
 		const float kBulletSpeed = 1.0f; // 敵弾の速さ
-		const float kHomingInterpolation = 0.05f; // 1フレームでの補間割合 
+		const float kHomingInterpolation = 0.01f; // 1フレームでの補間割合 
 		// 敵弾から自キャラへのベクトルを計算
 		Vector3 toPlayer;
 		Vector3 playerPos = player_->GetWorldPosition();

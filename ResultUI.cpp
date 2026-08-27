@@ -16,7 +16,6 @@ void ResultUI::Initialize(const std::string& directoryPath, DirectXCommon* dxCom
 	promptModel_ = new NeonModel();
 	promptModel_->Initialize(directoryPath, "UI_PushSpace.obj");
 
-	// 🌟 おしゃれなフレームをロード！
 	frameModel_ = new NeonModel();
 	frameModel_->Initialize(directoryPath, "UI_Warning_Frame.obj");
 
@@ -111,6 +110,10 @@ void ResultUI::Start(int score, float clearTime) {
 	state_.isActive = true;
 	state_.isFinished = false;
 	state_.timer = 0.0f;
+	state_.isExiting = false;
+	state_.isExitFinished = false;
+	state_.exitTimer = 0.0f;
+	currentTextFade_ = 0.0f;
 	finalScore_ = score;
 	finalTime_ = clearTime;
 
@@ -128,7 +131,7 @@ void ResultUI::RebuildText() {
 
 	std::string scoreStr = "SCORE: " + std::to_string(finalScore_);
 	char timeStr[64];
-	snprintf(timeStr, sizeof(timeStr), "TIME: %.1f SEC", finalTime_);
+	snprintf(timeStr, sizeof(timeStr), "TIME: %d SEC", static_cast<int>(finalTime_));
 
 	float baseY = 2.0f;
 	neonScore_->Print(scoreStr, scoreTextOffsetX_, baseY + scoreTextOffsetY_, scoreTextScale_);
@@ -138,29 +141,74 @@ void ResultUI::RebuildText() {
 void ResultUI::Update(float deltaTime) {
 	if (!state_.isActive) return;
 
-	state_.timer += deltaTime;
-	if (state_.timer >= 2.0f) state_.isFinished = true;
-
-	float currentTime = state_.timer;
 	float baseY = 2.0f;
 	float baseZ = uiBaseZ_;
+	float currentScaleMain = 1.0f;
+	float slideOffset = 0.0f;
+	float promptScaleCurrent = promptScale_;
 
-	// 1. メインテキスト
-	float mainT = currentTime / animMainInTime_;
-	if (mainT > 1.0f) mainT = 1.0f;
-	float easeMain = 1.0f - std::pow(1.0f - mainT, 3.0f);
-	transformMain_.scale_ = { easeMain * mainTextScale_, easeMain * mainTextScale_, easeMain * mainTextScale_ };
-	transformMain_.rotation_.y = mainTextRotY_; // 🌟 スライダーの回転角を適用！
+	if (!state_.isExiting) {
+		state_.timer += deltaTime;
+		if (state_.timer >= 2.0f) state_.isFinished = true;
+
+		float currentTime = state_.timer;
+
+		// メインテキスト
+		float mainT = currentTime / animMainInTime_;
+		if (mainT > 1.0f) mainT = 1.0f;
+		currentScaleMain = 1.0f - std::pow(1.0f - mainT, 3.0f);
+
+		// フレーム
+		if (currentTime < 1.0f) {
+			float t = currentTime / 1.0f;
+			slideOffset = 18.0f * std::pow(1.0f - t, 3.0f);
+		}
+
+		// プロンプト
+		float promptT = (currentTime - 1.5f);
+		if (promptT < 0.0f) {
+			promptScaleCurrent = 0.0f;
+			promptBlink_ = 0.0f;
+		}
+		else {
+			promptBlink_ = (std::sin(promptT * 4.0f) * 0.5f + 0.5f);
+		}
+
+		// スコア文字のフェード
+		if (state_.timer >= 1.0f) {
+			currentTextFade_ = (state_.timer - 1.0f) / 0.5f;
+			if (currentTextFade_ > 1.0f) currentTextFade_ = 1.0f;
+		}
+		else {
+			currentTextFade_ = 0.0f;
+		}
+	}
+	else {
+		state_.exitTimer += deltaTime;
+		float exitTimeMax = 0.6f;
+		float t = state_.exitTimer / exitTimeMax;
+		if (t > 1.0f) {
+			t = 1.0f;
+			state_.isExitFinished = true; // 完全に退出完了
+		}
+
+		float easeExit = t * t * t; // 徐々に加速して消える
+
+		currentScaleMain = 1.0f - easeExit;          // 縮んで消える
+		slideOffset = easeExit * 30.0f;              // フレームが上下に開いて画面外へ
+		promptScaleCurrent = promptScale_ * (1.0f - easeExit); 
+		currentTextFade_ = 1.0f - easeExit;          // 文字はフェードアウト
+	}
+
+	// ==========================================
+	// 適用処理
+	// ==========================================
+	transformMain_.scale_ = { currentScaleMain * mainTextScale_, currentScaleMain * mainTextScale_, currentScaleMain * mainTextScale_ };
+	transformMain_.rotation_.y = mainTextRotY_;
 	transformMain_.translation_ = { 0.0f, baseY + mainTextOffsetY_, baseZ };
 	transformMain_.matWorld_ = MakeAffineMatrix(transformMain_.scale_, transformMain_.rotation_, transformMain_.translation_);
 	transformMain_.TransferMatrix();
 
-	// 2. おしゃれフレーム（上下からスライドイン）
-	float slideOffset = 0.0f;
-	if (currentTime < 1.0f) {
-		float t = currentTime / 1.0f;
-		slideOffset = 18.0f * std::pow(1.0f - t, 3.0f);
-	}
 	float topY = frameOffsetY_ + slideOffset;
 	float bottomY = -frameOffsetY_ - slideOffset;
 
@@ -177,27 +225,14 @@ void ResultUI::Update(float deltaTime) {
 	transformFrameBottom_.matWorld_ = MakeAffineMatrix(transformFrameBottom_.scale_, transformFrameBottom_.rotation_, transformFrameBottom_.translation_);
 	transformFrameBottom_.TransferMatrix();
 
-	// 3. プロンプト
-	float promptT = (currentTime - 1.5f);
 	transformPrompt_.rotation_.y = mainTextRotY_;
-	if (promptT < 0.0f) {
-		transformPrompt_.scale_ = { 0.0f, 0.0f, 0.0f };
-		promptBlink_ = 0.0f;
-	}
-	else {
-		transformPrompt_.scale_ = { promptScale_, promptScale_, promptScale_ };
-		transformPrompt_.translation_ = { 0.0f, baseY + promptOffsetY_, baseZ };
-		promptBlink_ = (std::sin(promptT * 4.0f) * 0.5f + 0.5f);
-	}
+	transformPrompt_.scale_ = { promptScaleCurrent, promptScaleCurrent, promptScaleCurrent };
+	transformPrompt_.translation_ = { 0.0f, baseY + promptOffsetY_, baseZ };
 	transformPrompt_.matWorld_ = MakeAffineMatrix(transformPrompt_.scale_, transformPrompt_.rotation_, transformPrompt_.translation_);
 	transformPrompt_.TransferMatrix();
 
-	// NeonTextのマテリアル更新
-	if (state_.timer >= 1.0f && neonScore_ && neonTime_) {
-		float fade = (state_.timer - 1.0f) / 0.5f;
-		if (fade > 1.0f) fade = 1.0f;
-		float currentIntensity = scoreTextIntensity_ * fade;
-
+	if (currentTextFade_ > 0.0f && neonScore_ && neonTime_) {
+		float currentIntensity = scoreTextIntensity_ * currentTextFade_;
 		neonScore_->SetMaterial(textRadius_, textSoftness_, currentIntensity, scoreTextColor_[0], scoreTextColor_[1], scoreTextColor_[2], textLengthOffset_);
 		neonScore_->Update(uiViewProjection_.matView, uiViewProjection_.matProjection);
 
@@ -209,32 +244,31 @@ void ResultUI::Update(float deltaTime) {
 void ResultUI::Draw(const ViewProjection& viewProjection) {
 	if (!state_.isActive) return;
 
-	// 🌟 修正：引数をすべて4つに統一（コンパイルエラー解消）
 	if (state_.timer >= 0.0f) {
 		frameModel_->SetNeonColor(frameIntensity_, frameColor_[0], frameColor_[1], frameColor_[2]);
 		frameModel_->Draw(transformFrameTop_, uiViewProjection_, whiteTex_);
 		frameModel_->Draw(transformFrameBottom_, uiViewProjection_, whiteTex_);
 	}
 
-	if (transformMain_.scale_.x > 0.0f) {
+	if (transformMain_.scale_.x > 0.001f) {
 		mainTextModel_->SetNeonColor(mainTextIntensity_, mainTextColor_[0], mainTextColor_[1], mainTextColor_[2]);
 		mainTextModel_->Draw(transformMain_, uiViewProjection_, whiteTex_);
 	}
 
-	if (transformPrompt_.scale_.x > 0.0f) {
-		float currentIntensity = promptIntensity_ * promptBlink_;
+	if (transformPrompt_.scale_.x > 0.001f) {
+		float currentIntensity = promptIntensity_ * (state_.isExiting ? 1.0f : promptBlink_); // 退出時は点滅を止める
 		promptModel_->SetNeonColor(currentIntensity, promptColor_[0], promptColor_[1], promptColor_[2]);
 		promptModel_->Draw(transformPrompt_, uiViewProjection_, whiteTex_);
 	}
 
-	if (state_.timer >= 1.0f && neonScore_ && neonTime_) {
+	if (currentTextFade_ > 0.001f && neonScore_ && neonTime_) {
 		neonScore_->Draw();
 		neonTime_->Draw();
 	}
 }
 
 // ==========================================
-// 🌟 ImGui描画処理
+//  ImGui描画処理
 // ==========================================
 void ResultUI::DrawImGui() {
 #ifdef USE_IMGUI

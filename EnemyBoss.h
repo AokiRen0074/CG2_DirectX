@@ -36,6 +36,11 @@ public:
 	bool IsDying() const { return currentState_ == BossState::Dying; }
 	float GetAnimeTime() const { return animeTime_; }
 
+	// ボスのHPバーUIに渡すゲッター
+	int GetCurrentHp() const { return currentHp_; }
+	int GetMaxHp() const { return maxHp_; }
+	bool IsBattleStarted() const { return currentState_ != BossState::Intro; }
+
 	
 
 private:

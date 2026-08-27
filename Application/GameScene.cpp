@@ -150,6 +150,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	railCamera_ = new RailCamera();
 	railCamera_->Initialize(rail_);
 
+	viewProjection_ = railCamera_->GetViewProjection();
+
 	// editor 
 	railEditor_ = new RailEditor();
 	railEditor_->Initialize(rail_);
@@ -188,6 +190,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	// タイトル
 	titleUI_ = new TitleUI();
 	titleUI_->Initialize(dxCommon);
+
+	// ボスHP
+	bossUI_ = new BossUI();
+	bossUI_->Initialize();
 
 	// スコア
 	uint32_t whiteTex = TextureManager::Load("Resources/white.png");
@@ -236,6 +242,41 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	warpLaserL_.Initialize();
 	warpLaserR_.Initialize();
 	warpStarTf_.Initialize();
+
+
+	for (int i = 0; i < kMaxAmbientParticles; ++i) {
+		ambientTransforms_[i].Initialize();
+
+		float spawnX = (std::rand() % 200 - 100) * 1.0f;
+		float spawnY = (std::rand() % 120 - 60) * 1.0f;
+
+		if (spawnX > -40.0f && spawnX < 40.0f) spawnX = (spawnX > 0) ? spawnX + 40.0f : spawnX - 40.0f;
+		if (spawnY > -30.0f && spawnY < 30.0f) spawnY = (spawnY > 0) ? spawnY + 30.0f : spawnY - 30.0f;
+
+		ambientParticles_[i].position = { spawnX, spawnY, (std::rand() % 250) * 1.0f };
+
+		ambientParticles_[i].rotation = {
+			(std::rand() % 360) * 3.14159f / 180.0f,
+			(std::rand() % 360) * 3.14159f / 180.0f,
+			(std::rand() % 360) * 3.14159f / 180.0f
+		};
+
+		ambientParticles_[i].scale = (std::rand() % 5 + 2) * 0.05f;
+
+		ambientParticles_[i].rotSpeed = {
+			(std::rand() % 100 - 50) * 0.0005f,
+			(std::rand() % 100 - 50) * 0.0005f,
+			(std::rand() % 100 - 50) * 0.0005f
+		};
+		ambientParticles_[i].zSpeed = (std::rand() % 10 + 2) * 0.05f;
+
+		int colorType = std::rand() % 3;
+		if (colorType == 0) ambientParticles_[i].color = { 1.0f, 0.2f, 0.8f }; // ピンク
+		else if (colorType == 1) ambientParticles_[i].color = { 0.0f, 0.8f, 1.0f }; // シアン
+		else ambientParticles_[i].color = { 0.6f, 0.2f, 1.0f }; // 紫
+
+		ambientParticles_[i].intensity = (std::rand() % 30 + 20) * 0.1f;
+	}
 
 
 	/*-------------------------
@@ -376,6 +417,9 @@ void GameScene::Update() {
 		if (tutorialUI_) {
 			tutorialUI_->Update(currentWave, isInterval);
 		}
+
+
+
 	}
 
 	if (rebootUI_ && rebootUI_->IsActive() && sceneState_ == SceneState::Playing) {
@@ -531,6 +575,7 @@ void GameScene::Update() {
 
 			currentWarpIntensity = 15.0f + (zoomEase * 300.0f);
 
+
 			if (t >= 2.0f) {
 				if (player_) {
 					player_->GetWorldTransform().translation_ = { 0.0f, -2.0f, 15.0f }; // インゲームの定位置に戻す
@@ -629,7 +674,7 @@ void GameScene::Update() {
 			// ボスの斜めカメラから真正面へ滑らかに移行
 			if (t < 1.0f) {
 				float ease = t / 1.0f;
-				float smooth = ease * ease * (3.0f - 2.0f * ease); 
+				float smooth = ease * ease * (3.0f - 2.0f * ease);
 
 				if (player_) {
 					// 自機も滑らかに中央（X=0, Y=0, Z=0）へ戻す
@@ -732,9 +777,8 @@ void GameScene::Update() {
 				viewProjection_.translation_ = { 0.0f, 2.0f, 185.0f };
 				currentWarpIntensity = 350.0f + (ease * 400.0f);
 			}
-			else if (t < 6.5f) {
-				float ease = (t - 5.0f) / 1.5f;
-
+			else {
+				// 自機やレーザーを画面外へ退避
 				if (player_) {
 					player_->GetWorldTransform().translation_.z = 9999.0f;
 					player_->Update(MakeIdentity4x4());
@@ -742,17 +786,6 @@ void GameScene::Update() {
 				warpLaserL_.translation_.z = 9999.0f; warpLaserL_.TransferMatrix();
 				warpLaserR_.translation_.z = 9999.0f; warpLaserR_.TransferMatrix();
 
-				currentWarpIntensity = 0.0f; // 強度を0にする
-
-				// ✢がパッと現れて小さく消えていく
-				float starScale = 30.0f * std::pow(1.0f - ease, 3.0f) + 2.0f;
-				warpStarTf_.scale_ = { starScale, starScale, starScale };
-				warpStarTf_.rotation_ = { 0.0f, 0.0f, ease * 3.14159f };
-				warpStarTf_.translation_ = { 0.0f, 2.0f, 185.0f + 150.0f };
-				warpStarTf_.matWorld_ = MakeAffineMatrix(warpStarTf_.scale_, warpStarTf_.rotation_, warpStarTf_.translation_);
-				warpStarTf_.TransferMatrix();
-			}
-			else {
 				warpStarTf_.translation_.z = 9999.0f; warpStarTf_.TransferMatrix();
 				currentWarpIntensity = 0.0f;
 
@@ -765,8 +798,15 @@ void GameScene::Update() {
 					resultUI_->Start(totalScore_, playTime_);
 				}
 
-				// スペースキーを押したらタイトルへ
+				// 前回実装した退出アニメーションの処理はそのまま残す
 				if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+					if (!resultUI_->IsExiting()) {
+						resultUI_->StartExit();
+					}
+				}
+
+				// 退出アニメーションが完全に終わった瞬間、シーンをタイトルに切り替える
+				if (resultUI_->IsExitFinished()) {
 					resultUI_->Stop();
 
 					if (titleUI_) titleUI_->Reset();
@@ -777,10 +817,10 @@ void GameScene::Update() {
 
 					if (waveManager_) waveManager_->Initialize();
 
-					// UIの表示を初期値に戻す
 					if (scoreUI_) scoreUI_->SetScore(0);
-					if (lifeUI_) lifeUI_->SetLife(5); 
-
+					if (lifeUI_) lifeUI_->SetLife(5);
+					if (rail_) rail_->Initialize();
+					if (railCamera_) railCamera_->Initialize(rail_);
 					if (player_) player_->SetDead(false);
 					for (BaseEnemy* enemy : enemies_) delete enemy;
 					enemies_.clear();
@@ -794,7 +834,7 @@ void GameScene::Update() {
 						bgmVoice_ = Audio::GetInstance()->SoundPlayWave(bgmSound_, true);
 					}
 				}
-				}
+			}
 		}
 else if (sceneState_ == SceneState::Rebooting) {
 	if (rebootUI_) {
@@ -823,6 +863,11 @@ else if (sceneState_ == SceneState::Rebooting) {
 			sceneState_ = SceneState::StartWarp;
 			sceneTimer_ = 0.0f;
 			warpCamStartPos_ = viewProjection_.translation_;
+
+			if (bgmVoice_) {
+				Audio::GetInstance()->SoundStopWave(bgmVoice_);
+				bgmVoice_ = nullptr;
+			}
 
 			warpVoice_ = Audio::GetInstance()->SoundPlayWave(warpSound_);
 		}
@@ -918,6 +963,9 @@ else if (sceneState_ == SceneState::Rebooting) {
 			particleManager_->Emit(enemy->GetTranslation(), 60, { 1.0f, 0.0f, 0.8f });
 			totalScore_ += 100;
 			if (scoreUI_) scoreUI_->AddScore(100);
+			if (cameraShake_) {
+				cameraShake_->Start(1.5f, 10);
+			}
 			delete enemy;
 			return true;
 		}
@@ -1175,7 +1223,39 @@ else if (sceneState_ == SceneState::Rebooting) {
 
 	collisionManager_->CheckAllCollisions();
 
+	if (sceneState_ != SceneState::Title) {
+		float camZ = viewProjection_.translation_.z;
+		for (int i = 0; i < kMaxAmbientParticles; ++i) {
+			ambientParticles_[i].position.z -= ambientParticles_[i].zSpeed;
+			ambientParticles_[i].rotation.x += ambientParticles_[i].rotSpeed.x;
+			ambientParticles_[i].rotation.y += ambientParticles_[i].rotSpeed.y;
+			ambientParticles_[i].rotation.z += ambientParticles_[i].rotSpeed.z;
 
+			if (ambientParticles_[i].position.z < camZ + 40.0f) {
+				float spawnX = (std::rand() % 200 - 100) * 1.0f;
+				float spawnY = (std::rand() % 120 - 60) * 1.0f;
+
+				// 再配置時も真ん中を避ける
+				if (spawnX > -40.0f && spawnX < 40.0f) spawnX = (spawnX > 0) ? spawnX + 40.0f : spawnX - 40.0f;
+				if (spawnY > -30.0f && spawnY < 30.0f) spawnY = (spawnY > 0) ? spawnY + 30.0f : spawnY - 30.0f;
+
+				ambientParticles_[i].position.x = spawnX;
+				ambientParticles_[i].position.y = spawnY;
+				ambientParticles_[i].position.z = camZ + 200.0f + (std::rand() % 50);
+			}
+
+			ambientTransforms_[i].scale_ = { ambientParticles_[i].scale, ambientParticles_[i].scale, ambientParticles_[i].scale };
+			ambientTransforms_[i].rotation_ = ambientParticles_[i].rotation;
+			ambientTransforms_[i].translation_ = ambientParticles_[i].position;
+
+			ambientTransforms_[i].matWorld_ = MakeAffineMatrix(
+				ambientTransforms_[i].scale_,
+				ambientTransforms_[i].rotation_,
+				ambientTransforms_[i].translation_
+			);
+			ambientTransforms_[i].TransferMatrix();
+		}
+	}
 }
 
 void GameScene::Draw() {
@@ -1185,9 +1265,12 @@ void GameScene::Draw() {
 	bool isBlackout = (sceneState_ == SceneState::ClearWarp && sceneTimer_ >= 5.0f);
 		skydome_->Draw(viewProjection_);
 	if (!isBlackout) {
+
+		/*
 		if (sceneState_ != SceneState::Title && sceneState_ != SceneState::StartWarp && sceneState_ != SceneState::ClearWarp) {
 			AxisIndicator::GetInstance()->Draw();
 		}
+		*/
 
 		if (groundModel_) {
 			groundModel_->Draw(groundTransform_, viewProjection_, groundTex_);
@@ -1199,6 +1282,19 @@ void GameScene::Draw() {
 	//  ネオン
 	// ==========================================
 	bloom_->PreDraw();
+	if (warpStarModel_ && sceneState_ != SceneState::Title && sceneState_ != SceneState::StartWarp) {
+		uint32_t whiteTex = TextureManager::Load("Resources/white.png");
+		for (int i = 0; i < kMaxAmbientParticles; ++i) {
+			warpStarModel_->SetNeonColor(
+				ambientParticles_[i].intensity,
+				ambientParticles_[i].color.x,
+				ambientParticles_[i].color.y,
+				ambientParticles_[i].color.z
+			);
+			warpStarModel_->Draw(ambientTransforms_[i], viewProjection_, whiteTex);
+		}
+	}
+
 	if (!isBlackout) {
 		warpEffect_->Draw(viewProjection_);
 	}
@@ -1225,17 +1321,7 @@ void GameScene::Draw() {
 				warpLaserModel_->Draw(warpLaserR_, viewProjection_, whiteTex);
 			}
 		}
-		// フラッシュ
-		else if (sceneTimer_ >= 5.0f && sceneTimer_ < 6.5f) {
-			if (warpStarModel_) {
 		
-				float flashT = (sceneTimer_ - 5.0f) / 1.5f;
-				float intensity = 200.0f * std::pow(1.0f - flashT, 5.0f) + 10.0f;
-
-				warpStarModel_->SetNeonColor(intensity, 0.9f, 0.7f, 1.0f);
-				warpStarModel_->Draw(warpStarTf_, viewProjection_, whiteTex);
-			}
-		}
 	}
 
 	enemies_.sort([](BaseEnemy* a, BaseEnemy* b) {
@@ -1324,7 +1410,7 @@ void GameScene::Draw() {
 	}
 
 	// リザルト画面のUI
-	if (sceneState_ == SceneState::ClearWarp && sceneTimer_ >= 6.5f) {
+	if (sceneState_ == SceneState::ClearWarp && sceneTimer_ >= 5.0f) {
 		if (resultUI_ && resultUI_->IsActive()) {
 			resultUI_->Draw(viewProjection_);
 		}

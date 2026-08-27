@@ -143,14 +143,6 @@ void Player::Rotate() {
 // 回転の速さ
 	const float kRotaSpeed = 0.02f;
 
-	// 押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_A)) {
-		worldTransform_.rotation_.y -= kRotaSpeed;
-	}
-	else if (input_->PushKey(DIK_D)) {
-		worldTransform_.rotation_.y += kRotaSpeed;
-	}
-
 }
 
 /*------------------------

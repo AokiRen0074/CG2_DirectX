@@ -71,4 +71,5 @@ private:
 	// 音
 	SoundData scoreSound_;
 	IXAudio2SourceVoice* scoreVoice_ = nullptr;
+	int soundDelayTimer_ = 0;
 };

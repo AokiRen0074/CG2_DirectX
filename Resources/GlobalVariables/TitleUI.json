@@ -6,20 +6,23 @@
             0.11094292253255844
         ],
         "PromptIntensity": 3.0,
-        "PromptOffsetX": -8.925999641418457,
+        "PromptOffsetX": -13.885000228881836,
         "PromptOffsetY": -8.760000228881836,
         "PromptScale": 0.7070000171661377,
-        "TextLengthOffset": 0.36399999260902405,
-        "TextRadius": 0.02800000086426735,
-        "TextSoftness": 12.059000015258789,
+        "TextLengthOffset": 0.4129999876022339,
+        "TextRadius": 0.05900000035762787,
+        "TextSoftness": 32.67900085449219,
         "TitleColor": [
+            0.0588231086730957,
             0.0,
-            1.0,
             1.0
         ],
-        "TitleIntensity": 2.4800000190734863,
-        "TitleOffsetX": -15.70199966430664,
+        "TitleIntensity": 30.0,
+        "TitleOffsetX": -1.652999997138977,
         "TitleOffsetY": 9.420999526977539,
-        "TitleScale": 1.6549999713897705
+        "TitleOffsetZ": 0.0,
+        "TitleRotX": -0.0,
+        "TitleRotY": -3.140000104904175,
+        "TitleScale": 2.9639999866485596
     }
 }
