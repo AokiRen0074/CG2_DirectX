@@ -20,6 +20,8 @@ static NeonModel* sModelRing = nullptr;
 static NeonModel* sBulletModel = nullptr;
 
 
+static SoundData sHitSound = {};
+
 
 // デストラクタ
 BaseEnemy::~BaseEnemy() {
@@ -53,6 +55,10 @@ void BaseEnemy::StaticInitialize() {
 		sBulletModel = new NeonModel();
 		sBulletModel->Initialize("Resources/Bullet", "EnemyBuillet.obj");
 	}
+
+
+	// 音
+	sHitSound = Audio::GetInstance()->SoundLoadWave("Sounds/hit.wav");
 }
 
 void BaseEnemy::Initialize(Player* player) {
@@ -171,6 +177,11 @@ void BaseEnemy::Fire() {
 衝突時コールバック
 -----------------------------------*/
 void BaseEnemy::OnCollision() {
+
+	if (!isDead_) {
+		Audio::GetInstance()->SoundPlayWave(sHitSound);
+	}
+
 	isDead_ = true;
 }
 

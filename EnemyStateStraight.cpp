@@ -12,9 +12,19 @@ void EnemyStateStraight::Update() {
 
 	enemy_->Move({ dir.x * speed, dir.y * speed, dir.z * speed });
 
-	//  画面の奥まで通り過ぎたら消滅させる
-	if (pos.z - playerPos.z < -20.0f) {
-	
-		enemy_->IsDead();
+	// プレイヤーとの距離の差分を計算
+	float diffX = pos.x - playerPos.x;
+	float diffY = pos.y - playerPos.y;
+	float diffZ = pos.z - playerPos.z;
+
+
+	if (diffZ < -20.0f || 
+		diffX < -80.0f || diffX > 80.0f || // X軸：左右の画面外に消えた
+		diffY < -40.0f || diffY > 40.0f) {  // Y軸：上下の画面外に消えた
+
+		// 完全に画面外に出たので、強制的に消去！
+		enemy_->Kill();
 	}
+
+
 }

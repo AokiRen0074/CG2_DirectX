@@ -1,8 +1,9 @@
 #include "ParticleManager.h"
 #include <random>
 
-void ParticleManager::Initialize(NeonModel* model, uint32_t textureHandle) {
+void ParticleManager::Initialize(NeonModel* model, NeonModel* starModel, uint32_t textureHandle) {
 	particleModel_ = model;
+	starModel_ = starModel; 
 	textureHandle_ = textureHandle;
 }
 
@@ -28,6 +29,19 @@ void ParticleManager::Draw(const ViewProjection& viewProjection) {
 	}
 }
 
+void ParticleManager::EmitStar(const Vector3& position, int count, const Vector3& color) {
+	for (int i = 0; i < count; ++i) {
+		float theta = (float)(rand() % 628) / 100.0f;
+		Vector3 dir = { std::cos(theta), std::sin(theta), 0.0f };
+		float speed = 2.0f + (float)(rand() % 50) / 10.0f; // 爆発的な初速
+		float thickness = 0.05f + (float)(rand() % 30) / 1000.0f;
+
+		NeonParticle* newParticle = new NeonParticle();
+		newParticle->Initialize(starModel_, position, dir, speed, thickness, color);
+		particles_.push_back(newParticle);
+	}
+}
+
 void ParticleManager::Emit(const Vector3& position, int count, const Vector3& color) {
 
 	// 四方八方に飛び散る火花
@@ -37,15 +51,15 @@ void ParticleManager::Emit(const Vector3& position, int count, const Vector3& co
 		Vector3 dir;
 		dir.x = std::cos(theta);
 		dir.y = std::sin(theta);
-		dir.z = 0.0f; // 🌟 完全に画面(XY平面)と平行に広がるようにする
+		dir.z = 0.0f; 
 
 		// 初期スピード（ドカン！という勢い）
 		float speed = 1.0f + (float)(rand() % 40) / 10.0f; // 1.0 〜 5.0のランダム
 
-		// 🌟 限界まで細くする！（0.02f〜0.04f）これでもう四角いブロックには見えません
+
 		float thickness = 0.02f + (float)(rand() % 20) / 1000.0f;
 
-		// 🌟 色は引数を無視して、Wavecade特有の「シアン」か「ピンク」の2択に強制上書き！
+
 		Vector3 particleColor;
 		if (rand() % 2 == 0) {
 			particleColor = { 0.0f, 0.8f, 1.0f }; // シアン

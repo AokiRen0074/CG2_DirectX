@@ -274,5 +274,40 @@ void NeonText::CreateLetter(char c, float baseX, float baseY, float scale) {
 		hb();
 		addBar(0.0f, 0.0f, 2.5f, -0.64f);
 		break; // 斜め線(Z)
+
+
+	case '0':
+		vl(); vr(); ht(); hb();
+		addBar(0.0f, 0.0f, 2.5f, 0.64f); 
+		break;
+	case '1':
+		vr();
+		break;
+	case '2':
+		ht(); vtr(); hm(); vbl(); hb();
+		break;
+	case '3':
+		ht(); vtr(); hm(); vbr(); hb();
+		break;
+	case '4':
+		vtl(); hm(); vr();
+		break;
+	case '5':
+		ht(); vtl(); hm(); vbr(); hb();
+		break;
+	case '6':
+		ht(); vtl(); hm(); vbl(); vbr(); hb();
+		break;
+	case '7':
+		ht(); vtl(); vtr(); vbr(); // 7の形
+		break;
+	case '8':
+		ht(); hm(); hb(); vl(); vr();
+		break;
+	case '9':
+		ht(); hm(); hb(); vtl(); vtr(); vbr();
+		break;
+
 	}
+
 }

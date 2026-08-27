@@ -3,32 +3,8 @@
 #include "CollisionConfig.h"
 #include "BaseEnemy.h"
 
-NeonModel* PlayerBullet::sLockOnModel_ = nullptr;
-uint32_t PlayerBullet::sLockOnTextureHandle_ = 0;
-uint32_t PlayerBullet::sBulletTextureHandle_ = 0;
 
 
-void PlayerBullet::StaticInitialize() {
-	// 板モデルの事前ロード
-	if (sLockOnModel_ == nullptr) {
-		sLockOnModel_ = new NeonModel();
-		sLockOnModel_->Initialize("Resources", "UI_Plane.obj");
-	}
-	// ロックオン画像の事前ロード
-	sLockOnTextureHandle_ = TextureManager::Load("Resources/lockon.png");
-
-	// 弾
-	sBulletTextureHandle_ = TextureManager::Load("Resources/ring.png");
-}
-
-
-void PlayerBullet::Create() {
-	worldTransform_.Initialize();
-	for (int i = 0; i < kMaxTrail; ++i) {
-		trailTransforms_[i].Initialize();
-	}
-	lockOnTransform_.Initialize();
-}
 
 // 初期化
 void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation) {
@@ -36,7 +12,17 @@ void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const V
 	assert(model);
 	neonModel_ = model;
 	velocity_ = velocity;
-	textureHandle_ = sBulletTextureHandle_;
+
+	static uint32_t sSharedTextureHandle = TextureManager::Load("Resources/ring.png");
+	textureHandle_ = sSharedTextureHandle;
+
+	if (!isTransformInitialized_) {
+		worldTransform_.Initialize();
+		for (int i = 0; i < kMaxTrail; ++i) {
+			trailTransforms_[i].Initialize();
+		}
+		isTransformInitialized_ = true;
+	}
 
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
@@ -56,6 +42,13 @@ void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const V
 
 	isDead_ = false;
 	deathTimer_ = 60;
+
+
+	if (lockOnSprite_ == nullptr) {
+		uint32_t lockOnTex = TextureManager::Load("Resources/lockon.png");
+		lockOnSprite_ = Sprite::Create(lockOnTex, { 0, 0 });
+	}
+
 }
 
 /*----------------------------------
@@ -93,6 +86,8 @@ void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 
 		for (BaseEnemy* enemy : enemies) {
 			if (enemy->IsDead()) continue;
+
+			if (enemy->IsObstacle()) continue;
 
 			Vector3 toEnemy = enemy->GetWorldPosition() - GetWorldPosition();
 			float dist = std::sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y + toEnemy.z * toEnemy.z);
@@ -250,53 +245,34 @@ Vector3 PlayerBullet::GetWorldPosition() {
 }
 
 void PlayerBullet::DrawUI(const ViewProjection& viewProjection) {
-	if (isDead_) return;
-	if (!target_ || !sLockOnModel_) return;
+	if (isDead_ || !target_ || !lockOnSprite_) return;
 
-	float ratio = (float)lockOnAnimTimer_ / 15.0f;
-	float easeRatio = ratio * ratio;
+	// 敵の3D座標を、画面の2D座標に変換する
+	Vector3 p = target_->GetWorldPosition();
+	Matrix4x4 matVP = Multiply(viewProjection.matView, viewProjection.matProjection);
+	float w = p.x * matVP.m[0][3] + p.y * matVP.m[1][3] + p.z * matVP.m[2][3] + matVP.m[3][3];
 
-	float baseScale = 3.0f;
-	float scale = baseScale + (baseScale * 2.0f * easeRatio);
-	float rotationZ = 3.141592f * 2.0f * easeRatio;
+	if (w > 0.1f) {
+		float nx = (p.x * matVP.m[0][0] + p.y * matVP.m[1][0] + p.z * matVP.m[2][0] + matVP.m[3][0]) / w;
+		float ny = (p.x * matVP.m[0][1] + p.y * matVP.m[1][1] + p.z * matVP.m[2][1] + matVP.m[3][1]) / w;
 
-	Vector3 enemyPos = target_->GetWorldPosition();
-	Vector3 camPos = viewProjection.translation_;
+		float screenX = (nx + 1.0f) * 0.5f * 1280.0f;
+		float screenY = (1.0f - ny) * 0.5f * 720.0f;
 
-	// カメラへ向かうベクトル
-	Vector3 toCam = { camPos.x - enemyPos.x, camPos.y - enemyPos.y, camPos.z - enemyPos.z };
-	float len = std::sqrt(toCam.x * toCam.x + toCam.y * toCam.y + toCam.z * toCam.z);
-	if (len > 0.0f) {
-		toCam.x /= len; toCam.y /= len; toCam.z /= len;
+		// アニメーション計算
+		float ratio = (float)lockOnAnimTimer_ / 15.0f;
+		float easeRatio = ratio * ratio;
+
+		float baseScale = 0.5f; 
+		float scale = baseScale + (baseScale * 2.0f * easeRatio);
+		float rotation = 3.141592f * 2.0f * easeRatio;
+
+		// Spriteに直接セットして描画！
+		lockOnSprite_->SetPosition({ screenX, screenY });
+		lockOnSprite_->GetTransform().scale = { 128.0f * scale, 128.0f * scale, 1.0f };
+		lockOnSprite_->GetTransform().rotate.z = rotation;
+
+		lockOnSprite_->Update();
+		lockOnSprite_->Draw();
 	}
-
-	// 敵の体内に埋もれないよう、カメラの手前に引き出す
-	lockOnTransform_.translation_ = {
-		enemyPos.x + toCam.x * 5.0f,
-		enemyPos.y + toCam.y * 5.0f,
-		enemyPos.z + toCam.z * 5.0f
-	};
-
-
-	// Y軸回転 (yaw): XとZから計算
-	lockOnTransform_.rotation_.y = std::atan2(toCam.x, toCam.z);
-
-	// X軸回転 (pitch): YとXZ距離から計算
-	float xzLen = std::sqrt(toCam.x * toCam.x + toCam.z * toCam.z);
-	lockOnTransform_.rotation_.x = std::atan2(-toCam.y, xzLen);
-
-	// Z軸回転 (roll): グルグル回るアニメーション
-	lockOnTransform_.rotation_.z = rotationZ;
-
-	// もしこれでUIが裏面を向いて透明になってしまう場合は、以下のコメントを外して反転させてください。
-	// lockOnTransform_.rotation_.y += 3.141592f;
-
-	lockOnTransform_.scale_ = { scale, scale, 1.0f };
-
-	lockOnTransform_.matWorld_ = MakeAffineMatrix(lockOnTransform_.scale_, lockOnTransform_.rotation_, lockOnTransform_.translation_);
-	lockOnTransform_.TransferMatrix();
-
-	// バチバチに発光させる
-	sLockOnModel_->SetNeonColor(-1.0f, 0.0f, 15.0f, 20.0f);
-	sLockOnModel_->Draw(lockOnTransform_, viewProjection, sLockOnTextureHandle_);
 }

@@ -26,16 +26,11 @@ public:
 	struct Material {
 		Vector4 color;
 		int32_t enableLighting;
-		float padding[3];
 		Matrix4x4 uvTransform;
-
-		Vector3 cameraPos;
 		float intensity;
-		float radius;
 
 		float time;
 		float usePlasma;
-		float padding2;
 	};
 
 	struct DirectionalLight {

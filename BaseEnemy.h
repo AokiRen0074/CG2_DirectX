@@ -8,6 +8,7 @@
 #include "Collider.h"
 #include "BodyModel.h"
 #include "NeonModel.h"
+#include "Audio/Audio.h"
 
 class BaseEnemyState;
 class Player;
@@ -43,6 +44,9 @@ public:
 
 	// 死活判定用のゲッター
 	bool IsDead() const { return isDead_; }
+
+	// 殺す命令
+	void Kill() { isDead_ = true; }
 
 	void SetPosition(const Vector3& pos) {
 		worldTransform_.translation_ = pos;
@@ -97,6 +101,21 @@ public:
 
 	void SetSpawnIndex(int index) { spawnIndex_ = index; }
 	int GetSpawnIndex() const { return spawnIndex_; }
+
+	// 自分が障害物かどうかを返す
+	bool IsObstacle() const { return isObstacle_; }
+
+	// スケールと回転を設定する関数
+	void SetScale(const Vector3& scale) {
+		worldTransform_.scale_ = scale;
+		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.TransferMatrix();
+	}
+	void SetRotation(const Vector3& rot) {
+		worldTransform_.rotation_ = rot;
+		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.TransferMatrix();
+	}
 
 protected:
 
@@ -172,4 +191,9 @@ protected:
 	// スピード
 	float moveSpeed_ = 0.3f;
 
+	// 障害物
+	bool isObstacle_ = false;
+
 };
+
+

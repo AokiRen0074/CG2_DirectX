@@ -1,0 +1,25 @@
+{
+    "TitleUI": {
+        "PromptColor": [
+            0.3970588445663452,
+            0.11094292253255844,
+            0.11094292253255844
+        ],
+        "PromptIntensity": 3.0,
+        "PromptOffsetX": -8.925999641418457,
+        "PromptOffsetY": -8.760000228881836,
+        "PromptScale": 0.7070000171661377,
+        "TextLengthOffset": 0.36399999260902405,
+        "TextRadius": 0.02800000086426735,
+        "TextSoftness": 12.059000015258789,
+        "TitleColor": [
+            0.0,
+            1.0,
+            1.0
+        ],
+        "TitleIntensity": 2.4800000190734863,
+        "TitleOffsetX": -15.70199966430664,
+        "TitleOffsetY": 9.420999526977539,
+        "TitleScale": 1.6549999713897705
+    }
+}

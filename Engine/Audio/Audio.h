@@ -53,7 +53,12 @@ public:
 	void SoundUnload(SoundData* soundData);
 
 	// 音声の再生関数
-	void SoundPlayWave(const SoundData& soundData);	
+	IXAudio2SourceVoice* SoundPlayWave(const SoundData& soundData, bool loop = false);
+
+
+
+	// 鳴っている音を途中で止める関数
+	void SoundStopWave(IXAudio2SourceVoice* pVoice);
 
 	void Finalize();
 

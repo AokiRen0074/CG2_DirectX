@@ -23,7 +23,9 @@ public:
 	// 自キャラのポインタを受け取る関数
 	void SetPlayer(Player* player) { player_ = player; }
 
-
+	void SetStandby(bool standby) { isStandby_ = standby; }
+	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
+	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; }
 
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
@@ -45,9 +47,11 @@ private:
 	// デスフラグ
 	bool isDead_ = false;
 
-
-	Player* player_;
+	Player* player_ = nullptr;
 
 	float colorTimer_ = 0.0f;
+
+
+	bool isStandby_ = false;
 
 };

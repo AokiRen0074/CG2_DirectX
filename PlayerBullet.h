@@ -6,6 +6,7 @@
 #include "WorldTransform.h"
 #include "TextureManager.h"
 #include <list>
+#include "Sprite.h"
 
 // 親クラス
 #include "BaseCharacter.h"
@@ -24,7 +25,6 @@ public:
 	// 更新処理
 	void Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation);
 
-	static void StaticInitialize();
 
 	// 更新処理
 	void Update(const std::list<BaseEnemy*>& enemies);
@@ -37,10 +37,12 @@ public:
 	// ロックオンのUI
 	void DrawUI(const ViewProjection& viewProjection);
 
+	BaseEnemy* GetTarget() const { return target_; }
+
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
 
-	void Create();
+
 
 private:
 	
@@ -50,7 +52,6 @@ private:
 	-----------------------*/
 	Vector3 velocity_;
 	NeonModel* neonModel_ = nullptr;
-	static uint32_t sBulletTextureHandle_;
 
 
 	BaseEnemy* target_ = nullptr;
@@ -71,10 +72,11 @@ private:
 	-----------------------*/
 	static uint32_t sLockOnTextureHandle_;
 	WorldTransform lockOnTransform_;
+	Sprite* lockOnSprite_ = nullptr;
+	bool isTransformInitialized_ = false;
 
 	BaseEnemy* prevTarget_ = nullptr; // 前フレームのターゲット
 	int32_t lockOnAnimTimer_ = 0;     // 15フレームで完了するタイマー
 
-	static NeonModel* sLockOnModel_;
 
 };

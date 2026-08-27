@@ -2,6 +2,7 @@
 #include "Vector3.h"
 #include <list>
 #include <string>
+#include <EnemyBullet.h>
 
 class BaseEnemy;
 class Player;
@@ -15,6 +16,9 @@ struct EnemySpawnData {
 	int moveState;     
 	Vector3 direction; 
 	float speed;     
+
+	Vector3 scale = { 15.0f, 1.0f, 1.0f };
+	Vector3 rotation = { 0.0f, 0.0f, 0.0f };
 };
 
 // 1ウェーブ分のデータ
@@ -38,6 +42,10 @@ public:
 	void SaveData();
 	void LoadData();
 	bool IsWaveActive() const { return isWaveActive_; }
+	int GetCurrentWave() const { return currentWave_ + 1; }
+
+	// ウェーブをやり直す関数
+	void RestartCurrentWave(std::list<BaseEnemy*>& enemies, std::list<EnemyBullet*>& enemyBullets);
 
 private:
 	void StartWave(int wave);
@@ -61,4 +69,6 @@ private:
 	int enemiesSpawned_ = 0;
 	bool isWaveActive_ = false;
 	int waveIntervalTimer_ = 120;
+
+
 };

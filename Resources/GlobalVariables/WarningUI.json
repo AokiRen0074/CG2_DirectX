@@ -1,0 +1,32 @@
+{
+    "WarningUI": {
+        "FrameColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929
+        ],
+        "FrameFlashColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "FrameFlashIntensity": 32.619998931884766,
+        "FrameIntensity": 2.0,
+        "FrameOffsetY": 5.065999984741211,
+        "FrameScaleX": 1.378999948501587,
+        "FrameScaleY": 0.9860000014305115,
+        "IconOffsetX": 12.052000045776367,
+        "IconOffsetY": 0.17499999701976776,
+        "IconScale": 2.0280001163482666,
+        "TextBaseIntensity": 4.453999996185303,
+        "TextColor": [
+            0.970588207244873,
+            0.0,
+            0.0
+        ],
+        "TextFlashIntensity": 12.008999824523926,
+        "TextOffsetX": -7.422999858856201,
+        "TextOffsetY": -0.5239999890327454,
+        "TextScale": 1.4040000438690186
+    }
+}

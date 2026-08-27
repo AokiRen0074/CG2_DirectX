@@ -138,8 +138,14 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 
 	// 全ての色要素を書き込む
 
-	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].BlendEnable = TRUE; // ブレンドを有効化！
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;       // 背景に光を足し算する！
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -306,8 +312,7 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 		std::memcpy(vertexData, mesh.vertices.data(), sizeof(VertexData) * meshRes.vertexCount);
 
 		// マテリアルバッファの作成
-		uint32_t materialSize = sizeof(Material);
-		materialSize = (materialSize + 255) & ~255;
+		uint32_t materialSize = 256;
 		meshRes.materialResource = CreateBufferResource(device, materialSize);
 		meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
 
@@ -496,8 +501,7 @@ void NeonModel::SetNeonColor(float intensity, float r, float g, float b) {
 
 		
 			meshRes.materialData->intensity = -1.0f;
-			meshRes.materialData->radius = 0.0f;
-			meshRes.materialData->cameraPos = { 0.0f, 0.0f, 0.0f };
+
 		}
 	}
 }
@@ -507,8 +511,7 @@ void NeonModel::SetNeonMaterial(const Vector3& cameraPos, float intensity, float
 		if (meshRes.materialData != nullptr) {
 			meshRes.materialData->color = { color.x, color.y, color.z, 1.0f };
 			meshRes.materialData->intensity = intensity;
-			meshRes.materialData->radius = radius;
-			meshRes.materialData->cameraPos = cameraPos;
+
 		}
 	}
 }

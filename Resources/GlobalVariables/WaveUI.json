@@ -1,0 +1,22 @@
+{
+    "WaveUI": {
+        "BottomRightScale": 2.055000066757202,
+        "BottomRightX": 10.836999893188477,
+        "BottomRightY": -7.289999961853027,
+        "CenterScale": 4.830999851226807,
+        "CenterX": -1.1820000410079956,
+        "CenterY": 6.109000205993652,
+        "Color": [
+            0.0,
+            0.029123442247509956,
+            0.4950980544090271
+        ],
+        "Intensity": 20.0,
+        "RotY": 3.141590118408203,
+        "ShakeAmount": 1.3550000190734863,
+        "TextSpacing": 0.4860000014305115,
+        "WaveTextOffsetX": 0.2460000067949295,
+        "WaveTextOffsetY": -1.3300000429153442,
+        "WaveTextScaleRatio": 0.8859999775886536
+    }
+}

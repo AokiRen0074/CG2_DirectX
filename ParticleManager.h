@@ -4,7 +4,8 @@
 
 class ParticleManager {
 public:
-	void Initialize(NeonModel* model, uint32_t textureHandle);
+	void Initialize(NeonModel* model, NeonModel* starModel, uint32_t textureHandle);
+	void EmitStar(const Vector3& position, int count, const Vector3& color);
 	void Update();
 	void Draw(const ViewProjection& viewProjection);
 
@@ -15,4 +16,5 @@ private:
 	std::list<NeonParticle*> particles_;
 	NeonModel* particleModel_ = nullptr;
 	uint32_t textureHandle_ = 0;
+	NeonModel* starModel_ = nullptr;
 };

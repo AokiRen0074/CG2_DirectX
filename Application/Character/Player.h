@@ -8,8 +8,20 @@
 #include "Collider.h"
 #include "NeonModel.h"
 #include "BodyModel.h"
+#include "CameraShake.h"
+#include "Audio/Audio.h"
 
 class BaseEnemy;
+
+// 飛び散るピクセルデータ
+struct PixelParticle {
+	Vector3 position;
+	Vector3 velocity;
+	Vector3 rotation;
+	Vector3 rotSpeed;
+	Vector3 localOffset;
+	bool isActive;
+};
 
 class Player: public Collider {
 public:
@@ -45,11 +57,15 @@ public:
 
 	void SetEnemies(const std::list<BaseEnemy*>* enemies) { enemies_ = enemies; }
 
+	bool IsDead() const { return isDead_; }
+
+	void SetDead(bool isDead) { isDead_ = isDead; }
 
 	void OnCollision() override;
 	Vector3 GetWorldPosition() override;
 
-
+	// カメラシェイク
+	void SetCameraShake(CameraShake* cameraShake) { cameraShake_ = cameraShake; }
 
 	/*----------------------------
 	めちゃ便利
@@ -68,6 +84,8 @@ public:
 	const Vector3& GetTranslation() const { return worldTransform_.translation_; }
 
 	const Vector3& GetRotation() const { return worldTransform_.rotation_; }
+
+	WorldTransform& GetWorldTransform() { return worldTransform_; }
 
 	/*------------------
 	デストラクタ
@@ -132,4 +150,28 @@ private:
 
 	NeonModel* bulletModel_ = nullptr;
 
+	/*---------------------
+	死亡演出
+	--------------------*/
+	bool isDead_ = false;
+	int deathTimer_ = 0;
+
+	static const int kMaxPixels = 150;
+	PixelParticle pixels_[kMaxPixels];
+	WorldTransform pixelTransforms_[kMaxPixels];
+
+	NeonModel* pixelModel_ = nullptr;
+	uint32_t whiteTexture_ = 0u;
+
+
+
+	/*--------------------------
+	シェイクカメラ
+------------------------------------*/
+	CameraShake* cameraShake_ = nullptr;
+
+	/*-----------------------------------------
+	音
+	-------------------------------*/
+	SoundData shotSound_;
 };

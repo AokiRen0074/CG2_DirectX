@@ -55,6 +55,15 @@ void EnemyBullet::OnCollision() {
 
 void EnemyBullet::Update() {
 
+
+	if (isStandby_) {
+		colorTimer_ += 0.05f;
+		// 行列の更新だけして終わる
+		worldTransform_.matWorld_ = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.TransferMatrix();
+		return;
+	}
+
 	// ホーミング
 	if (player_) {
 		const float kBulletSpeed = 1.0f; // 敵弾の速さ

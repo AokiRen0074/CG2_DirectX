@@ -51,14 +51,14 @@ SoundData Audio::SoundLoadWave(const char* filename) {
 
 	// Dataチャンクの読み込み
 	ChunkHeader data;
-	file.read((char*)&data, sizeof(data));
-	
-	if (strncmp(data.id, "JUNK", 4) == 0) {
-		file.seekg(data.size, std::ios_base::cur); // 読み飛ばす
-		file.read((char*)&data, sizeof(data));     // 次のチャンクを読む
+	while (true) {
+		file.read((char*)&data, sizeof(data));
+		if (strncmp(data.id, "data", 4) == 0) {
+			break;
+		}
+
+		file.seekg(data.size, std::ios_base::cur);
 	}
-	// 本当にdataチャンクかチェック
-	if (strncmp(data.id, "data", 4) != 0) { assert(0); }
 
 	// Dataチャンクのデータ読み込み
 	char* pBuffer = new char[data.size];
@@ -79,7 +79,7 @@ SoundData Audio::SoundLoadWave(const char* filename) {
 音声の再生
 ------------------------------------*/
 
-void Audio::SoundPlayWave(const SoundData& soundData) {
+IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop) {
 	HRESULT result;
 
 	// 波形フォーマットを元にSourceVoiceの生成
@@ -93,12 +93,18 @@ void Audio::SoundPlayWave(const SoundData& soundData) {
 	buf.AudioBytes = soundData.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 
+	if (loop) {
+		buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+	}
+
 	// 波形データのキューへの送信と再生開始
 	result = pSourceVoice->SubmitSourceBuffer(&buf);
 	assert(SUCCEEDED(result));
 
 	result = pSourceVoice->Start();
 	assert(SUCCEEDED(result)); 
+
+	return pSourceVoice;
 }
 
 /*--------------------------------
@@ -122,4 +128,11 @@ void Audio::Finalize() {
 	}
 
 	xAudio2_.Reset();
+}
+
+void Audio::SoundStopWave(IXAudio2SourceVoice* pVoice) {
+	if (pVoice) {
+		pVoice->Stop();
+		pVoice->DestroyVoice();
+	}
 }

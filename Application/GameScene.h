@@ -20,7 +20,17 @@
 #include "RailEditor.h"
 #include "WarpEffect.h"
 #include "ParticleManager.h"
+#include "CameraShake.h"
 #include <list>
+#include "ResultUI.h"
+#include "TitleUI.h"
+#include "ScoreUI.h"
+#include "LifeUI.h"
+#include "WaveUI.h"
+#include "RebootUI.h"
+#include "TutorialUI.h"
+
+
 
 class Skydome;
 
@@ -37,11 +47,22 @@ class WaveManager;
 class GameScene {
 public:
 
+	// ゲーム遷移
+	enum class SceneState {
+		Title,        // タイトル画面
+		StartWarp,    // ゲーム開始時のワープイン演出
+		Playing,      // いつものゲームプレイ
+		ClearWarp,    // ボス撃破後の離脱ワープ演出
+		Rebooting
+	};
+
 	void Initialize(DirectXCommon* dxCommon);
 	void Update();
 	void Draw();
 
 	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	ParticleManager* GetParticleManager() const { return particleManager_; }
 
 	// 衝突マネージャーのポインタ
 	CollisionManager* collisionManager_ = nullptr;
@@ -49,6 +70,19 @@ public:
 	~GameScene();
 
 private:
+
+	/*----------------------
+	シーン
+	-------------------*/
+	SceneState sceneState_ = SceneState::Title;
+	float sceneTimer_ = 0.0f;
+	Vector3 warpCamStartPos_;
+	Vector3 warpCamStartRot_;
+	NeonModel* warpLaserModel_ = nullptr;
+	NeonModel* warpStarModel_ = nullptr;
+	WorldTransform warpLaserL_;
+	WorldTransform warpLaserR_;
+	WorldTransform warpStarTf_;
 
 	/*--------------------
 	自キャラ
@@ -97,8 +131,7 @@ private:
 	NeonText* neonText_ = nullptr;
 	DirectXCommon* dxCommon_ = nullptr;
 	Bloom* bloom_ = nullptr;
-	NeonText* neonText_Open_ = nullptr;   // 文字用
-	NeonText* neonText_Border_ = nullptr;
+
 
 	NeonObj* myNeonBar_ = nullptr;
 	ProceduralNeon* procNeon_ = nullptr;
@@ -152,4 +185,29 @@ private:
 	------------------------------*/
 	ParticleManager* particleManager_ = nullptr;
 	NeonModel* particleModel_ = nullptr;
+
+	// カメラⓌシェイク
+	CameraShake* cameraShake_ = nullptr;
+	TitleUI* titleUI_ = nullptr;
+	ResultUI* resultUI_ = nullptr;
+	ScoreUI* scoreUI_ = nullptr;
+	LifeUI* lifeUI_ = nullptr;
+	WaveUI* waveUI_ = nullptr;
+	RebootUI* rebootUI_ = nullptr;
+	TutorialUI* tutorialUI_ = nullptr;
+	bool wasPlayerDead_ = false;
+	float playTime_ = 0.0f;
+	int totalScore_ = 0;
+	int scoreAtWaveStart_ = 0;
+	bool wasWaveActive_ = false;
+
+	float deathTimer_ = 0.0f;
+
+	/*------------------
+	音
+	--------------------*/
+	SoundData bgmSound_;
+	SoundData warpSound_;
+	IXAudio2SourceVoice* bgmVoice_ = nullptr;
+	IXAudio2SourceVoice* warpVoice_ = nullptr;
 };

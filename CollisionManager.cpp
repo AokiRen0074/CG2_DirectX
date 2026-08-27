@@ -40,10 +40,9 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 	Vector3 posA = colliderA->GetWorldPosition();
 	Vector3 posB = colliderB->GetWorldPosition();
 
-	float dx = posB.x - posA.x;
-	float dy = posB.y - posA.y;
-	float dz = posB.z - posA.z;
-	float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
+	float distA = colliderA->GetDistanceTo(posB);
+	float distB = colliderB->GetDistanceTo(posA);
+	float dist = (distA < distB) ? distA : distB;
 
 	// 当たり判定
 	if (dist <= colliderA->GetRadius() + colliderB->GetRadius()) {

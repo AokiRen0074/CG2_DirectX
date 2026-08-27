@@ -322,11 +322,6 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 
 	ModelData modelData = LoadObjectFile(directoryPath, filename);
 
-	// SRVの割り当て用インデックス
-	static uint32_t srvIndex = 10;
-	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
-	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
-
 
 	// ==========================================
 	//  メッシュの数だけバッファを作るループ
@@ -368,26 +363,14 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		);
 
 		// このパーツ専用のテクスチャを読み込んでSRVを作成
-		if (!matData.textureFilePath.empty()) {
-			DirectX::ScratchImage mipImages = TextureManager::LoadTexture(matData.textureFilePath);
-			const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-			meshRes.textureResource = TextureManager::CreateTextureResource(device, metadata);
-
-			Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = TextureManager::UploadTextureData(meshRes.textureResource.Get(), mipImages, device, dxCommon_->GetCommandList());
-			dxCommon_->FlushCommandList(); // コマンドを実行して転送を待つ
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-			srvDesc.Format = metadata.format;
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-			// SRVを空いている場所に作る
-			D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			meshRes.textureHandleGPU = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			device->CreateShaderResourceView(meshRes.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-
-			srvIndex++; // 次のテクスチャが来たら被らないように+1する
+		if (!matData.textureFilePath.empty() && matData.textureFilePath.find(".") != std::string::npos) {
+			// TextureManager に安全な場所へロードしてもらい、そのハンドルをもらう
+			uint32_t handle = TextureManager::Load(matData.textureFilePath);
+			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(handle);
+		}
+		else {
+			// 画像がない場合はダミー（0番）を入れてクラッシュを防ぐ
+			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(0);
 		}
 
 		// 完成したパーツを配列に追加！

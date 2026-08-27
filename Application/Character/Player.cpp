@@ -7,6 +7,8 @@
 #include "CollisionConfig.h"
 #include "BodyModel.h"
 #include <cmath>
+#include <vector>
+#include <cstdlib>
 
 
 #ifdef USE_IMGUI
@@ -27,6 +29,7 @@ Player::~Player() {
 	delete modelWingBase_;
 	delete modelInnerRing_;
 	delete modelWingNeon_;
+	delete pixelModel_;
 }
 
 /*----------------
@@ -94,6 +97,25 @@ void Player::Initialize() {
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	// 当たる相手をプレイヤー以外」に設定
 	SetCollisionMask(~kCollisionAttributePlayer);
+
+	/*-----------------------------
+	死亡演出
+	-----------------------------*/
+	pixelModel_ = new NeonModel();
+	pixelModel_->Initialize("Resources/Enemy/Neon", "Laser.obj");
+
+	whiteTexture_ = TextureManager::Load("Resources/white.png");
+
+	for (int i = 0; i < kMaxPixels; ++i) {
+		pixelTransforms_[i].Initialize();
+		pixels_[i].isActive = false;
+	}
+
+
+	/*-----------------
+	音
+	--------------------------*/
+	shotSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/Shot.wav");
 }
 
 /*--------------------
@@ -134,6 +156,8 @@ void Player::Attack() {
 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
+		// 音の再生
+		Audio::GetInstance()->SoundPlayWave(shotSound_);
 		// 弾の速度 
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
@@ -154,7 +178,6 @@ void Player::Attack() {
 
 		if (newBullet == nullptr) {
 			newBullet = new PlayerBullet();
-			newBullet->Create();
 			bullets_.push_back(newBullet);
 		}
 
@@ -167,9 +190,49 @@ void Player::Attack() {
 衝突時コールバック
 ------------------------------*/
 void Player::OnCollision() {
+	if (isDead_) return;
 
+	isDead_ = true;
+	deathTimer_ = 100;
+
+	if (cameraShake_ != nullptr) {
+		cameraShake_->Start(3.5f, 20);
+	}
+
+
+
+	for (int i = 0; i < kMaxPixels; ++i) {
+		pixels_[i].isActive = true;
+
+		pixels_[i].localOffset = {
+			(rand() % 100 - 50) / 100.0f * 1.5f,
+			(rand() % 100 - 50) / 100.0f * 1.5f,
+			(rand() % 100 - 50) / 100.0f * 1.5f
+		};
+
+
+		pixels_[i].position = worldTransform_.translation_;
+		pixels_[i].position.x += pixels_[i].localOffset.x;
+		pixels_[i].position.y += pixels_[i].localOffset.y;
+		pixels_[i].position.z += pixels_[i].localOffset.z;
+
+		float angleX = (rand() % 360) * 3.14159f / 180.0f;
+		float angleY = (rand() % 360) * 3.14159f / 180.0f;
+		float speed = (rand() % 100 / 100.0f) * 3.0f + 1.0f;
+
+		pixels_[i].velocity.x = std::cos(angleY) * std::sin(angleX) * speed;
+		pixels_[i].velocity.y = std::sin(angleY) * speed;
+		pixels_[i].velocity.z = std::cos(angleY) * std::cos(angleX) * speed;
+
+		pixels_[i].rotation = { 0, 0, 0 };
+		pixels_[i].rotSpeed = {
+			(rand() % 100 - 50) / 100.0f * 0.4f,
+			(rand() % 100 - 50) / 100.0f * 0.4f,
+			(rand() % 100 - 50) / 100.0f * 0.4f
+		};
+	}
+	isDead_ = true;
 }
-
 /*-------------------------
 更新処理
 ----------------------------*/
@@ -177,77 +240,138 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 
 	// 機能の調整
 	ApplyGlobalVariables();
+	if (isDead_) {
+		deathTimer_--;
 
-	//　旋回処理
-	Rotate();
+		
 
+		if (deathTimer_ > 50) {
+			for (int i = 0; i < kMaxPixels; ++i) {
+				if (!pixels_[i].isActive) continue;
+				pixels_[i].position.x += pixels_[i].velocity.x;
+				pixels_[i].position.y += pixels_[i].velocity.y;
+				pixels_[i].position.z += pixels_[i].velocity.z;
 
-	/*------------------------------
-	弾
-	-------------------------------*/
+				pixels_[i].velocity.x *= 0.92f;
+				pixels_[i].velocity.y *= 0.92f;
+				pixels_[i].velocity.z *= 0.92f;
 
+				pixels_[i].rotation.x += pixels_[i].rotSpeed.x;
+				pixels_[i].rotation.y += pixels_[i].rotSpeed.y;
+				pixels_[i].rotation.z += pixels_[i].rotSpeed.z;
+			}
+		}
+		else {
+			Vector3 center = worldTransform_.translation_;
+			for (int i = 0; i < kMaxPixels; ++i) {
+				if (!pixels_[i].isActive) continue;
 
-	/*-------------------------------
-	キャラクター移動処理
-	------------------------------*/
+				Vector3 targetPos = {
+					center.x + pixels_[i].localOffset.x,
+					center.y + pixels_[i].localOffset.y,
+					center.z + pixels_[i].localOffset.z
+				};
 
-	// キャラクターの移動ベクトル
-	Vector3 move = { 0,0,0 };
+				pixels_[i].position.x += (targetPos.x - pixels_[i].position.x) * 0.1f;
+				pixels_[i].position.y += (targetPos.y - pixels_[i].position.y) * 0.1f;
+				pixels_[i].position.z += (targetPos.z - pixels_[i].position.z) * 0.1f;
 
+				pixels_[i].rotation.x += (0.0f - pixels_[i].rotation.x) * 0.1f;
+				pixels_[i].rotation.y += (0.0f - pixels_[i].rotation.y) * 0.1f;
+				pixels_[i].rotation.z += (0.0f - pixels_[i].rotation.z) * 0.1f;
+			}
+		}
 
-	// 押した方向へ移動ベクトルを変更(左右)
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x -= kCharacterSpeed;
+		// GPUの箱へ転送
+		for (int i = 0; i < kMaxPixels; ++i) {
+			if (!pixels_[i].isActive) continue;
+			pixelTransforms_[i].translation_ = pixels_[i].position;
+			pixelTransforms_[i].rotation_ = pixels_[i].rotation;
+			pixelTransforms_[i].scale_ = { 0.15f, 0.15f, 0.15f };
+
+			Matrix4x4 pixLocal = MakeAffineMatrix(pixelTransforms_[i].scale_, pixelTransforms_[i].rotation_, pixelTransforms_[i].translation_);
+			pixelTransforms_[i].matWorld_ = Multiply(pixLocal, parentMatrix);
+			pixelTransforms_[i].TransferMatrix();
+		}
+
+		if (deathTimer_ <= 0) {
+			isDead_ = false;
+			for (int i = 0; i < kMaxPixels; ++i) pixels_[i].isActive = false;
+		}
 	}
-	else if (input_->PushKey(DIK_RIGHT)) {
-		move.x += kCharacterSpeed;
+	else {
+
+		//　旋回処理
+		Rotate();
+
+
+		/*------------------------------
+		弾
+		-------------------------------*/
+
+
+		/*-------------------------------
+		キャラクター移動処理
+		------------------------------*/
+
+		// キャラクターの移動ベクトル
+		Vector3 move = { 0,0,0 };
+
+
+		// 押した方向へ移動ベクトルを変更(左右)
+		if (input_->PushKey(DIK_LEFT)) {
+			move.x -= kCharacterSpeed;
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			move.x += kCharacterSpeed;
+		}
+
+		// 押した方向へ移動ベクトル(上下)
+		if (input_->PushKey(DIK_UP)) {
+			move.y += kCharacterSpeed;
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			move.y -= kCharacterSpeed;
+		}
+
+		float targetRoll = 0.0f;
+
+		// 押した方向へ移動ベクトルを変更
+		if (input_->PushKey(DIK_LEFT)) {
+			move.x -= kCharacterSpeed;
+			targetRoll = 0.5f;  // 左移動中は左に傾ける
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			move.x += kCharacterSpeed;
+			targetRoll = -0.5f; // 右移動中は右に傾ける
+		}
+
+		// 現在の傾きから目標の傾きへ、滑らかに近づける
+		worldTransform_.rotation_.z += (targetRoll - worldTransform_.rotation_.z) * 0.1f;
+
+		// 座標移動
+		worldTransform_.translation_.x += move.x;
+		worldTransform_.translation_.y += move.y;
+		worldTransform_.translation_.z += move.z;
+
+		// 移動限界座標
+		const float kMoveLimitX = 12.0f;
+		const float kMoveLimitY = 8.0f;
+
+		// 範囲を超えない処理
+		worldTransform_.translation_.x = (std::max)(worldTransform_.translation_.x, -kMoveLimitX);
+		worldTransform_.translation_.x = (std::min)(worldTransform_.translation_.x, kMoveLimitX);
+		worldTransform_.translation_.y = (std::max)(worldTransform_.translation_.y, -kMoveLimitY);
+		worldTransform_.translation_.y = (std::min)(worldTransform_.translation_.y, kMoveLimitY);
+
+
+		Matrix4x4 localMatrix = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
+		worldTransform_.matWorld_ = Multiply(localMatrix, parentMatrix);
+		worldTransform_.TransferMatrix();
+
+		// 攻撃処理
+		Attack();
 	}
-
-	// 押した方向へ移動ベクトル(上下)
-	if (input_->PushKey(DIK_UP)) {
-		move.y += kCharacterSpeed;
-	}
-	else if (input_->PushKey(DIK_DOWN)) {
-		move.y -= kCharacterSpeed;
-	}
-
-	float targetRoll = 0.0f;
-
-	// 押した方向へ移動ベクトルを変更
-	if (input_->PushKey(DIK_LEFT)) {
-		move.x -= kCharacterSpeed;
-		targetRoll = 0.5f;  // 左移動中は左に傾ける
-	}
-	else if (input_->PushKey(DIK_RIGHT)) {
-		move.x += kCharacterSpeed;
-		targetRoll = -0.5f; // 右移動中は右に傾ける
-	}
-
-	// 現在の傾きから目標の傾きへ、滑らかに近づける
-	worldTransform_.rotation_.z += (targetRoll - worldTransform_.rotation_.z) * 0.1f;
-
-	// 座標移動
-	worldTransform_.translation_.x += move.x;
-	worldTransform_.translation_.y += move.y;
-	worldTransform_.translation_.z += move.z;
-
-	// 移動限界座標
-	const float kMoveLimitX = 12.0f;
-	const float kMoveLimitY = 8.0f;
-
-	// 範囲を超えない処理
-	worldTransform_.translation_.x = (std::max)(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = (std::min)(worldTransform_.translation_.x, kMoveLimitX);
-	worldTransform_.translation_.y = (std::max)(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = (std::min)(worldTransform_.translation_.y, kMoveLimitY);
-
-
-	Matrix4x4 localMatrix = MakeAffineMatrix(worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-	worldTransform_.matWorld_ = Multiply(localMatrix, parentMatrix);
-	worldTransform_.TransferMatrix();
-
-	// 攻撃処理
-	Attack();
 
 	// 弾更新
 	for (PlayerBullet* bullet : bullets_) {
@@ -308,6 +432,8 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 --------------------*/
 void Player::Draw(const ViewProjection& viewProjection) {
 
+	if (isDead_) return;
+
 	modelCore_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 	modelOuterRing_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 	modelWingBase_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
@@ -331,16 +457,29 @@ void Player::Draw(const ViewProjection& viewProjection) {
 }
 
 void Player::DrawNeon(const ViewProjection& viewProjection) {
-	// ネオンパーツには色と強さを送る
-	modelInnerRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
-	modelWingNeon_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+	if (isDead_) {
 
-	// --- 光るパーツを描画 ---
-	modelInnerRing_->Draw(transformRot_, viewProjection, dummyTexture_);
-	modelWingNeon_->Draw(transformStat_, viewProjection, dummyTexture_);
 
-	// 弾
-		// 弾描画
+		if (pixelModel_ != nullptr) {
+			
+			pixelModel_->SetNeonColor(20.0f, neonColor_[0], neonColor_[1], neonColor_[2]);
+			for (int i = 0; i < kMaxPixels; ++i) {
+				if (pixels_[i].isActive) {
+					pixelModel_->Draw(pixelTransforms_[i], viewProjection, whiteTexture_);
+				}
+			}
+		}
+	}
+	else {
+		if (modelInnerRing_ != nullptr) {
+			modelInnerRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+			modelInnerRing_->Draw(transformRot_, viewProjection, dummyTexture_);
+		}
+		if (modelWingNeon_ != nullptr) {
+			modelWingNeon_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+			modelWingNeon_->Draw(transformStat_, viewProjection, dummyTexture_);
+		}
+	}
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
 	}
@@ -382,7 +521,23 @@ void Player::DrawImGui() {
 }
 
 void Player::DrawUI(const ViewProjection& viewProjection) {
+	std::vector<BaseEnemy*> drawnTargets;
+
 	for (PlayerBullet* bullet : bullets_) {
-		bullet->DrawUI(viewProjection);
+		if (bullet->IsDead()) continue;
+
+		BaseEnemy* target = bullet->GetTarget();
+
+		// ターゲットがいる場合
+		if (target != nullptr) {
+			// drawnTargetsリストの中に、同じ敵がすでにいるか探す
+			auto it = std::find(drawnTargets.begin(), drawnTargets.end(), target);
+
+			// まだリストにいないなら描画！
+			if (it == drawnTargets.end()) {
+				bullet->DrawUI(viewProjection);
+				drawnTargets.push_back(target); // 描画済みとしてリストに記録する
+			}
+		}
 	}
 }

@@ -7,6 +7,11 @@
 #include "Application/Character/Player.h"
 #include "EnemyStateHold.h"
 #include "EnemyStateStraight.h"
+#include "ObstacleLaser.h"
+#include "EnemyBoss.h"
+
+#include "EnemyTurret.h"
+#include "EnemyLaserBeam.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -64,6 +69,20 @@ void WaveManager::Update(std::list<BaseEnemy*>& enemies, Player* player, GameSce
 				// 念のため、配列外アクセスを防ぐ安全確認
 				if (idx >= 0 && idx < waveDatas_[editWaveIndex_].enemyCount) {
 					enemy->SetPosition(waveDatas_[editWaveIndex_].enemies[idx].position);
+				
+				
+					Vector3 finalPos = waveDatas_[editWaveIndex_].enemies[idx].position;
+					finalPos.z += player->GetWorldPosition().z;
+					enemy->SetPosition(finalPos);
+
+					// レーザーの時
+					if (waveDatas_[editWaveIndex_].enemies[idx].type == 6) {
+						enemy->SetScale(waveDatas_[editWaveIndex_].enemies[idx].scale);
+						enemy->SetRotation(waveDatas_[editWaveIndex_].enemies[idx].rotation);
+					}
+				
+				
+				
 				}
 			}
 		}
@@ -131,6 +150,33 @@ void WaveManager::SpawnEnemy(int wave, int enemyIndex, std::list<BaseEnemy*>& en
 
 		newEnemy->ChangeState(new EnemyStateStraight());
 	}
+	else if (data.type == 6) {
+		newEnemy = new ObstacleLaser();
+	}
+	else if (data.type == 7) {
+		EnemyTurret* turret = new EnemyTurret();
+		EnemyLaserBeam* laser = new EnemyLaserBeam();
+
+		turret->Initialize(player);
+		turret->SetGameScene(gameScene);
+		turret->SetLaser(laser);
+
+		laser->Initialize(player);
+		laser->SetGameScene(gameScene);
+
+		Vector3 finalPos = data.position;
+		finalPos.z += player->GetWorldPosition().z;
+		turret->SetPosition(finalPos);
+
+		newEnemy = turret;
+
+		enemies.push_back(laser);
+	}
+	else if (data.type == 8) {
+		newEnemy = new EnemyBoss();
+	}
+
+
 	else {
 		newEnemy = new BaseEnemy();
 	}
@@ -149,6 +195,11 @@ void WaveManager::SpawnEnemy(int wave, int enemyIndex, std::list<BaseEnemy*>& en
 	}
 	else if (data.moveState == 2) {
 		newEnemy->ChangeState(new EnemyStateStraight());
+	}
+
+	if (data.type == 6) {
+		newEnemy->SetScale(data.scale);
+		newEnemy->SetRotation(data.rotation);
 	}
 
 	newEnemy->SetSpawnIndex(enemyIndex);
@@ -214,6 +265,19 @@ void WaveManager::DrawImGui() {
 				if (ImGui::IsItemDeactivatedAfterEdit()) isReloadRequested_ = true;
 
 
+				if (currentEditWave.enemies[i].type == 6) {
+					ImGui::Separator();
+					ImGui::Text("--- Laser Settings ---");
+
+					if (ImGui::DragFloat3("Laser Scale", &currentEditWave.enemies[i].scale.x, 0.5f)) {
+						isDataModifiedThisFrame_ = true;
+					}
+					if (ImGui::DragFloat3("Laser Rotation", &currentEditWave.enemies[i].rotation.x, 0.05f)) {
+						isDataModifiedThisFrame_ = true;
+					}
+					ImGui::Separator();
+				}
+
 				if (ImGui::DragFloat3("Spawn Pos", &currentEditWave.enemies[i].position.x, 0.5f)) {
 					isDataModifiedThisFrame_ = true;
 				}
@@ -254,6 +318,8 @@ void WaveManager::LoadData() {
 			global->AddItem(groupName, enemyPrefix + "_MoveState", 0);
 			global->AddItem(groupName, enemyPrefix + "_Direction", Vector3(0.0f, 0.0f, -1.0f));
 			global->AddItem(groupName, enemyPrefix + "_Speed", 0.3f);
+			global->AddItem(groupName, enemyPrefix + "_Scale", Vector3(15.0f, 1.0f, 1.0f));
+			global->AddItem(groupName, enemyPrefix + "_Rotation", Vector3(0.0f, 0.0f, 0.0f));
 
 			// JSONから読み込んで変数にセット
 			waveDatas_[w].enemies[e].type = global->GetIntValue(groupName, enemyPrefix + "_Type");
@@ -261,6 +327,9 @@ void WaveManager::LoadData() {
 			waveDatas_[w].enemies[e].moveState = global->GetIntValue(groupName, enemyPrefix + "_MoveState");
 			waveDatas_[w].enemies[e].direction = global->GetVector3Value(groupName, enemyPrefix + "_Direction");
 			waveDatas_[w].enemies[e].speed = global->GetFloatValue(groupName, enemyPrefix + "_Speed");
+			waveDatas_[w].enemies[e].scale = global->GetVector3Value(groupName, enemyPrefix + "_Scale");
+			waveDatas_[w].enemies[e].rotation = global->GetVector3Value(groupName, enemyPrefix + "_Rotation");
+		
 		}
 	}
 }
@@ -286,8 +355,24 @@ void WaveManager::SaveData() {
 			global->SetValue(groupName, enemyPrefix + "_MoveState", waveDatas_[w].enemies[e].moveState);
 			global->SetValue(groupName, enemyPrefix + "_Direction", waveDatas_[w].enemies[e].direction);
 			global->SetValue(groupName, enemyPrefix + "_Speed", waveDatas_[w].enemies[e].speed);
+			global->SetValue(groupName, enemyPrefix + "_Scale", waveDatas_[w].enemies[e].scale);
+			global->SetValue(groupName, enemyPrefix + "_Rotation", waveDatas_[w].enemies[e].rotation);
+		
 		}
 	}
 
 	global->SaveFile(groupName);
+}
+
+void WaveManager::RestartCurrentWave(std::list<BaseEnemy*>& enemies, std::list<EnemyBullet*>& enemyBullets) {
+	// 画面に残っている敵を全消去
+	for (BaseEnemy* enemy : enemies) { delete enemy; }
+	enemies.clear();
+
+	// 画面に残っている敵の弾も全消去
+	for (EnemyBullet* bullet : enemyBullets) { delete bullet; }
+	enemyBullets.clear();
+
+	// 現在のウェーブを最初からやり直す
+	StartWave(currentWave_);
 }

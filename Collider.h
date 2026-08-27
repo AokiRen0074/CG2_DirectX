@@ -1,6 +1,7 @@
 #pragma once
 #include "Vector3.h"
 #include <cstdint>
+#include <cmath>
 
 class Collider {
 private:
@@ -35,5 +36,14 @@ public:
 
 	// ワールド座標を取得
 	virtual Vector3 GetWorldPosition() = 0;
+
+	// 対象の座標との距離を計算する
+	virtual float GetDistanceTo(const Vector3& targetPos) {
+		Vector3 pos = GetWorldPosition();
+		float dx = targetPos.x - pos.x;
+		float dy = targetPos.y - pos.y;
+		float dz = targetPos.z - pos.z;
+		return std::sqrt(dx * dx + dy * dy + dz * dz);
+	}
 
 };

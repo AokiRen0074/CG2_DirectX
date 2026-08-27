@@ -1,0 +1,42 @@
+{
+    "ResultUI": {
+        "FrameColor": [
+            0.0,
+            0.800000011920929,
+            1.0
+        ],
+        "FrameIntensity": 3.0,
+        "FrameOffsetY": 10.020000457763672,
+        "MainTextColor": [
+            0.0,
+            0.11764693260192871,
+            1.0
+        ],
+        "MainTextIntensity": 17.347000122070313,
+        "MainTextOffsetY": 5.714000225067139,
+        "MainTextRotY": 3.171999931335449,
+        "MainTextScale": 2.875,
+        "PromptColor": [
+            0.006487885490059853,
+            0.006487885490059853,
+            0.2647058963775635
+        ],
+        "PromptIntensity": 20.0,
+        "PromptOffsetY": -6.0,
+        "PromptScale": 3.625,
+        "ScoreTextColor": [
+            0.09083032608032227,
+            0.0,
+            0.44117647409439087
+        ],
+        "ScoreTextIntensity": 7.551000118255615,
+        "ScoreTextOffsetX": -11.428999900817871,
+        "ScoreTextOffsetY": 1.4290000200271606,
+        "ScoreTextScale": 1.0,
+        "TextLengthOffset": 0.17299999296665192,
+        "TextRadius": 0.0010000000474974513,
+        "TextSoftness": 13.33899974822998,
+        "TimeTextOffsetY": -3.0,
+        "UIBaseZ": 0.0
+    }
+}

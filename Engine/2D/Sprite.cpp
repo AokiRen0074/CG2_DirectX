@@ -212,7 +212,7 @@ void Sprite::Draw() {
 
     // テクスチをセット
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle_);
-    commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
+     commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
 
 
     commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
