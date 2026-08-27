@@ -515,6 +515,7 @@ void GameScene::Update() {
 			viewProjection_.UpdateMatrix();
 
 			if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+
 				sceneState_ = SceneState::StartWarp;
 				sceneTimer_ = 0.0f;
 				warpCamStartPos_ = viewProjection_.translation_;
@@ -811,6 +812,8 @@ void GameScene::Update() {
 
 					if (titleUI_) titleUI_->Reset();
 
+
+
 					totalScore_ = 0;
 					scoreAtWaveStart_ = 0;
 					playTime_ = 0.0f;
@@ -819,8 +822,8 @@ void GameScene::Update() {
 
 					if (scoreUI_) scoreUI_->SetScore(0);
 					if (lifeUI_) lifeUI_->SetLife(5);
-					if (rail_) rail_->Initialize();
 					if (railCamera_) railCamera_->Initialize(rail_);
+
 					if (player_) player_->SetDead(false);
 					for (BaseEnemy* enemy : enemies_) delete enemy;
 					enemies_.clear();

@@ -6,6 +6,8 @@ void RailCamera::Initialize(Rail* rail) {
 	t_ = 0.0f;
     speed_ = 1.0f;
 
+    isPlay_ = true;
+
 	viewProjection_.Initialize();
     viewProjection_.matProjection = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
 }
