@@ -116,6 +116,10 @@ void Player::Initialize() {
 	音
 	--------------------------*/
 	shotSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/Shot.wav");
+	rebuildSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/Rebuilding.wav");
+
+	wasAttackedSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/WasAttacked.wav");
+
 }
 
 /*--------------------
@@ -190,10 +194,13 @@ void Player::Attack() {
 衝突時コールバック
 ------------------------------*/
 void Player::OnCollision() {
+	if (isDead_ || invincibleTimer_ > 0) return;
 	if (isDead_) return;
 
+	Audio::GetInstance()->SoundPlayWave(wasAttackedSound_);
 	isDead_ = true;
 	deathTimer_ = 100;
+	hasPlayedRebuildSound_ = false;
 
 	if (cameraShake_ != nullptr) {
 		cameraShake_->Start(3.5f, 20);
@@ -262,6 +269,12 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 			}
 		}
 		else {
+
+			if (!hasPlayedRebuildSound_) {
+				Audio::GetInstance()->SoundPlayWave(rebuildSound_);
+				hasPlayedRebuildSound_ = true; 
+			}
+
 			Vector3 center = worldTransform_.translation_;
 			for (int i = 0; i < kMaxPixels; ++i) {
 				if (!pixels_[i].isActive) continue;
@@ -298,8 +311,14 @@ void Player::Update(const Matrix4x4& parentMatrix) {
 			isDead_ = false;
 			for (int i = 0; i < kMaxPixels; ++i) pixels_[i].isActive = false;
 		}
+
+		invincibleTimer_ = 180;
 	}
 	else {
+
+		if (invincibleTimer_ > 0) {
+			invincibleTimer_--;
+		}
 
 		//　旋回処理
 		Rotate();
@@ -434,6 +453,8 @@ void Player::Draw(const ViewProjection& viewProjection) {
 
 	if (isDead_) return;
 
+	if (invincibleTimer_ > 0 && (invincibleTimer_ % 4 >= 2)) return;
+
 	modelCore_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 	modelOuterRing_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
 	modelWingBase_->SetColor(bodyColor_[0], bodyColor_[1], bodyColor_[2], 1.0f);
@@ -471,13 +492,15 @@ void Player::DrawNeon(const ViewProjection& viewProjection) {
 		}
 	}
 	else {
-		if (modelInnerRing_ != nullptr) {
-			modelInnerRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
-			modelInnerRing_->Draw(transformRot_, viewProjection, dummyTexture_);
-		}
-		if (modelWingNeon_ != nullptr) {
-			modelWingNeon_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
-			modelWingNeon_->Draw(transformStat_, viewProjection, dummyTexture_);
+		if (invincibleTimer_ == 0 || (invincibleTimer_ % 4 < 2)) {
+			if (modelInnerRing_ != nullptr) {
+				modelInnerRing_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+				modelInnerRing_->Draw(transformRot_, viewProjection, dummyTexture_);
+			}
+			if (modelWingNeon_ != nullptr) {
+				modelWingNeon_->SetNeonColor(neonIntensity_, neonColor_[0], neonColor_[1], neonColor_[2]);
+				modelWingNeon_->Draw(transformStat_, viewProjection, dummyTexture_);
+			}
 		}
 	}
 	for (PlayerBullet* bullet : bullets_) {

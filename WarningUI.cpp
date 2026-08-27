@@ -89,6 +89,9 @@ void WarningUI::Initialize(const std::string& directoryPath) {
 	iconOffsetX_ = global->GetFloatValue(groupName, "IconOffsetX");
 	iconOffsetY_ = global->GetFloatValue(groupName, "IconOffsetY");
 	iconScale_ = global->GetFloatValue(groupName, "IconScale");
+
+	//　音
+	warningSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/warningu.wav");
 }
 
 void WarningUI::StartWarning() {
@@ -96,6 +99,11 @@ void WarningUI::StartWarning() {
 	isFinished_ = false;
 	timer_ = 0.0f;
 	animeTime_ = 0.0f;
+	if (warningVoice_) {
+		Audio::GetInstance()->SoundStopWave(warningVoice_);
+	}
+
+	warningVoice_ = Audio::GetInstance()->SoundPlayWave(warningSound_, true);
 }
 
 void WarningUI::Update() {
@@ -116,6 +124,12 @@ void WarningUI::Update() {
 	if (!isDebugKeepActive_ && timer_ >= 3.8f) {
 		isActive_ = false;
 		isFinished_ = true;
+
+		if (warningVoice_) {
+			Audio::GetInstance()->SoundStopWave(warningVoice_);
+			warningVoice_ = nullptr;
+		}
+
 		return;
 	}
 

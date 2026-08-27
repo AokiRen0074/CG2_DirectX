@@ -4,6 +4,7 @@
 #include "WorldTransform.h"
 #include "NeonModel.h"
 #include <string>
+#include "Audio/Audio.h"
 
 class ScoreUI {
 public:
@@ -66,4 +67,8 @@ private:
 	float popupIntensity_ = 8.0f;
 	float popupOffsetY_ = 3.0f;
 	float popupScale_ = 0.7f;
+
+	// 音
+	SoundData scoreSound_;
+	IXAudio2SourceVoice* scoreVoice_ = nullptr;
 };

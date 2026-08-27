@@ -2,9 +2,11 @@
 #include <cassert>
 #include "CollisionConfig.h"
 #include "BaseEnemy.h"
+#include "Audio/Audio.h"
 
-
-
+// 音
+static bool sIsHitSoundLoaded = false;
+static SoundData sHitSound = {};
 
 // 初期化
 void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const Vector3& velocity, const Vector3& rotation) {
@@ -49,13 +51,25 @@ void PlayerBullet::Initialize(NeonModel* model, const Vector3& position, const V
 		lockOnSprite_ = Sprite::Create(lockOnTex, { 0, 0 });
 	}
 
+	if (!sIsHitSoundLoaded) {
+		sHitSound = Audio::GetInstance()->SoundLoadWave("Sounds/hit.wav");
+		sIsHitSoundLoaded = true;
+	}
+
 }
 
 /*----------------------------------
 衝突時コールバック
 -----------------------------*/
 void PlayerBullet::OnCollision() {
+
+	if (!isDead_) {
+		Audio::GetInstance()->SoundPlayWave(sHitSound);
+	}
+
 	isDead_ = true;
+
+
 }
 
 // 更新処理
@@ -116,6 +130,11 @@ void PlayerBullet::Update(const std::list<BaseEnemy*>& enemies) {
 
 		if (lenToEnemy <= kBulletSpeed * 2.0f) {
 			worldTransform_.translation_ = target_->GetWorldPosition(); // 敵の位置にワープ
+		
+			if (!isDead_) {
+				Audio::GetInstance()->SoundPlayWave(sHitSound);
+			}
+			
 			isDead_ = true; // 当たった扱いにして消滅させる
 
 		target_->OnCollision(); 

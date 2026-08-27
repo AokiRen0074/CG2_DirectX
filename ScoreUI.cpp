@@ -75,6 +75,9 @@ void ScoreUI::Initialize(DirectXCommon* dxCommon, uint32_t whiteTex) {
 	popupIntensity_ = global->GetFloatValue(groupName, "PopupIntensity");
 	popupOffsetY_ = global->GetFloatValue(groupName, "PopupOffsetY");
 	popupScale_ = global->GetFloatValue(groupName, "PopupScale");
+
+	// 音
+	scoreSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/Score.wav");
 }
 
 void ScoreUI::Update() {
@@ -82,6 +85,16 @@ void ScoreUI::Update() {
 		float diff = targetScore_ - currentDisplayScore_;
 		currentDisplayScore_ += (std::max)(1.0f, diff * 0.1f);
 		if (currentDisplayScore_ > targetScore_) currentDisplayScore_ = (float)targetScore_;
+
+		if (scoreVoice_ == nullptr) {
+			scoreVoice_ = Audio::GetInstance()->SoundPlayWave(scoreSound_, true);
+		}
+	}
+	else {
+		if (scoreVoice_) {
+			Audio::GetInstance()->SoundStopWave(scoreVoice_);
+			scoreVoice_ = nullptr;
+		}
 	}
 
 	char buffer[32];

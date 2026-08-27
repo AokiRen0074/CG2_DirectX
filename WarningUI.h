@@ -3,6 +3,7 @@
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include <string>
+#include "Audio/Audio.h"
 
 class WarningUI {
 private:
@@ -43,11 +44,11 @@ private:
 	float timer_ = 0.0f;
 	float animeTime_ = 0.0f;
 
-	// 🌟 追加：調整のためにUIを出しっぱなしにするデバッグフラグ
+
 	bool isDebugKeepActive_ = false;
 
 	// ==========================================
-	// 🌟 ImGui ＆ JSON保存用のレイアウト変数群
+	//  ImGui ＆ JSON保存用のレイアウト変数群
 	// ==========================================
 	float textColor_[3] = { 1.0f, 0.0f, 0.0f };
 	float textBaseIntensity_ = 2.0f;
@@ -69,4 +70,8 @@ private:
 	float iconOffsetX_ = 12.0f;
 	float iconOffsetY_ = 0.0f;
 	float iconScale_ = 0.8f;
+
+	// 音
+	SoundData warningSound_;
+	IXAudio2SourceVoice* warningVoice_ = nullptr;
 };

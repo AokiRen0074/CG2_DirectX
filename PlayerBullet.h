@@ -8,6 +8,7 @@
 #include <list>
 #include "Sprite.h"
 
+
 // 親クラス
 #include "BaseCharacter.h"
 #include "Collider.h"
@@ -77,6 +78,7 @@ private:
 
 	BaseEnemy* prevTarget_ = nullptr; // 前フレームのターゲット
 	int32_t lockOnAnimTimer_ = 0;     // 15フレームで完了するタイマー
+
 
 
 };

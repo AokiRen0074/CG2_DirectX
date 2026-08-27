@@ -98,6 +98,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 	neonModel_ = new NeonModel();
 
+
 	bloom_ = new Bloom();
 	bloom_->Initialize(dxCommon_, 1280, 720);
 
@@ -812,6 +813,8 @@ else if (sceneState_ == SceneState::Rebooting) {
 			// プレイヤーを復活させ、定位置に戻す
 			if (player_) {
 				player_->SetDead(false);
+
+				player_->SetInvincible(180);
 				player_->GetWorldTransform().translation_ = { 0.0f, -2.0f, 15.0f }; // 初期位置
 				player_->Update(MakeIdentity4x4());
 			}
@@ -1088,10 +1091,7 @@ else if (sceneState_ == SceneState::Rebooting) {
 				delete bullet;
 			}
 			enemyBullets_.clear();
-			if (bgmVoice_) {
-				Audio::GetInstance()->SoundStopWave(bgmVoice_);
-				bgmVoice_ = nullptr;
-			}
+
 			warpVoice_ = Audio::GetInstance()->SoundPlayWave(warpSound_);
 		}
 	}

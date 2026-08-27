@@ -1,7 +1,7 @@
 #include "Audio.h"
 #include <fstream>
 #include <cassert>
-
+#include <algorithm>
 
 Audio* Audio::GetInstance() {
 	static Audio instance;
@@ -12,6 +12,7 @@ Audio* Audio::GetInstance() {
 初期化
 ---------------------------------------------*/
 void Audio::Initialize() {
+
 	HRESULT result;
 
 	// XAudioエンジンのインスタンスを生成
@@ -80,6 +81,20 @@ SoundData Audio::SoundLoadWave(const char* filename) {
 ------------------------------------*/
 
 IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop) {
+
+
+	for (auto it = voices_.begin(); it != voices_.end(); ) {
+		XAUDIO2_VOICE_STATE state;
+		(*it)->GetState(&state);
+		if (state.BuffersQueued == 0) { // 再生が終わっていたら
+			(*it)->DestroyVoice();      // スピーカーを壊す
+			it = voices_.erase(it);     // リストから削除
+		}
+		else {
+			++it;
+		}
+	}
+
 	HRESULT result;
 
 	// 波形フォーマットを元にSourceVoiceの生成
@@ -103,6 +118,8 @@ IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop)
 
 	result = pSourceVoice->Start();
 	assert(SUCCEEDED(result)); 
+
+	voices_.push_back(pSourceVoice);
 
 	return pSourceVoice;
 }
@@ -131,8 +148,10 @@ void Audio::Finalize() {
 }
 
 void Audio::SoundStopWave(IXAudio2SourceVoice* pVoice) {
-	if (pVoice) {
-		pVoice->Stop();
-		pVoice->DestroyVoice();
+	auto it = std::find(voices_.begin(), voices_.end(), pVoice);
+	if (it != voices_.end()) {
+		(*it)->Stop();
+		(*it)->DestroyVoice();
+		voices_.erase(it);
 	}
 }

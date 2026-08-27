@@ -65,4 +65,5 @@ private:
 	float waveTextScaleRatio_ = 0.4f;
 	float waveTextOffsetX_ = 0.0f;
 	float waveTextOffsetY_ = -3.0f;
+
 };

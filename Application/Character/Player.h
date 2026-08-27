@@ -67,6 +67,9 @@ public:
 	// カメラシェイク
 	void SetCameraShake(CameraShake* cameraShake) { cameraShake_ = cameraShake; }
 
+	// 無敵時間
+	void SetInvincible(int32_t timer) { invincibleTimer_ = timer; }
+
 	/*----------------------------
 	めちゃ便利
 	-----------------------------*/
@@ -156,6 +159,9 @@ private:
 	bool isDead_ = false;
 	int deathTimer_ = 0;
 
+	// 死亡ゴム的
+	int32_t invincibleTimer_ = 0;
+
 	static const int kMaxPixels = 150;
 	PixelParticle pixels_[kMaxPixels];
 	WorldTransform pixelTransforms_[kMaxPixels];
@@ -174,4 +180,7 @@ private:
 	音
 	-------------------------------*/
 	SoundData shotSound_;
+	SoundData rebuildSound_;
+	bool hasPlayedRebuildSound_ = false;
+	SoundData wasAttackedSound_;
 };

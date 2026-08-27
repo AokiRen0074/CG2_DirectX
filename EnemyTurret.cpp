@@ -1,6 +1,9 @@
 #include "EnemyTurret.h"
 #include "GameScene.h"
 #include <cmath>
+#include "Audio/Audio.h"
+static bool sIsTurretSoundLoaded = false;
+static SoundData sTurretBeamSound = {};
 
 void EnemyTurret::Initialize(Player* player) {
 	BaseEnemy::Initialize(player);
@@ -14,6 +17,11 @@ void EnemyTurret::Initialize(Player* player) {
 	transformGun_.Initialize();
 	attackTimer_ = 0;
 	SetRadius(3.0f); // 砲台の当たり判定
+
+	if (!sIsTurretSoundLoaded) {
+		sTurretBeamSound = Audio::GetInstance()->SoundLoadWave("Sounds/Beam.wav");
+		sIsTurretSoundLoaded = true;
+	}
 }
 
 void EnemyTurret::Update() {
@@ -35,6 +43,10 @@ void EnemyTurret::Update() {
 	int cycle = attackTimer_ % 240;
 	bool isAiming = (cycle < 120);
 	bool isFiring = (cycle >= 120 && cycle < 160);
+
+	if (cycle == 120) {
+		Audio::GetInstance()->SoundPlayWave(sTurretBeamSound);
+	}
 
 	if (isAiming && player_) {
 		// 狙い中のみ、砲身が自機を追いかける

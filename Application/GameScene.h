@@ -210,4 +210,6 @@ private:
 	SoundData warpSound_;
 	IXAudio2SourceVoice* bgmVoice_ = nullptr;
 	IXAudio2SourceVoice* warpVoice_ = nullptr;
+
+
 };

@@ -117,6 +117,14 @@ void EnemyBoss::Initialize(Player* player) {
 	introTimer_ = 0.0f;
 	hitTimer_ = 9999;
 
+	// 音
+	chargeSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/BossCharge.wav");
+	beamSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/Beam.wav");
+	smallExplosionSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/SoExplosion.wav");
+	bigExplosionSound_ = Audio::GetInstance()->SoundLoadWave("Sounds/BigExplosion.wav");
+	hasPlayedChargeSound_ = false;
+	hasPlayedBeamSound_ = false;
+
 	for (int i = 0; i < 8; ++i) {
 		shockwaveRings_[i].transform.Initialize();
 		shockwaveRings_[i].isActive = false;
@@ -227,7 +235,6 @@ void EnemyBoss::Update() {
 		if (currentFrame % explodeInterval == 0) {
 			Vector3 pPos = GetWorldPosition();
 
-
 			pPos.x += (std::rand() % 80 - 40) * 0.2f;
 			pPos.y += (std::rand() % 80 - 40) * 0.2f;
 			pPos.z += (std::rand() % 80 - 40) * 0.2f;
@@ -236,12 +243,20 @@ void EnemyBoss::Update() {
 				int pCount = 10 + static_cast<int>(animeTime_);
 				gameScene_->GetParticleManager()->EmitStar(pPos, pCount, { 1.0f, 0.5f, 0.0f });
 			}
+
+			Audio::GetInstance()->SoundPlayWave(smallExplosionSound_);
 		}
 
-		if (currentFrame == static_cast<int>(15.0f * 60.0f)) {
+		if (animeTime_ >= 15.0f && !hasPlayedBigExplosion_) {
 			if (gameScene_ && gameScene_->GetParticleManager()) {
 				gameScene_->GetParticleManager()->EmitStar(GetWorldPosition(), 400, { 1.0f, 1.0f, 0.8f });
 			}
+
+			// 大爆発の瞬間にドカーンと鳴らす！
+			Audio::GetInstance()->SoundPlayWave(bigExplosionSound_);
+
+			// 実行したことを記録し、二度と入らないようにする
+			hasPlayedBigExplosion_ = true;
 		}
 
 		break;
@@ -418,7 +433,7 @@ void EnemyBoss::OnCollision() {
 		currentHp_ = 0;
 		currentState_ = BossState::Dying;
 		animeTime_ = 0.0f; // 死亡演出用のタイマーとしてリセット
-
+		hasPlayedBigExplosion_ = false;
 	}
 }
 
@@ -491,15 +506,21 @@ void EnemyBoss::AttackLaser() {
 	attackTimer_ += 1.0f / 60.0f;
 	Vector3 basePos = GetWorldPosition();
 
-	// 🎬 ① チャージフェーズ：0.0秒 ～ 2.0秒
+	//  チャージフェーズ
 	if (attackTimer_ < 2.0f) {
+
+		if (!hasPlayedChargeSound_) {
+			Audio::GetInstance()->SoundPlayWave(chargeSound_);
+			hasPlayedChargeSound_ = true;
+		}
+
 		isLaserActive_ = false;
 
 		// チャージ中はボスを激しく振動させる
 		worldTransform_.translation_.x += (std::rand() % 10 - 5) * 0.05f;
 		if (std::fmod(attackTimer_, 0.2f) < 0.1f) flashTimer_ = 2; // コア明滅
 
-		// ピクセル（エネルギー）を周囲にランダム発生させる
+		// ピクセルを周囲にランダム発生させる
 		for (int i = 0; i < 2; ++i) { // 毎フレーム2個ずつ出す
 			for (int j = 0; j < kMaxChargePixels; ++j) {
 				if (!chargePixels_[j].isActive) {
@@ -524,10 +545,16 @@ void EnemyBoss::AttackLaser() {
 			transformLaser_.rotation_.y = std::atan2(pPos.x - basePos.x, pPos.z - basePos.z) + 1.5708f;
 		}
 	}
-	// 🎬 ② レーザー発射フェーズ：2.0秒 ～ 3.0秒
+	// レーザー発射フェーズ
 	else if (attackTimer_ < 3.0f) {
+
+		if (!hasPlayedBeamSound_) {
+			Audio::GetInstance()->SoundPlayWave(beamSound_);
+			hasPlayedBeamSound_ = true;
+		}
+
 		isLaserActive_ = true;
-		flashTimer_ = 2; // コア発光MAX
+		flashTimer_ = 2;
 
 		// チャージエフェクトはすべて消す
 		for (int i = 0; i < kMaxChargePixels; ++i) chargePixels_[i].isActive = false;
@@ -537,7 +564,7 @@ void EnemyBoss::AttackLaser() {
 			Vector3 pPos = player_->GetWorldPosition();
 			float targetAngle = std::atan2(pPos.x - basePos.x, pPos.z - basePos.z) + 1.5708f;
 
-			// プレイヤーの方へ少しずつ角度を向ける（ジリジリと追従する）
+			// プレイヤーの方へ少しずつ角度を向ける
 			float diff = targetAngle - transformLaser_.rotation_.y;
 			while (diff > 3.14159f) diff -= 3.14159f * 2.0f;
 			while (diff < -3.14159f) diff += 3.14159f * 2.0f;
@@ -571,15 +598,18 @@ void EnemyBoss::AttackLaser() {
 			player_->OnCollision();
 		}
 	}
-	// 🎬 ③ 終了フェーズ
+	// 終了フェーズ
 	else {
+
+		hasPlayedChargeSound_ = false;
+		hasPlayedBeamSound_ = false;
 		isLaserActive_ = false;
 		attackPhase_ = 3; // クールダウン待機フェーズへ移行
 		attackTimer_ = 0.0f;
 	}
 
 	// ==========================================
-	// 🌀 チャージ中ピクセルの吸い込み更新処理
+	// チャージ中ピクセルの吸い込み更新処理
 	// ==========================================
 	for (int i = 0; i < kMaxChargePixels; ++i) {
 		if (chargePixels_[i].isActive) {

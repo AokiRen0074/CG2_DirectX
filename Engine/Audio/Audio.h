@@ -3,6 +3,7 @@
 #pragma comment(lib, "xaudio2.lib") 
 #include <wrl.h>
 #include <string>
+#include <list>
 
 
 // チャンクヘッダ
@@ -67,4 +68,6 @@ private:
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
 	// マスターボイス
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
+
+	std::list<IXAudio2SourceVoice*> voices_;
 };

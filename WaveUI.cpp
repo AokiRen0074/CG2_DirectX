@@ -81,10 +81,10 @@ void WaveUI::Initialize(DirectXCommon* dxCommon, uint32_t whiteTex) {
 void WaveUI::Update(int currentWave, bool isInterval) {
 	displayWave_ = currentWave;
 
-	// 🌟 状態遷移の判定
+	// 状態遷移の判定
 	if (isInterval) {
 		if (!wasInterval_) {
-			// インターバル（ワープ）に「入った瞬間」に出現アニメーション開始！
+
 			state_ = State::Center;
 			appearTimer_ = 0.0f;
 		}

@@ -3,6 +3,7 @@
 #include <string>
 #include "WarningUI.h"
 #include "EnemyBullet.h"
+#include "Audio/Audio.h"
 
 class EnemyBoss : public BaseEnemy {
 public:
@@ -123,6 +124,11 @@ private:
 	void AttackRing();
 	bool CheckRingCollision(const Vector3& targetPos, const ShockwaveRing& ring);
 
-
-
+	SoundData chargeSound_;
+	SoundData beamSound_;
+	SoundData smallExplosionSound_;
+	SoundData bigExplosionSound_;
+	bool hasPlayedChargeSound_ = false;
+	bool hasPlayedBeamSound_ = false;
+	bool hasPlayedBigExplosion_ = false;
 };
