@@ -78,24 +78,6 @@
     <ClCompile Include="Application\GameScene.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="BodyModel.cpp">
-      <Filter>Application\Character\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Character\Player.cpp">
-      <Filter>Application\Character\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerBullet.cpp">
-      <Filter>Application\Character\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseEnemy.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyBullet.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseCharacter.cpp">
-      <Filter>Application\Character</Filter>
-    </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
@@ -126,18 +108,6 @@
     <ClCompile Include="MathUtility.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Rail.cpp">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClCompile>
-    <ClCompile Include="RailCamera.cpp">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClCompile>
-    <ClCompile Include="RailEditor.cpp">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClCompile>
-    <ClCompile Include="WaveManager.cpp">
-      <Filter>Engine\3D\waveManager</Filter>
-    </ClCompile>
     <ClCompile Include="WarpEffect.cpp">
       <Filter>Engine\3D\Effect</Filter>
     </ClCompile>
@@ -147,41 +117,8 @@
     <ClCompile Include="ParticleManager.cpp">
       <Filter>Engine\3D\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyStateHold.cpp">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyStateApproach.cpp">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyStateLeave.cpp">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="WeakEnemyCross.cpp">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="WeakEnemySpinCore.cpp">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="WeakEnemyTriangle.cpp">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyStateStraight.cpp">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="ObstacleLaser.cpp">
-      <Filter>Application\Character\Enemy\Obstacle</Filter>
-    </ClCompile>
     <ClCompile Include="CameraShake.cpp">
       <Filter>Engine\CameraShake</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyLaserBeam.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyTurret.cpp">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyBoss.cpp">
-      <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="WarningUI.cpp">
       <Filter>Engine\UI</Filter>
@@ -295,24 +232,6 @@
     <ClInclude Include="Application\GameScene.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="BodyModel.h">
-      <Filter>Application\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Character\Player.h">
-      <Filter>Application\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerBullet.h">
-      <Filter>Application\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseEnemy.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBullet.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseCharacter.h">
-      <Filter>Application\Character</Filter>
-    </ClInclude>
     <ClInclude Include="externals\imgui\imconfig.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
@@ -349,18 +268,6 @@
     <ClInclude Include="MathUtility.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Rail.h">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClInclude>
-    <ClInclude Include="RailCamera.h">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClInclude>
-    <ClInclude Include="RailEditor.h">
-      <Filter>Engine\3D\Rail</Filter>
-    </ClInclude>
-    <ClInclude Include="WaveManager.h">
-      <Filter>Engine\3D\waveManager</Filter>
-    </ClInclude>
     <ClInclude Include="WarpEffect.h">
       <Filter>Engine\3D\Effect</Filter>
     </ClInclude>
@@ -370,44 +277,8 @@
     <ClInclude Include="ParticleManager.h">
       <Filter>Engine\3D\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyStateHold.h">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseEnemyState.h">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyStateApproach.h">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyStateLeave.h">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="WeakEnemyCross.h">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="WeakEnemySpinCore.h">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="WeakEnemyTriangle.h">
-      <Filter>Application\Character\Enemy\WeakEnemy</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyStateStraight.h">
-      <Filter>Application\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="ObstacleLaser.h">
-      <Filter>Application\Character\Enemy\Obstacle</Filter>
-    </ClInclude>
     <ClInclude Include="CameraShake.h">
       <Filter>Engine\CameraShake</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyLaserBeam.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyTurret.h">
-      <Filter>Application\Character\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBoss.h">
-      <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="WarningUI.h">
       <Filter>Engine\UI</Filter>
@@ -532,12 +403,6 @@
     <Filter Include="Application\Character">
       <UniqueIdentifier>{19b8900f-e0bd-4234-81a3-e66b3a3749c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Character\Player">
-      <UniqueIdentifier>{1cd234d4-811c-4ce5-b2aa-572c87c57674}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Enemy">
-      <UniqueIdentifier>{20e35f19-ef32-4437-ab0f-76b0e2138d3f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="externals">
       <UniqueIdentifier>{446ebfbe-f993-4096-8dff-4c82e4956092}</UniqueIdentifier>
     </Filter>
@@ -547,23 +412,8 @@
     <Filter Include="Engine\EditorPanel">
       <UniqueIdentifier>{f03de160-2560-42a2-b500-b8776c7c9945}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\3D\Rail">
-      <UniqueIdentifier>{0763dbd9-37f9-46d4-8436-f273c4146350}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\3D\waveManager">
-      <UniqueIdentifier>{c87730b3-1d64-4952-bf38-cbffa909fd99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\3D\Effect">
       <UniqueIdentifier>{1c069604-cf1b-44f7-a331-d4de8a5a15a5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Enemy\State">
-      <UniqueIdentifier>{f33578ee-e0e0-4701-ad54-f78c11c0da81}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Enemy\WeakEnemy">
-      <UniqueIdentifier>{903047c9-83c6-4615-a673-4a49ba30c179}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Character\Enemy\Obstacle">
-      <UniqueIdentifier>{e69233ae-9e77-4536-8d20-eee6731564fa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\CameraShake">
       <UniqueIdentifier>{0e13efa7-9719-450d-921c-aaee0bed7e25}</UniqueIdentifier>

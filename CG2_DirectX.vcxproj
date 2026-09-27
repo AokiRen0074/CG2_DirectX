@@ -98,13 +98,7 @@
   <ItemGroup>
     <ClCompile Include="BossUI.cpp" />
     <ClCompile Include="CameraShake.cpp" />
-    <ClCompile Include="EnemyBoss.cpp" />
-    <ClCompile Include="EnemyLaserBeam.cpp" />
-    <ClCompile Include="EnemyStateHold.cpp" />
-    <ClCompile Include="EnemyStateStraight.cpp" />
-    <ClCompile Include="EnemyTurret.cpp" />
     <ClCompile Include="LifeUI.cpp" />
-    <ClCompile Include="ObstacleLaser.cpp" />
     <ClCompile Include="RebootUI.cpp" />
     <ClCompile Include="ResultUI.cpp" />
     <ClCompile Include="ScoreUI.cpp" />
@@ -112,32 +106,21 @@
     <ClCompile Include="TutorialUI.cpp" />
     <ClCompile Include="WarningUI.cpp" />
     <ClCompile Include="WaveUI.cpp" />
-    <ClCompile Include="WeakEnemyTriangle.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp" />
     <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp" />
     <ClCompile Include="Application\AxisIndicator.cpp" />
-    <ClCompile Include="Application\Character\Player.cpp" />
     <ClCompile Include="Application\GameScene.cpp" />
     <ClCompile Include="Application\main.cpp" />
-    <ClCompile Include="BaseCharacter.cpp" />
     <ClCompile Include="Bloom.cpp" />
-    <ClCompile Include="BodyModel.cpp" />
     <ClCompile Include="NeonParticle.cpp" />
     <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="WarpEffect.cpp" />
-    <ClCompile Include="WaveManager.cpp" />
-    <ClCompile Include="WeakEnemyCross.cpp" />
-    <ClCompile Include="WeakEnemySpinCore.cpp" />
     <None Include="BodyModel.VS.hlsl">
       <FileType>Document</FileType>
     </None>
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="EditorPanel.cpp" />
-    <ClCompile Include="BaseEnemy.cpp" />
-    <ClCompile Include="EnemyBullet.cpp" />
-    <ClCompile Include="EnemyStateApproach.cpp" />
-    <ClCompile Include="EnemyStateLeave.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\2D\TextureManager.cpp" />
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
@@ -193,11 +176,7 @@
     <ClCompile Include="NeonObj.cpp" />
     <ClCompile Include="NeonSign.cpp" />
     <ClCompile Include="NeonText.cpp" />
-    <ClCompile Include="PlayerBullet.cpp" />
     <ClCompile Include="ProceduralNeon.cpp" />
-    <ClCompile Include="Rail.cpp" />
-    <ClCompile Include="RailCamera.cpp" />
-    <ClCompile Include="RailEditor.cpp" />
     <ClCompile Include="Skydome.cpp" />
     <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
@@ -206,27 +185,14 @@
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h" />
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h" />
     <ClInclude Include="Application\AxisIndicator.h" />
-    <ClInclude Include="Application\Character\Player.h" />
     <ClInclude Include="Application\GameScene.h" />
-    <ClInclude Include="BaseCharacter.h" />
-    <ClInclude Include="BaseEnemyState.h" />
     <ClInclude Include="Bloom.h" />
-    <ClInclude Include="BodyModel.h" />
     <ClInclude Include="BossUI..h" />
     <ClInclude Include="CameraShake.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionConfig.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="EditorPanel.h" />
-    <ClInclude Include="BaseEnemy.h" />
-    <ClInclude Include="EnemyBoss.h" />
-    <ClInclude Include="EnemyBullet.h" />
-    <ClInclude Include="EnemyLaserBeam.h" />
-    <ClInclude Include="EnemyStateApproach.h" />
-    <ClInclude Include="EnemyStateHold.h" />
-    <ClInclude Include="EnemyStateLeave.h" />
-    <ClInclude Include="EnemyStateStraight.h" />
-    <ClInclude Include="EnemyTurret.h" />
     <ClInclude Include="FlickerTimer.h" />
     <ClInclude Include="LifeUI.h" />
     <ClInclude Include="MathUtility.h" />
@@ -235,9 +201,7 @@
     <ClInclude Include="NeonParticle.h" />
     <ClInclude Include="NeonSign.h" />
     <ClInclude Include="NeonText.h" />
-    <ClInclude Include="ObstacleLaser.h" />
     <ClInclude Include="ParticleManager.h" />
-    <ClInclude Include="PlayerBullet.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\2D\TextureManager.h" />
     <ClInclude Include="Engine\3D\DebugCamera.h" />
@@ -263,9 +227,6 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="GlobalValiables.h" />
     <ClInclude Include="ProceduralNeon.h" />
-    <ClInclude Include="Rail.h" />
-    <ClInclude Include="RailCamera.h" />
-    <ClInclude Include="RailEditor.h" />
     <ClInclude Include="RebootUI.h" />
     <ClInclude Include="ResultUI.h" />
     <ClInclude Include="ScoreUI.h" />
@@ -277,11 +238,7 @@
     <ClInclude Include="Vector4.h" />
     <ClInclude Include="WarningUI.h" />
     <ClInclude Include="WarpEffect.h" />
-    <ClInclude Include="WaveManager.h" />
     <ClInclude Include="WaveUI.h" />
-    <ClInclude Include="WeakEnemyCross.h" />
-    <ClInclude Include="WeakEnemySpinCore.h" />
-    <ClInclude Include="WeakEnemyTriangle.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />
