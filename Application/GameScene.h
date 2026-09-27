@@ -53,6 +53,8 @@ private:
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
 
+	WorldTransform worldTransform_;
+
 	// 音声データ
 	//SoundData soundData_;
 

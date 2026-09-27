@@ -13,6 +13,7 @@
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete bloom_;
+	delete object3d_;
 }
 
 
@@ -48,14 +49,16 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	bloom_ = new Bloom();
 	bloom_->Initialize(dxCommon,1280,720);
 
+	/*----------------------
+	3Dオブジェクトの生成、読み込み
+	------------------------------*/
+	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
 
+	// 3Dオブジェクトの生成
+	object3d_ = Object3d::Create("Resources", "plane.obj");
 
-
-
-
-
-
-
+	// ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
 
 	/*-----------------------
 	軸表示
@@ -102,6 +105,12 @@ void GameScene::Update() {
 
 #endif
 
+	/*-----------------------------
+	3Dオブジェクトの更新
+	----------------------------*/
+	if (object3d_) {
+		object3d_->Update();
+	}
 
 	// 軸表示
 	AxisIndicator::GetInstance()->Update();
@@ -112,7 +121,12 @@ void GameScene::Draw() {
 	// 普通のやつ
 	// ==========================================
 
-
+	/*-------------------------
+	3Dオブジェクトの更新
+	----------------------------*/
+	if (object3d_) {
+		object3d_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	}
 
 
 	// ==========================================

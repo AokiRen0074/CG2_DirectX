@@ -140,6 +140,17 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
 
+	// ノーマルブレンドの設定
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+
+	// アルファ値自体のブレンド設定
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
@@ -414,57 +425,44 @@ void Object3d::Update() {
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
 
-	if (ImGui::TreeNode("Object3D Transform")) {
-		ImGui::DragFloat3("Translate", &transform_.translate.x, 0.1f);
-		ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
-		ImGui::DragFloat3("Scale", &transform_.scale.x, 0.01f);
-		ImGui::TreePop();
-	}
 
+	ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
+	ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
 
-	if (ImGui::TreeNode("Camera")) {
-		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
-		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Directional Light")) {
-		ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
-		if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
-			float len = std::sqrt(directionalLightData_->direction.x * directionalLightData_->direction.x + directionalLightData_->direction.y * directionalLightData_->direction.y + directionalLightData_->direction.z * directionalLightData_->direction.z);
-			if (len != 0.0f) {
-				directionalLightData_->direction.x /= len;
-				directionalLightData_->direction.y /= len;
-				directionalLightData_->direction.z /= len;
-			}
-		}
-		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
-		const char* lightingTypes[] = { "None", "Lambert", "Half Lambert" };
-		ImGui::Combo("Lighting Type", &directionalLightData_->lightingType, lightingTypes, 3);
+	ImGui::DragFloat("SphereRotateX", &transform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("SphereRotateY", &transform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("SphereRotateZ", &transform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
 
-		ImGui::TreePop();
-	}
+	ImGui::ColorEdit3("LightColor", &directionalLightData_->color.x);
+	ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f);
+	ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+
+	ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
+
+	static float colorSprite[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	ImGui::ColorEdit4("colorSprite", colorSprite);
+	static float translateSprite[3] = { 0.0f, 0.0f, 0.0f };
+	ImGui::DragFloat3("translateSprite", translateSprite, 0.01f);
 
 
 	for (size_t i = 0; i < meshResources_.size(); ++i) {
 		ImGui::PushID(static_cast<int>(i));
 
-		if (ImGui::TreeNode("Material")) {
-			ImGui::DragFloat3("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
-			ImGui::DragFloat3("UVRotate", &meshResources_[i].uvTransform.rotate.x, 0.01f);
-			ImGui::DragFloat3("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
-			ImGui::ColorEdit4("Color", &meshResources_[i].materialData->color.x);
+		ImGui::ColorEdit4("color", &meshResources_[i].materialData->color.x);
 
-			bool isLighting = meshResources_[i].materialData->enableLighting != 0;
-			if (ImGui::Checkbox("Enable Lighting", &isLighting)) {
-				meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
-			}
-			ImGui::TreePop();
+		bool isLighting = meshResources_[i].materialData->enableLighting != 0;
+		if (ImGui::Checkbox("enableLighting", &isLighting)) {
+			meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
 		}
+
+		ImGui::DragFloat2("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
+		ImGui::DragFloat2("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
+		ImGui::DragFloat("UVRotate", &meshResources_[i].uvTransform.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
 		ImGui::PopID();
 
-		// 動かしたUVのSRTをもとに、最新の行列を計算してGPUに送る
 		meshResources_[i].materialData->uvTransform = MakeAffineMatrix(
 			meshResources_[i].uvTransform.scale,
 			meshResources_[i].uvTransform.rotate,

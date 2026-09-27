@@ -108,44 +108,11 @@
     <ClCompile Include="MathUtility.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="WarpEffect.cpp">
-      <Filter>Engine\3D\Effect</Filter>
-    </ClCompile>
     <ClCompile Include="NeonParticle.cpp">
       <Filter>Engine\Neon</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleManager.cpp">
-      <Filter>Engine\3D\Effect</Filter>
-    </ClCompile>
     <ClCompile Include="CameraShake.cpp">
       <Filter>Engine\CameraShake</Filter>
-    </ClCompile>
-    <ClCompile Include="WarningUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ResultUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ScoreUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="LifeUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="WaveUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="RebootUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="TutorialUI.cpp">
-      <Filter>Engine\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="BossUI.cpp">
-      <Filter>Engine\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -268,44 +235,11 @@
     <ClInclude Include="MathUtility.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="WarpEffect.h">
-      <Filter>Engine\3D\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="NeonParticle.h">
       <Filter>Engine\Neon</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleManager.h">
-      <Filter>Engine\3D\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="CameraShake.h">
       <Filter>Engine\CameraShake</Filter>
-    </ClInclude>
-    <ClInclude Include="WarningUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ResultUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="TitleUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ScoreUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="LifeUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="WaveUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="RebootUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="TutorialUI.h">
-      <Filter>Engine\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="BossUI..h">
-      <Filter>Engine\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -412,14 +346,8 @@
     <Filter Include="Engine\EditorPanel">
       <UniqueIdentifier>{f03de160-2560-42a2-b500-b8776c7c9945}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\3D\Effect">
-      <UniqueIdentifier>{1c069604-cf1b-44f7-a331-d4de8a5a15a5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\CameraShake">
       <UniqueIdentifier>{0e13efa7-9719-450d-921c-aaee0bed7e25}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\UI">
-      <UniqueIdentifier>{3d23f1f9-4099-40e6-ad79-62452e661759}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
