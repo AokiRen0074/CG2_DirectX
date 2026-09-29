@@ -167,7 +167,6 @@
     <ClCompile Include="NeonText.cpp" />
     <ClCompile Include="ProceduralNeon.cpp" />
     <ClCompile Include="Skydome.cpp" />
-    <ClCompile Include="TimedCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h" />
@@ -214,7 +213,6 @@
     <ClInclude Include="GlobalValiables.h" />
     <ClInclude Include="ProceduralNeon.h" />
     <ClInclude Include="Skydome.h" />
-    <ClInclude Include="TimedCall.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector4.h" />
   </ItemGroup>

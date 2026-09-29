@@ -4,7 +4,6 @@
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="Skydome.cpp" />
-    <ClCompile Include="TimedCall.cpp" />
     <ClCompile Include="ProceduralNeon.cpp" />
     <ClCompile Include="NeonText.cpp">
       <Filter>Engine\Neon</Filter>
@@ -122,7 +121,6 @@
     <ClInclude Include="Engine\Math\Transform.h" />
     <ClInclude Include="GlobalValiables.h" />
     <ClInclude Include="Skydome.h" />
-    <ClInclude Include="TimedCall.h" />
     <ClInclude Include="ProceduralNeon.h" />
     <ClInclude Include="NeonText.h">
       <Filter>Engine\Neon</Filter>
