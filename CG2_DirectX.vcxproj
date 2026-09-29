@@ -232,9 +232,9 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
+    <None Include="Resources\Shaders\Object3d.PS.hlsl">
       <FileType>Document</FileType>
-    </Text>
+    </None>
     <None Include="Resources\Shaders\Object3d.VS.hlsl">
       <FileType>Document</FileType>
     </None>

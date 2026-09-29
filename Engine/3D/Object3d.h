@@ -7,10 +7,16 @@
 #include "Vector4.h"
 #include "Vector3.h"
 #include "WorldTransform.h"
-
-
-
 #include "Model.h"
+
+enum class BlendMode {
+	kNormal,
+	kAdd,
+	kSubtract,
+	kMultiply,
+	kScreen,
+	kCount
+};
 
 
 class Object3d {
@@ -139,4 +145,10 @@ private:
 
 	// クラス全体で共有するdxCommon
 	static DirectXCommon* sDxCommon_;
+
+	// いま選択されているブレンドモード
+	int blendMode_ = static_cast<int>(BlendMode::kNormal);
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineStates_[5];
+
 };

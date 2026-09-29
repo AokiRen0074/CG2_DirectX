@@ -288,11 +288,11 @@
     <None Include="Object3d.NoTexture.VS.hlsl">
       <Filter>Resources\Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\Object3d.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Shaders\Object3d.PS.hlsl">
-      <Filter>Resources\Shaders</Filter>
-    </Text>
     <Text Include="Resources\Shaders\Object3d.hlsli">
       <Filter>Resources\Shaders</Filter>
     </Text>

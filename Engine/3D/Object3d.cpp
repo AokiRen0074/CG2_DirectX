@@ -132,88 +132,84 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
-	// BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-
-	// 全ての色要素を書き込む
-
-	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	// ノーマルブレンドの設定
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-
-	// アルファ値自体のブレンド設定
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-
-	// 裏面は表示しない
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-
-	// 三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.VS.hlsl",
-		L"vs_6_0", dxCommon_->GetDxcUtils(),
-		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
-	);
+		L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(vertexShaderBlob != nullptr);
 
-
-	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
-		L"ps_6_0", dxCommon_->GetDxcUtils(),
-		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
-	);
-
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
+		L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(pixelShaderBlob != nullptr);
 
-
-
-	// PSOを作成する
-
+	// DepthStencilStateの設定
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	// Depthの機能を有効化する
 	depthStencilDesc.DepthEnable = true;
-
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	// 近ければ描画される
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get(); // RootSignature
-	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;// InputLayout
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
-	vertexShaderBlob->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
-	pixelShaderBlob->GetBufferSize() };// PixelShader
-	graphicsPipelineStateDesc.BlendState = blendDesc; // BlendState
-	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc; // RasterizerState
-	//書き込むRTVの情報
+	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get();
+	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
+	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	//利用するトポロジのタイプ。三角形
-	graphicsPipelineStateDesc.PrimitiveTopologyType =
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	//実際に生成
-	ID3D12PipelineState* graphicsPipelineState = nullptr;
-
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
-		IID_PPV_ARGS(&graphicsPipelineState_));
-	assert(SUCCEEDED(hr));
+
+	for (int i = 0; i < static_cast<int>(BlendMode::kCount); i++) {
+		// BlendStateの設定
+		D3D12_BLEND_DESC blendDesc{};
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		blendDesc.RenderTarget[0].BlendEnable = TRUE;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+		switch (static_cast<BlendMode>(i)) {
+		case BlendMode::kNormal:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+			break;
+		case BlendMode::kAdd:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		case BlendMode::kSubtract:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		case BlendMode::kMultiply:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+			break;
+		case BlendMode::kScreen:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		}
+
+		graphicsPipelineStateDesc.BlendState = blendDesc;
+
+		// 配列の [i] 番目に生成
+		hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&pipelineStates_[i]));
+		assert(SUCCEEDED(hr));
+	}
 
 
 	D3D12_ROOT_PARAMETER rootParamsNoTex[3] = {};
@@ -251,9 +247,20 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	psoDescNoTex.VS = { vsBlobNoTex->GetBufferPointer(), vsBlobNoTex->GetBufferSize() };
 	psoDescNoTex.PS = { psBlobNoTex->GetBufferPointer(), psBlobNoTex->GetBufferSize() };
 
+	D3D12_BLEND_DESC normalBlendDesc{};
+	normalBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	normalBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	normalBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	normalBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	normalBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	normalBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	normalBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	normalBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+	psoDescNoTex.BlendState = normalBlendDesc;
+
 	hr = device->CreateGraphicsPipelineState(&psoDescNoTex, IID_PPV_ARGS(&graphicsPipelineStateNoTexture_));
 	assert(SUCCEEDED(hr));
-
 
 
 	// ==========================================
@@ -380,7 +387,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(handle);
 		}
 		else {
-			// 画像がない場合はダミー（0番）を入れてクラッシュを防ぐ
+			// 画像がない場合はダミーを入れてクラッシュを防ぐ
 			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(0);
 		}
 
@@ -425,6 +432,8 @@ void Object3d::Update() {
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
 
+	const char* blendModeNames[] = { "Normal", "Add", "Subtract", "Multiply", "Screen" };
+	ImGui::Combo("Blend Mode", &blendMode_, blendModeNames, IM_ARRAYSIZE(blendModeNames));
 
 	ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
 	ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
@@ -450,16 +459,21 @@ void Object3d::Update() {
 	for (size_t i = 0; i < meshResources_.size(); ++i) {
 		ImGui::PushID(static_cast<int>(i));
 
-		ImGui::ColorEdit4("color", &meshResources_[i].materialData->color.x);
+		std::string nodeName = "Mesh " + std::to_string(i);
+		if (ImGui::TreeNode(nodeName.c_str())) {
+			ImGui::ColorEdit4("color", &meshResources_[i].materialData->color.x);
 
-		bool isLighting = meshResources_[i].materialData->enableLighting != 0;
-		if (ImGui::Checkbox("enableLighting", &isLighting)) {
-			meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
+			bool isLighting = meshResources_[i].materialData->enableLighting != 0;
+			if (ImGui::Checkbox("enableLighting", &isLighting)) {
+				meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
+			}
+
+			ImGui::DragFloat2("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
+			ImGui::DragFloat2("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
+			ImGui::DragFloat("UVRotate", &meshResources_[i].uvTransform.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
+			ImGui::TreePop(); // ツリーを閉じる
 		}
-
-		ImGui::DragFloat2("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
-		ImGui::DragFloat2("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
-		ImGui::DragFloat("UVRotate", &meshResources_[i].uvTransform.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
 
 		ImGui::PopID();
 
@@ -498,7 +512,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
 
 		commandList->SetGraphicsRootSignature(rootSignature_.Get());
-		commandList->SetPipelineState(graphicsPipelineState_.Get());
+		commandList->SetPipelineState(pipelineStates_[blendMode_].Get());
 
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
@@ -550,7 +564,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 
 	// スプライト描画のクラッシュを防ぐ
 	commandList->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList->SetPipelineState(graphicsPipelineState_.Get());
+	commandList->SetPipelineState(pipelineStates_[0].Get());
 }
 
 // ==========================================

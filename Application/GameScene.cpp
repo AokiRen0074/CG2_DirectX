@@ -55,7 +55,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
 
 	// 3Dオブジェクトの生成
-	object3d_ = Object3d::Create("Resources", "plane.obj");
+	object3d_ = new Object3d();
+	object3d_->Initialize("Resources", "fence.obj");
+	object3d_->GetTransform().rotate.y = 3.14f;
+	object3d_->GetTransform().scale = { 0.5f,0.5f,0.5f };
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -94,10 +97,12 @@ void GameScene::Update() {
 	
 
 	// グローバル変数の設定
+	/*
 	if (ImGui::TreeNodeEx("Global Variables")) {
 		GlobalVariables::GetInstance()->Update();
 		ImGui::TreePop();
 	}
+	*/
 
 	
 
@@ -105,15 +110,23 @@ void GameScene::Update() {
 
 #endif
 
+	if (debugCamera_) {
+		debugCamera_->Update();
+	}
+
+	viewProjection_.UpdateMatrix();
+
 	/*-----------------------------
 	3Dオブジェクトの更新
 	----------------------------*/
 	if (object3d_) {
+		//object3d_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
+
 		object3d_->Update();
 	}
 
 	// 軸表示
-	AxisIndicator::GetInstance()->Update();
+	//AxisIndicator::GetInstance()->Update();
 }
 
 void GameScene::Draw() {
