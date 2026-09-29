@@ -61,7 +61,6 @@ void Input::Update() {
 }
 
 
-
 // キーを押した状態か
 bool Input::PushKey(uint8_t keyNum) const {
 	return key_[keyNum] != 0;
