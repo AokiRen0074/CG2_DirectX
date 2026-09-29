@@ -21,6 +21,8 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize(DirectXCommon* dxCommon) {
 
+
+
 	GlobalVariables::GetInstance()->LoadFiles();
 
 	dxCommon_ = dxCommon;
@@ -121,7 +123,6 @@ void GameScene::Update() {
 	----------------------------*/
 	if (object3d_) {
 		//object3d_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
-
 		object3d_->Update();
 	}
 
@@ -135,7 +136,7 @@ void GameScene::Draw() {
 	// ==========================================
 
 	/*-------------------------
-	3Dオブジェクトの更新
+	3Dオブジェクトの描画
 	----------------------------*/
 	if (object3d_) {
 		object3d_->Draw(worldTransform_, viewProjection_, textureHandle_);
