@@ -113,6 +113,15 @@
     <ClCompile Include="CameraShake.cpp">
       <Filter>Engine\CameraShake</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Character\Enemy\Enemy.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Player\Player.cpp">
+      <Filter>Application\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Character\Enemy\EnemyManager.cpp">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -239,6 +248,15 @@
     <ClInclude Include="CameraShake.h">
       <Filter>Engine\CameraShake</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Character\Enemy\Enemy.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Player\Player.h">
+      <Filter>Application\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Character\Enemy\EnemyManager.h">
+      <Filter>Application\Character\Enemy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
@@ -346,6 +364,12 @@
     </Filter>
     <Filter Include="Engine\CameraShake">
       <UniqueIdentifier>{0e13efa7-9719-450d-921c-aaee0bed7e25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Player">
+      <UniqueIdentifier>{614bb644-9ac3-4724-b3d3-6b046bd089fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Character\Enemy">
+      <UniqueIdentifier>{5d795c7b-726c-40c7-931b-b80770989405}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,8 @@
 #include "ViewProjection.h"
 #include "DirectXCommon.h"
 #include "Bloom.h"
+#include "Character/Player/Player.h"
+#include "Character/Enemy/EnemyManager.h"
 
 
 
@@ -21,6 +23,8 @@ public:
 	void Update();
 	void Draw();
 
+	// 一時停止
+	static bool IsPaused() { return isPaused_; }
 
 	~GameScene();
 
@@ -66,5 +70,20 @@ private:
 	IXAudio2SourceVoice* bgmVoice_ = nullptr;
 	IXAudio2SourceVoice* warpVoice_ = nullptr;
 
+
+	// 一時停止
+	static bool isPaused_;
+
+	/*-----------------------
+	プレイヤー
+	------------------------*/
+	Player* player_ = nullptr;
+
+	/*-----------------------
+	敵
+	----------------------*/
+	EnemyManager* enemyManager_ = nullptr;
+	
+	void CheckCollisions();
 
 };

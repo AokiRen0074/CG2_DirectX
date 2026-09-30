@@ -49,21 +49,19 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	Bloomの生成と初期化
 	----------------------------------*/
 	bloom_ = new Bloom();
-	bloom_->Initialize(dxCommon,1280,720);
+	bloom_->Initialize(dxCommon, 1280, 720);
 
-	/*----------------------
-	3Dオブジェクトの生成、読み込み
-	------------------------------*/
-	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
+	/*------------------
+	プレイヤー
+	----------------------*/
+	player_ = new Player();
+	player_->Initialize();
 
-	// 3Dオブジェクトの生成
-	object3d_ = new Object3d();
-	object3d_->Initialize("Resources", "fence.obj");
-	object3d_->GetTransform().rotate.y = 3.14f;
-	object3d_->GetTransform().scale = { 0.5f,0.5f,0.5f };
-
-	// ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
+	/*--------------------
+	敵
+	-----------------------*/
+	enemyManager_ = new EnemyManager();
+	enemyManager_->Initialize();
 
 	/*-----------------------
 	軸表示
@@ -84,6 +82,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 }
 
+bool GameScene::isPaused_ = false;
+
 void GameScene::Update() {
 
 
@@ -96,7 +96,10 @@ void GameScene::Update() {
 	ImGui::Begin("Master Control", nullptr, ImGuiWindowFlags_MenuBar);
 
 
-	
+	ImGui::Begin("Debug Menu");
+	ImGui::Checkbox("Pause Game (Stop & Edit)", &isPaused_);
+
+	ImGui::End();
 
 	// グローバル変数の設定
 	/*
@@ -106,7 +109,7 @@ void GameScene::Update() {
 	}
 	*/
 
-	
+
 
 	ImGui::End(); // Master Controlの終了
 
@@ -118,16 +121,46 @@ void GameScene::Update() {
 
 	viewProjection_.UpdateMatrix();
 
-	/*-----------------------------
-	3Dオブジェクトの更新
-	----------------------------*/
-	if (object3d_) {
-		//object3d_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
-		object3d_->Update();
+	GlobalVariables::GetInstance()->Update();
+
+	/*----------------------
+	プレイヤー
+	------------------------*/
+	player_->Update();
+
+	/*----------------------
+	敵
+	-----------------------*/
+	enemyManager_->Update();
+
+	// 衝突判定
+	if (!isPaused_) {
+		CheckCollisions();
 	}
 
 	// 軸表示
 	//AxisIndicator::GetInstance()->Update();
+}
+
+/*--------------------------
+衝突判定
+---------------------------*/
+// 当たり判定専用の処理
+void GameScene::CheckCollisions() {
+	const float kCollisionSize = 1.0f;
+	Vector3 playerPos = player_->GetPosition();
+
+	for (Enemy* enemy : enemyManager_->GetEnemies()) {
+		Vector3 enemyPos = enemy->GetPosition();
+
+		if (std::abs(playerPos.x - enemyPos.x) < kCollisionSize &&
+			std::abs(playerPos.y - enemyPos.y) < kCollisionSize) {
+
+			// ぶつかったら
+			player_->OnCollision();
+			enemy->OnCollision();
+		}
+	}
 }
 
 void GameScene::Draw() {
@@ -135,13 +168,11 @@ void GameScene::Draw() {
 	// 普通のやつ
 	// ==========================================
 
-	/*-------------------------
-	3Dオブジェクトの描画
-	----------------------------*/
-	if (object3d_) {
-		object3d_->Draw(worldTransform_, viewProjection_, textureHandle_);
-	}
+	// プレイヤー
+	player_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
+	// 敵
+	enemyManager_->Draw(worldTransform_, viewProjection_, textureHandle_);
 
 	// ==========================================
 	//  ネオン
