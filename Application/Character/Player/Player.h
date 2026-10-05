@@ -16,6 +16,7 @@ public:
 
 	// 描画
 	void Draw(const WorldTransform& worldTransForm, const ViewProjection& viewProjection, uint32_t textureHandle);
+	void DrawImGui();
 
 	// 座標のゲッター
 	Vector3 GetPosition()const { return model3D_->GetTransform().translate; }

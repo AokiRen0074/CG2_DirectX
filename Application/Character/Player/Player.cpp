@@ -3,6 +3,10 @@
 #include "GlobalValiables.h"
 #include <GameScene.h>
 
+#ifdef USE_IMGUI
+#include "externals/imgui/imgui.h"
+#endif
+
 /*-------------------------
 初期化
 -----------------------*/
@@ -68,6 +72,40 @@ void Player::Update() {
     model3D_->GetTransform().translate.z = baseTranslate.z + gamePos_.z;
 
     model3D_->Update();
+}
+
+void Player::DrawImGui() {
+#ifdef USE_IMGUI
+    // 独立したウィンドウを作成
+    ImGui::Begin("Player Settings");
+
+    GlobalVariables* global = GlobalVariables::GetInstance();
+    const std::string groupName = "Player";
+
+    Vector3 scale = model3D_->GetTransform().scale;
+    Vector3 rotate = model3D_->GetTransform().rotate;
+    Vector3 translate = global->GetVector3Value(groupName, "Translate");
+
+    if (ImGui::DragFloat3("Scale", &scale.x, 0.01f)) {
+        global->SetValue(groupName, "Scale", scale);
+    }
+    if (ImGui::DragFloat3("Rotate", &rotate.x, 0.01f)) {
+        global->SetValue(groupName, "Rotate", rotate);
+    }
+    if (ImGui::DragFloat3("Translate", &translate.x, 0.1f)) {
+        global->SetValue(groupName, "Translate", translate);
+    }
+
+    ImGui::Separator(); // 区切り線
+
+    // セーブボタン
+    if (ImGui::Button("SAVE PLAYER SETTINGS (JSON)")) {
+        global->SaveFile(groupName);
+    }
+
+    // ウィンドウを閉じる
+    ImGui::End();
+#endif
 }
 
 

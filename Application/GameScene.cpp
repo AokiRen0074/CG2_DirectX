@@ -93,7 +93,7 @@ void GameScene::Update() {
 // ==========================================
 #ifdef USE_IMGUI
 
-	ImGui::Begin("Master Control", nullptr, ImGuiWindowFlags_MenuBar);
+
 
 
 	ImGui::Begin("Debug Menu");
@@ -109,9 +109,11 @@ void GameScene::Update() {
 	}
 	*/
 
+	enemyManager_->DrawImGui();
+
+	player_->DrawImGui();
 
 
-	ImGui::End(); // Master Controlの終了
 
 #endif
 
@@ -121,7 +123,7 @@ void GameScene::Update() {
 
 	viewProjection_.UpdateMatrix();
 
-	GlobalVariables::GetInstance()->Update();
+	//GlobalVariables::GetInstance()->Update();
 
 	/*----------------------
 	プレイヤー
@@ -132,6 +134,7 @@ void GameScene::Update() {
 	敵
 	-----------------------*/
 	enemyManager_->Update();
+
 
 	// 衝突判定
 	if (!isPaused_) {
