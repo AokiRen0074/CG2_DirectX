@@ -20,6 +20,10 @@ public:
 
 	// 座標のゲッター
 	Vector3 GetPosition() const { return model3D_->GetTransform().translate; }
+
+	// スケールのゲッター
+	Vector3 GetScale() const { return model3D_->GetTransform().scale; }
+
 	bool IsDead() const { return isDead_; }
 	void OnCollision();
 

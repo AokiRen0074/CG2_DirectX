@@ -153,6 +153,7 @@
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</WholeProgramOptimization>
     </ClCompile>
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="Engine\Collision\RhythmJudge.cpp" />
     <ClCompile Include="NeonParticle.cpp" />
     <None Include="BodyModel.VS.hlsl">
       <FileType>Document</FileType>
@@ -239,6 +240,7 @@
     <ClInclude Include="CollisionConfig.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="EditorPanel.h" />
+    <ClInclude Include="Engine\Collision\RhythmJudge.h" />
     <ClInclude Include="FlickerTimer.h" />
     <ClInclude Include="MathUtility.h" />
     <ClInclude Include="NeonModel.h" />

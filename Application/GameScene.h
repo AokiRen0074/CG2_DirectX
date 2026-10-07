@@ -9,6 +9,8 @@
 #include "Character/Player/Player.h"
 #include "Character/Enemy/EnemyManager.h"
 
+#include "Engine/Collision/RhythmJudge.h"
+
 
 
 class Skydome;
@@ -84,6 +86,7 @@ private:
 	----------------------*/
 	EnemyManager* enemyManager_ = nullptr;
 	
-	void CheckCollisions();
+	// 判定
+	RhythmJudge* rhythmJudge_ = nullptr;
 
 };

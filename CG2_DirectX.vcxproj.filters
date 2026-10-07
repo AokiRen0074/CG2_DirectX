@@ -122,6 +122,9 @@
     <ClCompile Include="Application\Character\Enemy\EnemyManager.cpp">
       <Filter>Application\Character\Enemy</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Collision\RhythmJudge.cpp">
+      <Filter>Engine\Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collider.h" />
@@ -257,6 +260,9 @@
     <ClInclude Include="Application\Character\Enemy\EnemyManager.h">
       <Filter>Application\Character\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Collision\RhythmJudge.h">
+      <Filter>Engine\Collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
@@ -370,6 +376,9 @@
     </Filter>
     <Filter Include="Application\Character\Enemy">
       <UniqueIdentifier>{5d795c7b-726c-40c7-931b-b80770989405}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Collision">
+      <UniqueIdentifier>{11c23cdb-4278-4ba2-bb03-c285e30eb3a5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

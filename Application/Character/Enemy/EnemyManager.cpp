@@ -1,6 +1,8 @@
 #include "EnemyManager.h"
 #include "GameScene.h" 
 #include "GlobalValiables.h"
+#include <cstdlib>
+#include <ctime>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -10,6 +12,25 @@ void EnemyManager::Initialize() {
     spawnTimer_ = 0;
     spawnInterval_ = 60;
     enemySpeed_ = 0.05f;
+
+    // ランダムの初期化
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    GlobalVariables* globalVars = GlobalVariables::GetInstance();
+    const std::string groupName = "Enemy";
+    globalVars->CreateGroup(groupName);
+
+    // 初期のパラメータをセット
+    globalVars->AddItem(groupName, "Scale", Vector3{ 1.0f, 1.0f, 1.0f });
+    globalVars->AddItem(groupName, "Rotate", Vector3{ 0.0f, 1.57f, 0.0f });
+    globalVars->AddItem(groupName, "Translate", Vector3{ 15.0f, 0.0f, 0.0f });
+    // ==========================================
+
+    // 最初の1体をスポーン
+    Enemy* newEnemy = new Enemy();
+    newEnemy->Initialize({ 15.0f, 0.0f, 0.0f });
+    newEnemy->SetSpeed(enemySpeed_);
+    enemies_.push_back(newEnemy);
 }
 
 void EnemyManager::Update() {
@@ -17,12 +38,17 @@ void EnemyManager::Update() {
         spawnTimer_++;
         if (spawnTimer_ >= spawnInterval_) {
             Enemy* newEnemy = new Enemy();
-            newEnemy->Initialize({ 15.0f, 0.0f, 0.0f });
 
+   
+            int lane = rand() % 2;
+            float laneY = (lane == 0) ? 0.0f : 2.5f;
+
+            // 決まった高さを Initialize に渡す
+            newEnemy->Initialize({ 15.0f, laneY, 0.0f });
             newEnemy->SetSpeed(enemySpeed_);
-
             enemies_.push_back(newEnemy);
-            spawnTimer_ = 0; // タイマーリセット
+
+            spawnTimer_ = 0;
         }
     }
 

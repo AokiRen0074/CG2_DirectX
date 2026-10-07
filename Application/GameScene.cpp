@@ -14,6 +14,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete bloom_;
 	delete object3d_;
+	delete rhythmJudge_;
 }
 
 
@@ -42,7 +43,9 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	ビュープロジェクションの初期化
 	---------------------------------*/
 	viewProjection_.Initialize();
-	viewProjection_.translation_.z = -20.0f;
+	viewProjection_.translation_.z = -300.0f; 
+	viewProjection_.translation_.x = 2.0f;  
+	viewProjection_.translation_.y = 5.5f; 
 	viewProjection_.UpdateMatrix();
 
 	/*-------------------------------
@@ -62,6 +65,12 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	-----------------------*/
 	enemyManager_ = new EnemyManager();
 	enemyManager_->Initialize();
+
+	/*--------------------------
+	攻撃判定
+	-----------------------*/
+	rhythmJudge_ = new RhythmJudge();
+	rhythmJudge_->Initialize();
 
 	/*-----------------------
 	軸表示
@@ -137,8 +146,9 @@ void GameScene::Update() {
 
 
 	// 衝突判定
+
 	if (!isPaused_) {
-		CheckCollisions();
+		rhythmJudge_->Update(player_, enemyManager_);
 	}
 
 	// 軸表示
@@ -148,23 +158,7 @@ void GameScene::Update() {
 /*--------------------------
 衝突判定
 ---------------------------*/
-// 当たり判定専用の処理
-void GameScene::CheckCollisions() {
-	const float kCollisionSize = 1.0f;
-	Vector3 playerPos = player_->GetPosition();
 
-	for (Enemy* enemy : enemyManager_->GetEnemies()) {
-		Vector3 enemyPos = enemy->GetPosition();
-
-		if (std::abs(playerPos.x - enemyPos.x) < kCollisionSize &&
-			std::abs(playerPos.y - enemyPos.y) < kCollisionSize) {
-
-			// ぶつかったら
-			player_->OnCollision();
-			enemy->OnCollision();
-		}
-	}
-}
 
 void GameScene::Draw() {
 	// ==========================================

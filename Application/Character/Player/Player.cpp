@@ -33,9 +33,9 @@ void Player::ApplyGlobalVariables() {
 	GlobalVariables* globalVars = GlobalVariables::GetInstance(); 
 	const std::string groupName = "Player";
 
-	model3D_->GetTransform().scale = globalVars->GetVector3Value(groupName, "Scale"); //[cite: 11]
-	model3D_->GetTransform().rotate = globalVars->GetVector3Value(groupName, "Rotate"); //[cite: 11]
-	model3D_->GetTransform().translate = globalVars->GetVector3Value(groupName, "Translate"); //[cite: 11]
+	model3D_->GetTransform().scale = globalVars->GetVector3Value(groupName, "Scale");
+	model3D_->GetTransform().rotate = globalVars->GetVector3Value(groupName, "Rotate");
+	model3D_->GetTransform().translate = globalVars->GetVector3Value(groupName, "Translate");
 }
 
 /*--------------------
@@ -44,27 +44,23 @@ void Player::ApplyGlobalVariables() {
 void Player::Update() {
 
     if (!GameScene::IsPaused()) {
-        const float kGravity = -0.05f;
-        const float kJumpVelocity = 0.8f;
-        if (Input::GetInstance()->TriggerKey(DIK_SPACE) && !isJumping_) {
-            velocityY_ = kJumpVelocity;
-            isJumping_ = true;
-        }
-        velocityY_ += kGravity;
-        gamePos_.y += velocityY_;
+            Input* input = Input::GetInstance();
 
-        if (gamePos_.y <= 0.0f) {
-            gamePos_.y = 0.0f;
-            velocityY_ = 0.0f;
-            isJumping_ = false;
-        }
+            if (input->PushKey(DIK_W) || input->PushKey(DIK_UP)) {
+                gamePos_.y = 1.f; // 上レーン
+            }
+            // 離している時は下レーン
+            else {
+                gamePos_.y = 0.0f; // 下レーン
+            }
     }
 
-    GlobalVariables* globalVars = GlobalVariables::GetInstance(); 
-        Vector3 baseScale = globalVars->GetVector3Value("Player", "Scale");
-        Vector3 baseRotate = globalVars->GetVector3Value("Player", "Rotate"); 
-        Vector3 baseTranslate = globalVars->GetVector3Value("Player", "Translate"); 
+    GlobalVariables* globalVars = GlobalVariables::GetInstance();
+    Vector3 baseScale = globalVars->GetVector3Value("Player", "Scale");
+    Vector3 baseRotate = globalVars->GetVector3Value("Player", "Rotate");
+    Vector3 baseTranslate = globalVars->GetVector3Value("Player", "Translate");
 
+    // ImGuiからの基本値 + ゲーム内の変動値(gamePos_) を足して最終的な座標にする
     model3D_->GetTransform().scale = baseScale;
     model3D_->GetTransform().rotate = baseRotate;
     model3D_->GetTransform().translate.x = baseTranslate.x + gamePos_.x;
