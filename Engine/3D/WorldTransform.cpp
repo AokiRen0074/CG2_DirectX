@@ -54,6 +54,7 @@ void WorldTransform::UpdateMatrix(const ViewProjection& viewProjection) {
 
     // 定数バッファに書き込んでGPUに転送
     constMap_->WVP = wvp;
+    constMap_->World = matWorld_;
 
 }
 

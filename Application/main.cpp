@@ -7,6 +7,7 @@
 #include <format>
 #include <dxgidebug.h>
 #include "2D/TextureManager.h"
+#include "3D/ModelManager.h"
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -89,6 +90,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
     // 終了処理
     // ==========================================
     delete gameScene; // ゲームのデータを解放
+	ModelManager::Finalize();
 	TextureManager::Finalize(); 
     delete dxCommon;
     Audio::GetInstance()->Finalize();

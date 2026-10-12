@@ -5,6 +5,8 @@
 #include "TextureManager.h"
 #include <numbers>
 #include "Model.h"
+#include "ModelManager.h"
+#include <stdexcept>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -22,12 +24,12 @@ void Object3d::StaticInitialize(DirectXCommon* dxCommon) {
 //Create関数
 Object3d* Object3d::Create(const std::string& directoryPath, const std::string& filename) {
 	// メモリを確保
-	Object3d* object3d = new Object3d();
+	auto object3d = std::make_unique<Object3d>();
 
 	// 初期化処理
 	object3d->Initialize(directoryPath, filename);
 
-	return object3d;
+	return object3d.release();
 }
 
 /*--------------------------
@@ -36,6 +38,10 @@ Object3d* Object3d::Create(const std::string& directoryPath, const std::string& 
 void Object3d::Initialize(const std::string& directoryPath, const std::string& filename) {
 
 	dxCommon_ = sDxCommon_;
+
+	if (!dxCommon_) {
+		throw std::logic_error("Object3d requires StaticInitialize");
+	}
 	ID3D12Device* device = dxCommon_->GetDevice();
 
 	// RootSignature作成
@@ -338,34 +344,90 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	// OBJモデルデータの読み込み
 	// ==========================================
 
-	ModelData modelData = LoadObjectFile(directoryPath, filename);
+	SetModel(directoryPath, filename);
+	defaultTextureHandle_ = TextureManager::Load("Resources/white1x1.png");
+
+	// ==========================================
+	//  全体で共有するリソース（ライト、WVP行列）
+	// ==========================================
+	uint32_t lightSize = sizeof(DirectionalLight);
+	lightSize = (lightSize + 255) & ~255;
+	directionalLightResource_ = CreateBufferResource(device, lightSize);
+	directionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData_));
+	directionalLightData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
+	directionalLightData_->intensity = 1.0f;
+	directionalLightData_->lightingType = 1;
+
+	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
+	transformMatrixSize = (transformMatrixSize + 255) & ~255;
+	wvpResource_ = CreateBufferResource(device, transformMatrixSize);
+	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
+	wvpData_->WVP = MakeIdentity4x4();
+	wvpData_->World = MakeIdentity4x4();
+
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+// モデルの切り替え
+void Object3d::SetModel(const std::string& directoryPath, const std::string& filename) {
+	SetModel(ModelManager::Load(directoryPath, filename));
+}
+
+void Object3d::SetModel(const std::shared_ptr<const ModelData>& model) {
+	if (!dxCommon_ || !model) {
+		throw std::invalid_argument("SetModel requires an initialized object and model");
+	}
+
+	if (model_ == model) {
+		return;
+	}
+
+	// 読み込み済みの頂点バッファを使い、画像やモデルを読み直さない
+	auto sharedVertices = ModelManager::GetVertexResources(dxCommon_->GetDevice(), model);
+	const ModelData& modelData = *model;
+	std::vector<MeshResource> newMeshResources;
+	newMeshResources.reserve(modelData.meshes.size());
+	ID3D12Device* device = dxCommon_->GetDevice();
 
 
 	// ==========================================
 	//  メッシュの数だけバッファを作るループ
 	// ==========================================
-	for (auto& mesh : modelData.meshes) {
+	for (size_t i = 0; i < modelData.meshes.size(); ++i) {
+		const auto& mesh = modelData.meshes[i];
+		const auto& sharedMesh = sharedVertices->meshes[i];
+
+		if (sharedMesh.vertexCount == 0) {
+			continue;
+		}
+
 		MeshResource meshRes;
-		meshRes.vertexCount = UINT(mesh.vertices.size());
+		meshRes.vertexCount = sharedMesh.vertexCount;
 
 		// 頂点バッファの作成
-		meshRes.vertexResource = CreateBufferResource(device, sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.BufferLocation = meshRes.vertexResource->GetGPUVirtualAddress();
-		meshRes.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-		VertexData* vertexData = nullptr;
-		meshRes.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-		std::memcpy(vertexData, mesh.vertices.data(), sizeof(VertexData) * meshRes.vertexCount);
+		// 作成済みのバッファを共有し、オブジェクトごとの重複を避ける
+		meshRes.vertexResource = sharedMesh.vertexResource;
+		meshRes.vertexBufferView = sharedMesh.vertexBufferView;
 
 		// マテリアルバッファの作成
 		uint32_t materialSize = sizeof(Material);
 		materialSize = (materialSize + 255) & ~255;
 		meshRes.materialResource = CreateBufferResource(device, materialSize);
-		meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
+		HRESULT hr = meshRes.materialResource->Map(
+			0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
+
+		if (FAILED(hr)) {
+			throw std::runtime_error("Failed to map model material buffer");
+		}
+
+		*meshRes.materialData = {};
 
 		// MTLから読み込んだデータ（色・UV）を反映
-		MaterialData& matData = modelData.materials[mesh.useMaterialName];
+		const auto material = modelData.materials.find(mesh.useMaterialName);
+		const MaterialData defaultMaterial;
+		const MaterialData& matData = material != modelData.materials.end()
+			? material->second : defaultMaterial;
 		meshRes.materialData->color = matData.diffuseColor;
 		meshRes.materialData->enableLighting = 1;
 
@@ -392,28 +454,37 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		}
 
 		// 完成したパーツを配列に追加！
-		meshResources_.push_back(meshRes);
+		newMeshResources.push_back(std::move(meshRes));
 	}
 
+	// 全パーツの準備ができてから切り替え、途中で失敗した場合は元のモデルを残す
+	meshResources_ = std::move(newMeshResources);
+	model_ = model;
+}
 
-	// ==========================================
-	//  全体で共有するリソース（ライト、WVP行列）
-	// ==========================================
-	uint32_t lightSize = sizeof(DirectionalLight);
-	lightSize = (lightSize + 255) & ~255;
-	directionalLightResource_ = CreateBufferResource(device, lightSize);
-	directionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData_));
-	directionalLightData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
-	directionalLightData_->intensity = 1.0f;
-	directionalLightData_->lightingType = 1;
+void Object3d::SetPosition(const Vector3& position) {
+	transform_.translate = position;
+	UpdateMatrices(MakeIdentity4x4());
+}
 
-	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
-	transformMatrixSize = (transformMatrixSize + 255) & ~255;
-	wvpResource_ = CreateBufferResource(device, transformMatrixSize);
-	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
-	wvpData_->WVP = MakeIdentity4x4();
-	wvpData_->World = MakeIdentity4x4();
+void Object3d::SetScale(const Vector3& scale) {
+	transform_.scale = scale;
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+void Object3d::SetRotation(const Vector3& rotation) {
+	transform_.rotate = rotation;
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+void Object3d::UpdateMatrices(const Matrix4x4& parentMatrix) {
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	worldMatrix_ = Multiply(worldMatrix_, parentMatrix);
+
+	if (wvpData_) {
+		wvpData_->World = worldMatrix_;
+		wvpData_->WVP = Multiply(worldMatrix_, Multiply(viewMatrix_, projectionMatrix_));
+	}
 }
 
 // ==========================================
@@ -421,16 +492,11 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 // ==========================================
 void Object3d::Update() {
 	//transform_.rotate.y += 0.03f;
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
-
-
-	wvpData_->WVP = worldViewProjectionMatrix;
-	wvpData_->World = worldMatrix;
+	UpdateMatrices(MakeIdentity4x4());
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
+	ImGui::PushID(this);
 
 	const char* blendModeNames[] = { "Normal", "Add", "Subtract", "Multiply", "Screen" };
 	ImGui::Combo("Blend Mode", &blendMode_, blendModeNames, IM_ARRAYSIZE(blendModeNames));
@@ -484,6 +550,7 @@ void Object3d::Update() {
 		);
 	}
 
+	ImGui::PopID();
 	ImGui::End();
 #endif
 }
@@ -492,7 +559,29 @@ void Object3d::Update() {
 // 描画
 // ==========================================
 
+// オブジェクト自身のワールド行列を使う描画
+void Object3d::Draw(const ViewProjection& viewProjection, uint32_t textureHandle) {
+	WorldTransform parentTransform;
+	Draw(parentTransform, viewProjection, textureHandle);
+}
+
+void Object3d::Draw(const ViewProjection& viewProjection) {
+	WorldTransform parentTransform;
+	Draw(parentTransform, viewProjection);
+}
+
+void Object3d::Draw(uint32_t textureHandle) {
+	ViewProjection viewProjection;
+	viewProjection.matView = viewMatrix_;
+	viewProjection.matProjection = projectionMatrix_;
+	Draw(viewProjection, textureHandle);
+}
+
 void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
+	// 渡されたカメラと親の行列を、オブジェクト自身の行列に反映する
+	SetCameraMatrix(viewProjection.matView, viewProjection.matProjection);
+	UpdateMatrices(worldTransform.matWorld_);
+
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;
@@ -521,7 +610,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
 		}
 		else {
-			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle);
+			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle != 0 ? textureHandle : defaultTextureHandle_);
 			commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
 		}
 		commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
@@ -532,6 +621,10 @@ void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& 
 
 // テクスチャなし
 void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
+	// 渡されたカメラと親の行列を、オブジェクト自身の行列に反映する
+	SetCameraMatrix(viewProjection.matView, viewProjection.matProjection);
+	UpdateMatrices(worldTransform.matWorld_);
+
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;

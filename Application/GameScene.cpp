@@ -139,7 +139,7 @@ void GameScene::Draw() {
 	3Dオブジェクトの描画
 	----------------------------*/
 	if (object3d_) {
-		object3d_->Draw(worldTransform_, viewProjection_, textureHandle_);
+		object3d_->Draw(viewProjection_, textureHandle_);
 	}
 
 

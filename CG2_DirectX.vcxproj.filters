@@ -536,4 +536,15 @@
       <Filter>externals\imgui</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\3D\ModelManager.cpp">
+      <Filter>Engine\3D</Filter>
+    </ClCompile>
+    <ClInclude Include="Engine\3D\ModelManager.h">
+      <Filter>Engine\3D</Filter>
+    </ClInclude>
+    <None Include="Resources\Shaders\Sprite.PS.hlsl">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+  </ItemGroup>
 </Project>

@@ -221,6 +221,8 @@
     <ClCompile Include="Engine\3D\DebugCamera.cpp" />
     <ClInclude Include="Engine\3D\DebugCamera.h" />
     <ClCompile Include="Engine\3D\Model.cpp" />
+    <ClCompile Include="Engine\3D\ModelManager.cpp" />
+    <ClInclude Include="Engine\3D\ModelManager.h" />
     <ClInclude Include="Engine\3D\Model.h" />
     <ClCompile Include="Engine\3D\Object3d.cpp" />
     <ClInclude Include="Engine\3D\Object3d.h" />
@@ -348,6 +350,7 @@
     <None Include="Resources\Shaders\Object3d.VS.hlsl" />
     <None Include="Resources\Shaders\PostProcess.PS.hlsl" />
     <None Include="Resources\Shaders\PostProcess.VS.HLSL" />
+    <None Include="Resources\Shaders\Sprite.PS.hlsl" />
     <None Include="Resources\Shaders\Texture.PS.hlsl" />
     <None Include="Resources\Shaders\PreviousVersions\BodyModel.PS.hlsl" />
     <None Include="Resources\Shaders\PreviousVersions\BodyModel.VS.hlsl" />

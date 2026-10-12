@@ -1,6 +1,7 @@
 #include "TextureManager.h"
 #include "Logger.h"
 #include <cassert>
+#include <stdexcept>
 #include "Base/DirectXCommon.h"
 
 
@@ -29,6 +30,14 @@ uint32_t TextureManager::Load(const std::string& filePath) {
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureHandle) {
     assert(textureHandle < srvHandles_.size()); // 範囲外アクセス防止
     return srvHandles_[textureHandle];
+}
+
+D3D12_RESOURCE_DESC TextureManager::GetResourceDesc(uint32_t textureHandle) const {
+    if (textureHandle == 0 || textureHandle > textureResources_.size()) {
+        throw std::out_of_range("Invalid texture handle");
+    }
+
+    return textureResources_[textureHandle - 1]->GetDesc();
 }
 
 uint32_t TextureManager::LoadInternal(const std::string& filePath) {
@@ -93,12 +102,21 @@ DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath) {
     std::wstring filePathW = Logger::ConvertString(filePath);
 
     HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-    assert(SUCCEEDED(hr));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to load or create texture: " + filePath);
+    }
+
+    // 1x1画像はこれ以上縮小できないため、そのまま使う
+    if (image.GetMetadata().width == 1 && image.GetMetadata().height == 1) {
+        return image;
+    }
 
     // ミップマップを自動生成する
     DirectX::ScratchImage mipImages{};
     hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-    assert(SUCCEEDED(hr));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to load or create texture: " + filePath);
+    }
 
     // ミップマップ付きのデータを返す
     return mipImages;

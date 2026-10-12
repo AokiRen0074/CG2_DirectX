@@ -1,3 +1,4 @@
+#include "ModelManager.h"
 #include "NeonModel.h"
 #include <cassert>
 #include "DirectXCommon.h" 
@@ -286,7 +287,9 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	// OBJモデルデータの読み込み
 	// ==========================================
 
-	ModelData modelData = LoadObjectFile(directoryPath, filename);
+	const auto sharedModel = ModelManager::Load(directoryPath, filename);
+	const ModelData& modelData = *sharedModel;
+	const auto sharedVertices = ModelManager::GetVertexResources(device, sharedModel);
 
 	// SRVの割り当て用インデックス
 	static uint32_t srvIndex = 50;
@@ -297,19 +300,20 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	// ==========================================
 	//  メッシュの数だけバッファを作るループ
 	// ==========================================
-	for (auto& mesh : modelData.meshes) {
+	for (size_t i = 0; i < modelData.meshes.size(); ++i) {
+		const auto& mesh = modelData.meshes[i];
+		const auto& sharedMesh = sharedVertices->meshes[i];
+
+		if (sharedMesh.vertexCount == 0) {
+			continue;
+		}
 		MeshResource meshRes;
-		meshRes.vertexCount = UINT(mesh.vertices.size());
+		meshRes.vertexCount = sharedMesh.vertexCount;
 
 		// 頂点バッファの作成
-		meshRes.vertexResource = CreateBufferResource(device, sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.BufferLocation = meshRes.vertexResource->GetGPUVirtualAddress();
-		meshRes.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-		VertexData* vertexData = nullptr;
-		meshRes.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-		std::memcpy(vertexData, mesh.vertices.data(), sizeof(VertexData) * meshRes.vertexCount);
+		// 同じモデルを使う描画クラス間でも、作成済みの頂点バッファを共有する
+		meshRes.vertexResource = sharedMesh.vertexResource;
+		meshRes.vertexBufferView = sharedMesh.vertexBufferView;
 
 		// マテリアルバッファの作成
 		uint32_t materialSize = 256;
@@ -317,7 +321,10 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 		meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
 
 		// MTLから読み込んだデータ（色・UV）を反映
-		MaterialData& matData = modelData.materials[mesh.useMaterialName];
+		const auto material = modelData.materials.find(mesh.useMaterialName);
+		const MaterialData defaultMaterial;
+		const MaterialData& matData = material != modelData.materials.end()
+			? material->second : defaultMaterial;
 		meshRes.materialData->color = matData.diffuseColor;
 		meshRes.materialData->enableLighting = 1;
 

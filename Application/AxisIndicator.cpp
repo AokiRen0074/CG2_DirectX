@@ -40,7 +40,5 @@ void AxisIndicator::Draw() {
     // 非表示なら描画しない
     if (!isVisible_ || !object3d_) { return; }
 
-    WorldTransform dummyWT;
-    ViewProjection dummyVP;
-    object3d_->Draw(dummyWT, dummyVP, textureHandle_);
+    object3d_->Draw(textureHandle_);
 }

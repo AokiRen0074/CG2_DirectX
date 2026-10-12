@@ -8,6 +8,7 @@
 #include "Vector3.h"
 #include "WorldTransform.h"
 #include "Model.h"
+#include <memory>
 
 enum class BlendMode {
 	kNormal,
@@ -69,6 +70,30 @@ public:
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();
 
+	// 初期化済みのオブジェクトが使うモデルを切り替える
+	void SetModel(const std::string& directoryPath, const std::string& filename);
+	void SetModel(const std::shared_ptr<const ModelData>& model);
+
+	std::shared_ptr<const ModelData> GetModel() const {
+		return model_;
+	}
+
+	// 各オブジェクト自身の座標を指定する
+	void SetPosition(const Vector3& position);
+	void SetScale(const Vector3& scale);
+	void SetRotation(const Vector3& rotation);
+
+	const Matrix4x4& GetWorldMatrix() const {
+		return worldMatrix_;
+	}
+
+	// 自分のワールド行列と、指定されたカメラで描画する
+	void Draw(const ViewProjection& viewProjection, uint32_t textureHandle);
+	void Draw(const ViewProjection& viewProjection);
+
+	// SetCameraMatrixで設定したカメラを使って描画する
+	void Draw(uint32_t textureHandle);
+
 	// テクスチャ有り
 	void Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle);
 
@@ -101,6 +126,12 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineStateNoTexture_;
 
 	std::vector<MeshResource> meshResources_;
+
+	// モデルデータは共有し、座標・マテリアル・ワールド行列は個別に持つ
+	std::shared_ptr<const ModelData> model_;
+	uint32_t defaultTextureHandle_ = 0;
+	Matrix4x4 worldMatrix_ = MakeIdentity4x4();
+	void UpdateMatrices(const Matrix4x4& parentMatrix);
 
 	// 頂点データ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;

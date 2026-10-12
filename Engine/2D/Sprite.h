@@ -44,6 +44,17 @@ public:
 
 	void SetScale(const Vector2& scale);
 	void SetRotation(float rotation);
+	// ピクセル単位の切り取り。画像外の部分は切り詰め、無効な範囲は変更せずfalse。
+	bool SetTextureRect(const Vector2& leftTop, const Vector2& size);
+	Vector2 GetTextureLeftTop() const {
+		return textureLeftTop_;
+	}
+	Vector2 GetTextureRectSize() const {
+		return textureRectSize_;
+	}
+	Vector2 GetTextureSize() const {
+		return textureSize_;
+	}
 
 	// 位置や大きさを変えるためのゲッター・セッター
 	struct Transform& GetTransform() { return transform_; }
@@ -53,6 +64,12 @@ private:
 	DirectXCommon* dxCommon_ = nullptr;
 
 	uint32_t textureHandle_ = 0;
+	Vector2 textureSize_{};
+	Vector2 textureLeftTop_{};
+	Vector2 textureRectSize_{};
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
+	void InitializePipeline();
 
 	// 頂点データ関連
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;

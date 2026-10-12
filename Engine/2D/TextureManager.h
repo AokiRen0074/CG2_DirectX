@@ -16,6 +16,7 @@ public:
 
     static uint32_t Load(const std::string& filePath);
     D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(uint32_t textureHandle);
+    D3D12_RESOURCE_DESC GetResourceDesc(uint32_t textureHandle) const;
 
 
     static void StaticInitialize(DirectXCommon* dxCommon);

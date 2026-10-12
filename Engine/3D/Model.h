@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "Object3d.h"
 #include "Sprite.h"
 #include <string>
 #include <map>

@@ -3,7 +3,7 @@
 void ViewProjection::Initialize() {
 	matView = MakeIdentity4x4();
 
-	matProjection = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f,00.0f);
+	matProjection = MakePerspectiveFovMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 1000.0f);
 }
 
 void ViewProjection::UpdateMatrix() {

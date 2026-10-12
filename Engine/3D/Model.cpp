@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <stdexcept>
 
 // ==========================================
 // MTLファイルの読み込み関数
@@ -10,7 +11,10 @@ std::map<std::string, MaterialData> LoadMaterialTemplateFile(const std::string& 
 	std::map<std::string, MaterialData> materialDataMap;
 	std::string line;
 	std::ifstream file(directoryPath + "/" + filename);
-	assert(file.is_open()); // 開けなかったら止める
+	// 開けなかったら止める
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to open material file: " + directoryPath + "/" + filename);
+	}
 
 	MaterialData* currentMaterial = nullptr;
 
@@ -68,7 +72,9 @@ ModelData LoadObjectFile(const std::string& directoryPath, const std::string& fi
 	MeshData* currentMesh = nullptr; 
 
 	std::ifstream file(directoryPath + "/" + filename);
-	assert(file.is_open());
+	if (!file.is_open()) {
+		throw std::runtime_error("Failed to open model file: " + directoryPath + "/" + filename);
+	}
 
 	while (std::getline(file, line)) {
 		std::string identifier;
@@ -145,11 +151,15 @@ ModelData LoadObjectFile(const std::string& directoryPath, const std::string& fi
 				}
 
 				// 頂点情報の取得
-				Vector4 position = positions[elementIndices[0] - 1];
+				Vector4 position = positions.at(elementIndices[0] - 1);
 				Vector2 texcoord = { 0.0f, 0.0f };
-				if (elementIndices[1] > 0) texcoord = texcoords[elementIndices[1] - 1];
+				if (elementIndices[1] > 0) {
+					texcoord = texcoords.at(elementIndices[1] - 1);
+				}
 				Vector3 normal = { 0.0f, 0.0f, 1.0f };
-				if (elementIndices[2] > 0) normal = normals[elementIndices[2] - 1];
+				if (elementIndices[2] > 0) {
+					normal = normals.at(elementIndices[2] - 1);
+				}
 
 				// 左手系・UV変換
 				position.x *= -1.0f;
