@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <RuntimeResources Include="$(ProjectDir)Resources\**\*" Exclude="$(ProjectDir)Resources\Shaders\PreviousVersions\**\*" />
+    <RuntimeSounds Include="$(ProjectDir)Sounds\**\*" />
+    <RuntimeDlls Include="$(ProjectDir)externals\DXC\bin\x64\dxcompiler.dll;$(ProjectDir)externals\DXC\bin\x64\dxil.dll" />
+  </ItemGroup>
+  <Target Name="CopyRuntimeFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(RuntimeResources)" DestinationFiles="@(RuntimeResources->'$(OutDir)Resources\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RuntimeSounds)" DestinationFiles="@(RuntimeSounds->'$(OutDir)Sounds\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RuntimeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

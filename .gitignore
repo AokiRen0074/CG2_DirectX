@@ -369,3 +369,9 @@ FodyWeavers.xsd
 Dumps/
 
 imgui.ini
+# All build outputs and previous local build files
+/artifacts/
+# Required third-party runtime binaries must be included in Git.
+!/externals/DXC/bin/
+!/externals/DXC/bin/x64/
+!/externals/DXC/bin/x64/*.dll

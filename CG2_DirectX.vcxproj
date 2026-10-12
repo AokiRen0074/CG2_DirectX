@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -43,10 +43,8 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings"></ImportGroup>
+  <ImportGroup Label="Shared"></ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -58,14 +56,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)externals\nlohmann;$(IncludePath)</IncludePath>
   </PropertyGroup>
+  <Import Project="build\ProjectPaths.props" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -77,7 +76,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>./Engine;./Application;./Engine./Base;./Engine./Math;./Engine./2D;./Engine./3D;./Engine./Input;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Engine;$(ProjectDir)Application;$(ProjectDir)Application;$(ProjectDir)Application\Character;$(ProjectDir)Application\Enemy;$(ProjectDir)Application\Rail;$(ProjectDir)Application\World;$(ProjectDir)Engine\2D;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Audio;$(ProjectDir)Engine\Base;$(ProjectDir)Engine\Collision;$(ProjectDir)Engine\Debug;$(ProjectDir)Engine\Input;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\Neon;$(ProjectDir)Engine\PostProcess;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -102,7 +101,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./Engine;./Application;./Engine./Base;./Engine./Math;./Engine./2D;./Engine./3D;./Engine./Input;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Engine;$(ProjectDir)Application;$(ProjectDir)Application;$(ProjectDir)Application\Character;$(ProjectDir)Application\Enemy;$(ProjectDir)Application\Rail;$(ProjectDir)Application\World;$(ProjectDir)Engine\2D;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Audio;$(ProjectDir)Engine\Base;$(ProjectDir)Engine\Collision;$(ProjectDir)Engine\Debug;$(ProjectDir)Engine\Input;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\Neon;$(ProjectDir)Engine\PostProcess;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -127,7 +126,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>./Engine;./Application;./Engine./Base;./Engine./Math;./Engine./2D;./Engine./3D;./Engine./Input;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Engine;$(ProjectDir)Application;$(ProjectDir)Application;$(ProjectDir)Application\Character;$(ProjectDir)Application\Enemy;$(ProjectDir)Application\Rail;$(ProjectDir)Application\World;$(ProjectDir)Engine\2D;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Audio;$(ProjectDir)Engine\Base;$(ProjectDir)Engine\Collision;$(ProjectDir)Engine\Debug;$(ProjectDir)Engine\Input;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\Neon;$(ProjectDir)Engine\PostProcess;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -139,200 +138,234 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CameraShake.cpp" />
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.cpp" />
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.cpp" />
-    <ClCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.cpp" />
     <ClCompile Include="Application\AxisIndicator.cpp" />
+    <ClInclude Include="Application\AxisIndicator.h" />
+    <ClCompile Include="Application\Character\Player.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Character\Player.h" />
+    <ClCompile Include="Application\Character\PlayerBullet.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Character\PlayerBullet.h" />
+    <ClCompile Include="Application\Enemy\EnemyBoss.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyBoss.h" />
+    <ClCompile Include="Application\Enemy\EnemyBullet.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyBullet.h" />
+    <ClCompile Include="Application\Enemy\EnemyLaserBeam.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyLaserBeam.h" />
+    <ClCompile Include="Application\Enemy\EnemyStateApproach.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyStateApproach.h" />
+    <ClCompile Include="Application\Enemy\EnemyStateHold.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyStateHold.h" />
+    <ClCompile Include="Application\Enemy\EnemyStateLeave.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyStateLeave.h" />
+    <ClCompile Include="Application\Enemy\EnemyStateStraight.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyStateStraight.h" />
+    <ClCompile Include="Application\Enemy\EnemyTurret.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\EnemyTurret.h" />
+    <ClCompile Include="Application\Enemy\ObstacleLaser.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Enemy\ObstacleLaser.h" />
     <ClCompile Include="Application\GameScene.cpp" />
+    <ClInclude Include="Application\GameScene.h" />
     <ClCompile Include="Application\main.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
       <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</WholeProgramOptimization>
     </ClCompile>
-    <ClCompile Include="Bloom.cpp" />
-    <ClCompile Include="NeonParticle.cpp" />
-    <None Include="BodyModel.VS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <ClCompile Include="CollisionManager.cpp" />
-    <ClCompile Include="EditorPanel.cpp" />
-    <ClCompile Include="Engine\2D\Sprite.cpp" />
-    <ClCompile Include="Engine\2D\TextureManager.cpp" />
-    <ClCompile Include="Engine\3D\DebugCamera.cpp" />
-    <ClCompile Include="Engine\3D\Model.cpp" />
-    <ClCompile Include="Engine\3D\Object3d.cpp" />
-    <ClCompile Include="Engine\3D\ViewProjection.cpp" />
-    <ClCompile Include="Engine\3D\WorldTransform.cpp" />
-    <ClCompile Include="Engine\Audio\Audio.cpp" />
-    <ClCompile Include="Engine\Base\DirectXCommon.cpp" />
-    <ClCompile Include="Engine\Base\Logger.cpp" />
-    <ClCompile Include="Engine\Base\WindowApp.cpp" />
-    <ClCompile Include="Engine\Input\Input.cpp" />
-    <ClCompile Include="Engine\Math\Matrix4x4.cpp" />
-    <ClCompile Include="Engine\Math\Vector3.cpp" />
-    <ClCompile Include="externals\imgui\imgui.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+    <ClCompile Include="Application\Rail\Rail.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
+    <ClInclude Include="Application\Rail\Rail.h" />
+    <ClCompile Include="Application\Rail\RailCamera.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Rail\RailCamera.h" />
+    <ClCompile Include="Application\Rail\RailEditor.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\Rail\RailEditor.h" />
+    <ClCompile Include="Application\World\Skydome.cpp" />
+    <ClInclude Include="Application\World\Skydome.h" />
+    <ClCompile Include="Application\World\WaveManager.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Application\World\WaveManager.h" />
+    <ClCompile Include="Engine\2D\Sprite.cpp" />
+    <ClInclude Include="Engine\2D\Sprite.h" />
+    <ClCompile Include="Engine\2D\TextureManager.cpp" />
+    <ClInclude Include="Engine\2D\TextureManager.h" />
+    <ClCompile Include="Engine\3D\BodyModel.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Engine\3D\BodyModel.h" />
+    <ClCompile Include="Engine\3D\CameraShake.cpp" />
+    <ClInclude Include="Engine\3D\CameraShake.h" />
+    <ClCompile Include="Engine\3D\DebugCamera.cpp" />
+    <ClInclude Include="Engine\3D\DebugCamera.h" />
+    <ClCompile Include="Engine\3D\Model.cpp" />
+    <ClInclude Include="Engine\3D\Model.h" />
+    <ClCompile Include="Engine\3D\Object3d.cpp" />
+    <ClInclude Include="Engine\3D\Object3d.h" />
+    <ClCompile Include="Engine\3D\ViewProjection.cpp" />
+    <ClInclude Include="Engine\3D\ViewProjection.h" />
+    <ClCompile Include="Engine\3D\WorldTransform.cpp" />
+    <ClInclude Include="Engine\3D\WorldTransform.h" />
+    <ClCompile Include="Engine\Audio\Audio.cpp" />
+    <ClInclude Include="Engine\Audio\Audio.h" />
+    <ClCompile Include="Engine\Base\DirectXCommon.cpp" />
+    <ClInclude Include="Engine\Base\DirectXCommon.h" />
+    <ClCompile Include="Engine\Base\Logger.cpp" />
+    <ClInclude Include="Engine\Base\Logger.h" />
+    <ClCompile Include="Engine\Base\WindowApp.cpp" />
+    <ClInclude Include="Engine\Base\WindowApp.h" />
+    <ClInclude Include="Engine\Collision\Collider.h" />
+    <ClInclude Include="Engine\Collision\CollisionConfig.h" />
+    <ClCompile Include="Engine\Collision\CollisionManager.cpp" />
+    <ClInclude Include="Engine\Collision\CollisionManager.h" />
+    <ClCompile Include="Engine\Debug\EditorPanel.cpp" />
+    <ClInclude Include="Engine\Debug\EditorPanel.h" />
+    <ClInclude Include="Engine\Debug\GlobalValiables.h" />
+    <ClCompile Include="Engine\Debug\GlobalVariables.cpp" />
+    <ClCompile Include="Engine\Input\Input.cpp" />
+    <ClInclude Include="Engine\Input\Input.h" />
+    <ClInclude Include="Engine\Math\FlickerTimer.h" />
+    <ClCompile Include="Engine\Math\MathUtility.cpp" />
+    <ClInclude Include="Engine\Math\MathUtility.h" />
+    <ClCompile Include="Engine\Math\Matrix4x4.cpp" />
+    <ClInclude Include="Engine\Math\Matrix4x4.h" />
+    <ClCompile Include="Engine\Math\TimedCall.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="Engine\Math\TimedCall.h" />
+    <ClInclude Include="Engine\Math\Transform.h" />
+    <ClInclude Include="Engine\Math\Vector2.h" />
+    <ClCompile Include="Engine\Math\Vector3.cpp" />
+    <ClInclude Include="Engine\Math\Vector3.h" />
+    <ClInclude Include="Engine\Math\Vector4.h" />
+    <ClCompile Include="Engine\Neon\NeonBullet.cpp" />
+    <ClInclude Include="Engine\Neon\NeonBullet.h" />
+    <ClCompile Include="Engine\Neon\NeonImage.cpp" />
+    <ClInclude Include="Engine\Neon\NeonImage.h" />
+    <ClCompile Include="Engine\Neon\NeonModel.cpp" />
+    <ClInclude Include="Engine\Neon\NeonModel.h" />
+    <ClCompile Include="Engine\Neon\NeonObj.cpp" />
+    <ClInclude Include="Engine\Neon\NeonObj.h" />
+    <ClCompile Include="Engine\Neon\NeonParticle.cpp" />
+    <ClInclude Include="Engine\Neon\NeonParticle.h" />
+    <ClCompile Include="Engine\Neon\NeonPlayer.cpp" />
+    <ClInclude Include="Engine\Neon\NeonPlayer.h" />
+    <ClCompile Include="Engine\Neon\NeonSign.cpp" />
+    <ClInclude Include="Engine\Neon\NeonSign.h" />
+    <ClCompile Include="Engine\Neon\NeonText.cpp" />
+    <ClInclude Include="Engine\Neon\NeonText.h" />
+    <ClCompile Include="Engine\Neon\PreviousVersions\NeonBullet.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Engine\Neon\PreviousVersions\NeonImage.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Engine\Neon\PreviousVersions\NeonPlayer.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Engine\Neon\ProceduralNeon.cpp" />
+    <ClInclude Include="Engine\Neon\ProceduralNeon.h" />
+    <ClCompile Include="Engine\PostProcess\Bloom.cpp" />
+    <ClInclude Include="Engine\PostProcess\Bloom.h" />
+    <ClInclude Include="externals\imgui\imconfig.h" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="externals\imgui\imgui_internal.h" />
     <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GlobalVariables.cpp" />
-    <ClCompile Include="MathUtility.cpp" />
-    <ClCompile Include="NeonModel.cpp" />
-    <ClCompile Include="NeonObj.cpp" />
-    <ClCompile Include="NeonSign.cpp" />
-    <ClCompile Include="NeonText.cpp" />
-    <ClCompile Include="ProceduralNeon.cpp" />
-    <ClCompile Include="Skydome.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonBullet.h" />
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonImage.h" />
-    <ClInclude Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.h" />
-    <ClInclude Include="Application\AxisIndicator.h" />
-    <ClInclude Include="Application\GameScene.h" />
-    <ClInclude Include="Bloom.h" />
-    <ClInclude Include="CameraShake.h" />
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="CollisionConfig.h" />
-    <ClInclude Include="CollisionManager.h" />
-    <ClInclude Include="EditorPanel.h" />
-    <ClInclude Include="FlickerTimer.h" />
-    <ClInclude Include="MathUtility.h" />
-    <ClInclude Include="NeonModel.h" />
-    <ClInclude Include="NeonObj.h" />
-    <ClInclude Include="NeonParticle.h" />
-    <ClInclude Include="NeonSign.h" />
-    <ClInclude Include="NeonText.h" />
-    <ClInclude Include="Engine\2D\Sprite.h" />
-    <ClInclude Include="Engine\2D\TextureManager.h" />
-    <ClInclude Include="Engine\3D\DebugCamera.h" />
-    <ClInclude Include="Engine\3D\Model.h" />
-    <ClInclude Include="Engine\3D\Object3d.h" />
-    <ClInclude Include="Engine\3D\ViewProjection.h" />
-    <ClInclude Include="Engine\3D\WorldTransform.h" />
-    <ClInclude Include="Engine\Audio\Audio.h" />
-    <ClInclude Include="Engine\Base\DirectXCommon.h" />
-    <ClInclude Include="Engine\Base\Logger.h" />
-    <ClInclude Include="Engine\Base\WindowApp.h" />
-    <ClInclude Include="Engine\Input\Input.h" />
-    <ClInclude Include="Engine\Math\Matrix4x4.h" />
-    <ClInclude Include="Engine\Math\Transform.h" />
-    <ClInclude Include="Engine\Math\Vector3.h" />
-    <ClInclude Include="externals\imgui\imconfig.h" />
+    <ClCompile Include="externals\imgui\imgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Development|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClInclude Include="externals\imgui\imgui.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="externals\imgui\imgui_internal.h" />
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="GlobalValiables.h" />
-    <ClInclude Include="ProceduralNeon.h" />
-    <ClInclude Include="Skydome.h" />
-    <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Vector4.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="externals\imgui\LICENSE.txt" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="Resources\Shaders\Bloom.hlsl" />
+    <None Include="Resources\Shaders\BodyModel.PS.hlsl" />
+    <None Include="Resources\Shaders\BodyModel.VS.hlsl" />
+    <None Include="Resources\Shaders\Luminance.PS.hlsl" />
+    <None Include="Resources\Shaders\NeonModel.VS.hlsl" />
+    <None Include="Resources\Shaders\NeonObject.PS.hlsl" />
+    <None Include="Resources\Shaders\NeonObject.VS.hlsl" />
+    <None Include="Resources\Shaders\NeonPlayer.PS.hlsl" />
+    <None Include="Resources\Shaders\NeonPlayer.VS.hlsl" />
+    <None Include="Resources\Shaders\Object3d.hlsli" />
+    <None Include="Resources\Shaders\Object3d.Notexture.PS.hlsl" />
+    <None Include="Resources\Shaders\Object3d.NoTexture.VS.hlsl" />
+    <None Include="Resources\Shaders\Object3d.PS.hlsl" />
+    <None Include="Resources\Shaders\Object3d.VS.hlsl" />
+    <None Include="Resources\Shaders\PostProcess.PS.hlsl" />
+    <None Include="Resources\Shaders\PostProcess.VS.HLSL" />
+    <None Include="Resources\Shaders\Texture.PS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\BodyModel.PS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\BodyModel.VS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\NeonModel.PS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\NeonModel.VS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\Object3d.Notexture.PS.hlsl" />
+    <None Include="Resources\Shaders\PreviousVersions\Object3d.NoTexture.VS.hlsl" />
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Resources\Shaders\Object3d.hlsli">
-      <FileType>Document</FileType>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Shaders\Object3d.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Resources\Shaders\Object3d.VS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Object3d.Notexture.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="Object3d.NoTexture.VS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="NeonModel.VS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="BodyModel.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="NeonModel.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Bloom.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Luminance.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonObject.VS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <FxCompile Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\NeonPlayer.VS.hlsl" />
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\PostProcess.VS.HLSL">
-      <FileType>Document</FileType>
-    </None>
-    <None Include="..\..\..\Downloads\KamataEngine20260109\DirectXGame\Texture.PS.hlsl">
-      <FileType>Document</FileType>
-    </None>
+    <None Include="README.md" />
+    <None Include="build\ProjectPaths.props" />
+    <None Include="build\RuntimeFiles.targets" />
+    <None Include=".github\workflows\build.yml" />
+    <None Include="externals\DXC\README.md" />
+    <None Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <Import Project="build\RuntimeFiles.targets" />
+  <ImportGroup Label="ExtensionTargets"></ImportGroup>
 </Project>

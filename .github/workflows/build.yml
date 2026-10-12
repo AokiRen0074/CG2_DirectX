@@ -1,0 +1,38 @@
+name: Windows build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Development, Release]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[17.0,18.0)'
+          msbuild-architecture: x64
+      - name: Build solution
+        shell: pwsh
+        run: msbuild CG2_DirectX.sln /m /t:Rebuild /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /verbosity:minimal
+      - name: Upload runnable build
+        uses: actions/upload-artifact@v6
+        with:
+          name: CG2_DirectX-x64-${{ matrix.configuration }}
+          path: artifacts/bin/x64/${{ matrix.configuration }}/
+          if-no-files-found: error
+          retention-days: 14
