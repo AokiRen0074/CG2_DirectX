@@ -5,6 +5,8 @@
 #include "Audio/Audio.h"
 #include "GameScene.h" 
 #include <format>
+#include <cstring>
+#include "Character/SpearCapture.h"
 #include <dxgidebug.h>
 #include "2D/TextureManager.h"
 #include "3D/ModelManager.h"
@@ -26,7 +28,24 @@ struct D3DResourceLeakChecker {
     }
 };
 
-int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR commandLine, _In_ int) {
+    const bool spearEffectSequence = std::strstr(commandLine, "--spear-effect-sequence") != nullptr;
+    const bool spearEditorSmokeTest = std::strstr(commandLine, "--spear-editor-smoke-test") != nullptr;
+    const bool spearPierceSmokeTest = std::strstr(commandLine, "--spear-pierce-smoke-test") != nullptr;
+    const bool spearDodgeSmokeTest = std::strstr(commandLine, "--spear-dodge-smoke-test") != nullptr;
+    const bool spearBeamSmokeTest = std::strstr(commandLine, "--spear-beam-smoke-test") != nullptr;
+    const bool spearLaserSmokeTest = std::strstr(commandLine, "--spear-laser-smoke-test") != nullptr;
+    const bool spearSummonSmokeTest = std::strstr(commandLine, "--spear-summon-smoke-test") != nullptr;
+    const bool spearVictorySmokeTest = std::strstr(commandLine, "--spear-victory-smoke-test") != nullptr;
+    const bool spearBossSmokeTest = std::strstr(commandLine, "--spear-boss-smoke-test") != nullptr;
+    const std::string arguments = commandLine;
+    const size_t captureArgument = arguments.find("--spear-capture=");
+    const std::string capturePath = captureArgument == std::string::npos ? "" :
+        arguments.substr(captureArgument + std::strlen("--spear-capture="));
+    bool capturePassed = true;
+    const bool spearSmokeTest = spearPierceSmokeTest || spearDodgeSmokeTest || spearBeamSmokeTest || spearLaserSmokeTest || spearSummonSmokeTest || spearVictorySmokeTest || spearBossSmokeTest || spearEditorSmokeTest || std::strstr(commandLine, "--spear-smoke-test") != nullptr;
+    int smokeFrames = 0;
+
     D3DResourceLeakChecker leakCheck;
     CoInitializeEx(0, COINIT_MULTITHREADED);
 
@@ -57,6 +76,22 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
     // ==========================================
     GameScene* gameScene = new GameScene();
     gameScene->Initialize(dxCommon);
+    if (spearEffectSequence) {
+        gameScene->SetFixedPreviewStep();
+    }
+
+    if (spearLaserSmokeTest || spearSummonSmokeTest || spearBeamSmokeTest) {
+        gameScene->PreviewBossAttack(spearLaserSmokeTest ? 0 : spearSummonSmokeTest ? 1 : 2);
+    }
+
+    if (spearBossSmokeTest || spearVictorySmokeTest) {
+        gameScene->OpenBossPractice();
+    }
+
+    if (spearEditorSmokeTest) {
+        gameScene->OpenSpearEditor();
+    }
+
 
     // ==========================================
     // メインループ
@@ -74,6 +109,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 #endif
 
         // --- ゲームの更新 ---
+        // 実際の攻撃判定で撃破を発生させ、ブラーを画面で確認する。
+        if (spearVictorySmokeTest && smokeFrames == 98) {
+            gameScene->PreviewBossDefeat();
+        }
+
+        if (spearPierceSmokeTest && smokeFrames == 94) {
+            gameScene->PreviewPierce();
+        }
+
+        if (spearDodgeSmokeTest && smokeFrames == 98) {
+            gameScene->PreviewDodge();
+        }
+
         gameScene->Update();
 
 #ifdef USE_IMGUI
@@ -83,7 +131,27 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
         // --- 描画処理 ---
         dxCommon->PreDraw();
         gameScene->Draw();
+        const UINT captureIndex = dxCommon->GetSwapChain()->GetCurrentBackBufferIndex();
         dxCommon->PostDraw();
+        ++smokeFrames;
+
+        if (!spearEffectSequence && !capturePath.empty() && smokeFrames == (spearPierceSmokeTest ? 101 : (spearVictorySmokeTest || spearDodgeSmokeTest ? 100 : 110))) {
+            capturePassed = CaptureSpearFrame(dxCommon, captureIndex, capturePath);
+        }
+
+
+        // 演出の出始めから消えるまでを、固定更新で連続確認する開発用モード。
+        if (spearEffectSequence && !capturePath.empty() && smokeFrames >= ((spearBeamSmokeTest || spearLaserSmokeTest) ? 1 : 94) && smokeFrames <= ((spearBeamSmokeTest || spearLaserSmokeTest) ? 180 : 150)) {
+            const auto framePath = std::filesystem::path(capturePath) /
+                std::format("frame-{:03}.png", smokeFrames);
+            capturePassed = CaptureSpearFrame(dxCommon, captureIndex, framePath) && capturePassed;
+        }
+
+        // 起動・描画・終了までを短時間で確認する開発用モード。
+        if (spearSmokeTest && smokeFrames >= (spearEffectSequence ? ((spearBeamSmokeTest || spearLaserSmokeTest) ? 180 : 150) : 120)) {
+            break;
+        }
+
     }
 
     // ==========================================
@@ -106,5 +174,5 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
     winApp->Finalize();
     Logger::Finalize();
 
-    return 0;
+    return capturePassed ? 0 : 1;
 }

@@ -13,6 +13,7 @@
 GameScene::~GameScene() {
 	delete debugCamera_;
 	delete bloom_;
+    delete effectBloom_;
 	delete object3d_;
 }
 
@@ -42,7 +43,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	ビュープロジェクションの初期化
 	---------------------------------*/
 	viewProjection_.Initialize();
-	viewProjection_.translation_.z = -20.0f;
+	// 横と縦に動ける固定カメラ。奥行きは3Dモデルで表現する。
+	viewProjection_.translation_ = { 0.0f, 1.0f, -32.0f };
 	viewProjection_.UpdateMatrix();
 
 	/*-------------------------------
@@ -50,6 +52,12 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	----------------------------------*/
 	bloom_ = new Bloom();
 	bloom_->Initialize(dxCommon,1280,720);
+
+    // ステージの色は保ち、エフェクトだけをHDRで発光させて重ねる。
+    effectRenderer_.Initialize(dxCommon);
+    effectBloom_ = new Bloom();
+    effectBloom_->Initialize(dxCommon, 1280, 720);
+    effectBloom_->EnableEmissionLayer();
 
 	/*----------------------
 	3Dオブジェクトの生成、読み込み
@@ -61,6 +69,10 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	object3d_->Initialize("Resources", "fence.obj");
 	object3d_->GetTransform().rotate.y = 3.14f;
 	object3d_->GetTransform().scale = { 0.5f,0.5f,0.5f };
+
+	// 元の確認用フェンスはステージの外に置く。
+	object3d_->SetPosition({ 30.0f, 0.0f, 0.0f });
+	spearPrototype_.Initialize();
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -86,6 +98,8 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 
 void GameScene::Update() {
 
+	spearPrototype_.Update();
+
 
 
 	// ==========================================
@@ -93,7 +107,7 @@ void GameScene::Update() {
 // ==========================================
 #ifdef USE_IMGUI
 
-	ImGui::Begin("Master Control", nullptr, ImGuiWindowFlags_MenuBar);
+	// ステージの情報と調整は槍のHUD・F2エディターで表示する。
 
 
 	
@@ -108,7 +122,7 @@ void GameScene::Update() {
 
 	
 
-	ImGui::End(); // Master Controlの終了
+	// Master Controlの終了（表示を槍エディターへ統合）
 
 #endif
 
@@ -123,7 +137,7 @@ void GameScene::Update() {
 	----------------------------*/
 	if (object3d_) {
 		//object3d_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
-		object3d_->Update();
+		object3d_->SetCameraMatrix(viewProjection_.matView, viewProjection_.matProjection);
 	}
 
 	// 軸表示
@@ -131,6 +145,9 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
+
+	spearPrototype_.Draw(viewProjection_);
+
 	// ==========================================
 	// 普通のやつ
 	// ==========================================
@@ -146,13 +163,30 @@ void GameScene::Draw() {
 	// ==========================================
 	//  ネオン
 	// ==========================================
-	bloom_->PreDraw();
+	// 描画済みの画面を取り込み、ボス撃破時だけブラーを加える。
+	bloom_->CaptureScene();
 
 
 	// HDRキャンバスへの書き込み終了、普通の画面に戻る
-	bloom_->PostDraw();
+	const auto center = spearPrototype_.VictoryBlurCenter();
+	bloom_->SetRadialBlur(spearPrototype_.VictoryBlurStrength(), center[0], center[1]);
 
 	bloom_->Execute();
 	bloom_->DrawResult();
+
+	// HDRの光を深度を保って描く。形がある時だけぼかしと合成を実行する。
+    effectBloom_->PreDraw();
+    const bool hasEffects = spearPrototype_.DrawEffects(effectRenderer_);
+    effectBloom_->PostDraw();
+    if (hasEffects) {
+        effectBloom_->SetRadialBlur(spearPrototype_.VictoryBlurStrength(), center[0], center[1]);
+        effectBloom_->Execute();
+        effectBloom_->DrawResult();
+    } else {
+        dxCommon_->SetBackBufferRenderTarget();
+    }
+
+    // 回数表示はポストエフェクトの後に描画して読みやすさを保つ。
+	spearPrototype_.DrawDashGauge();
 
 }

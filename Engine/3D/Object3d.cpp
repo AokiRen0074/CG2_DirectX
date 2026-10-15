@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "ModelManager.h"
 #include <stdexcept>
+#include <cmath>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -358,6 +359,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData_->intensity = 1.0f;
 	directionalLightData_->lightingType = 1;
+	directionalLightData_->scene = {};
 
 	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
 	transformMatrixSize = (transformMatrixSize + 255) & ~255;
@@ -678,4 +680,27 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Object3d::CreateBufferResource(ID3D12Devi
 	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&resource));
 	assert(SUCCEEDED(hr));
 	return resource;
+}
+
+void Object3d::SetDirectionalLight(const Vector3& direction, const Vector3& color, float intensity) {
+    const float length = std::sqrt(direction.x * direction.x + direction.y * direction.y
+        + direction.z * direction.z);
+
+    if (length > 0.0001f) {
+        directionalLightData_->direction = { direction.x / length, direction.y / length,
+            direction.z / length };
+    }
+    else {
+        directionalLightData_->direction = { -0.57735f, -0.57735f, 0.57735f };
+    }
+
+    directionalLightData_->color = { color.x, color.y, color.z, 1.0f };
+    directionalLightData_->intensity = intensity;
+
+	// 槍ステージではハーフランバートで暗い面の輪郭も読めるようにする。
+	directionalLightData_->lightingType = 2;
+}
+
+void Object3d::SetSceneLighting(const SceneLighting& lighting) {
+    directionalLightData_->scene = lighting;
 }

@@ -20,7 +20,13 @@ public:
 	// ★追加：計算結果を画面に描画する
 	void DrawResult();
 
-	void DrawImGui();
+	// 通常の画面を読み込み、UIの前に撃破時の放射状ブラーをかける。
+	void CaptureScene();
+	void SetRadialBlur(float strength, float centerX, float centerY);
+
+	// 光だけを合成するモード。色収差・ノイズを切り、分離ガウスぼかしを使う。
+    void EnableEmissionLayer();
+    void DrawImGui();
 
 private:
 	DirectXCommon* dxCommon_ = nullptr;
@@ -63,4 +69,15 @@ private:
 	// 画面描画（ポストプロセス）用の契約書と実行状態
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> postProcessRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> postProcessPipelineState_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> scenePostPipelineState_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> sceneTextureResource_;
+	bool sceneMode_ = false;
+    bool emissionLayer_ = false;
+    int width_ = 1280, height_ = 720;
+    Microsoft::WRL::ComPtr<ID3D12Resource> blurScratch_;
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> emissionBlurPipeline_;
+    void ExecuteEmissionBlur();
+	float radialBlur_ = 0.0f;
+	float blurCenterX_ = 0.5f;
+	float blurCenterY_ = 0.5f;
 };

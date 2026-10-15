@@ -45,7 +45,9 @@ VertexShaderOutput main(VertexShaderInput input)
     output.texcoord = input.texcoord;
     
     // 法線をワールド座標系に変換し、正規化する
-    output.normal = normalize(mul(input.normal, (float32_t3x3) gTransformationMatrix.World));
+    float3x3 world = (float3x3)gTransformationMatrix.World;
+    float3x3 normalMatrix = float3x3(cross(world[1], world[2]), cross(world[2], world[0]), cross(world[0], world[1]));
+    output.normal = normalize(mul(input.normal, normalMatrix));
     
     //  これが原因のエラーを消すための1行
     output.worldPos = mul(input.position, gTransformationMatrix.World).xyz;

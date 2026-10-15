@@ -8,6 +8,9 @@ cbuffer PostProcessData : register(b0)
     float g_ChromaticAberration;
     float g_NoiseIntensity;
     float g_UseACES; // 🌟 追加：切り替えフラグを受け取る！
+    float g_RadialBlur;
+    float2 g_BlurCenter;
+    float g_BlurPadding;
 };
 
 struct VSOutput
@@ -53,6 +56,22 @@ float4 main(VSOutput input) : SV_TARGET
 
     float3 color = float3(r, g, b);
 
+    // 撃破位置を中心に短く広がるブラー。0の間はサンプリングを追加しない。
+    if (g_RadialBlur > 0.0001f)
+    {
+        float2 offset = input.uv - g_BlurCenter;
+        float3 blurred = float3(0.0f, 0.0f, 0.0f);
+
+        [unroll]
+        for (int i = 0; i < 12; ++i)
+        {
+            float scale = 1.0f - g_RadialBlur * (float(i) / 11.0f);
+            blurred += g_InputTex.Sample(g_Sampler, g_BlurCenter + offset * scale).rgb;
+        }
+
+        color = blurred / 12.0f;
+    }
+
     // フィルムグレイン
     float noise = rand(input.uv * g_Time);
     float noiseFactor = (noise * 2.0f - 1.0f) * g_NoiseIntensity;
@@ -66,7 +85,7 @@ float4 main(VSOutput input) : SV_TARGET
         // 🌟 チェックボックスがONなら：映画用の ACES カーブを通す（美しい白飛び）
         color = ACESFilm(color);
     }
-    else
+    else if (g_UseACES >= 0.0f)
     {
         // 🌟 チェックボックスがOFFなら：従来の Reinhard カーブを通す（くすんだ色）
         color = color / (color + float3(1.0f, 1.0f, 1.0f));

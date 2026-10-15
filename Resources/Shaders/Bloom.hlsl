@@ -12,7 +12,7 @@ cbuffer BloomSettings : register(b0)
     int enableLuminance;
     int enableBlur;
     int enableAdditive;
-    float padding; // 16バイトに合わせるための余白
+    int sceneMode; // 画面の取り込み時は、色を変更せず次の処理へ渡す。
 };
 
 [numthreads(8, 8, 1)]
@@ -28,6 +28,12 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     // 元の画像のピクセル
     float4 baseColor = g_InputTex[pos];
+
+    if (sceneMode == 1)
+    {
+        g_OutputTex[pos] = baseColor;
+        return;
+    }
 
     float4 bloomColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float totalWeight = 0.0f;

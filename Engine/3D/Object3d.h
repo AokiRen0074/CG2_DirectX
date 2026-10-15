@@ -9,6 +9,7 @@
 #include "WorldTransform.h"
 #include "Model.h"
 #include <memory>
+#include "SceneLighting.h"
 
 enum class BlendMode {
 	kNormal,
@@ -42,6 +43,7 @@ public:
 		float intensity;
 		int32_t lightingType;
 		float padding2[3];
+		SceneLighting scene;
 	};
 
 	struct TransformationMatrix {
@@ -80,6 +82,11 @@ public:
 
 	// 各オブジェクト自身の座標を指定する
 	void SetPosition(const Vector3& position);
+
+	// ライトの方向は正規化する。ゼロ方向は既定の向きに戻す。
+	void SetDirectionalLight(const Vector3& direction, const Vector3& color, float intensity);
+	// 既定は無効。ステージの実体モデルにだけ周辺光と投影影を適用する。
+	void SetSceneLighting(const SceneLighting& lighting);
 	void SetScale(const Vector3& scale);
 	void SetRotation(const Vector3& rotation);
 

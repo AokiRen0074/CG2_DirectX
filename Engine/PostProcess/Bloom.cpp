@@ -1,5 +1,6 @@
 #include "Bloom.h"
 #include <cassert>
+#include <algorithm>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -9,6 +10,8 @@ ID3D12Device* Bloom::GetDevice() { return dxCommon_->GetDevice(); }
 
 void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeight) {
 
+	width_ = windowWidth;
+    height_ = windowHeight;
 	dxCommon_ = dxCommon; // ポインタを保存
 	ID3D12Device* device = dxCommon_->GetDevice();
 
@@ -66,7 +69,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	// SRV/UAVヒープ（★変更：格納するビューの数を「2」に増やします）
 	D3D12_DESCRIPTOR_HEAP_DESC srvUavHeapDesc{};
 	srvUavHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvUavHeapDesc.NumDescriptors = 3; // SRV用に1つ、UAV用に1つ
+	srvUavHeapDesc.NumDescriptors = 5; // SRV用に1つ、UAV用に1つ
 	srvUavHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	hr = device->CreateDescriptorHeap(&srvUavHeapDesc, IID_PPV_ARGS(&srvHeap_));
 	assert(SUCCEEDED(hr));
@@ -118,7 +121,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	// ==========================================
 	// 7. ルートシグネチャの作成 (C++とシェーダーの橋渡し)
 	// ==========================================
-	D3D12_DESCRIPTOR_RANGE descriptorRange[2] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRange[3] = {};
 
 	// SRV用 (読み込み: t0)
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -133,7 +136,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	descriptorRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// ★ 変更：パラメータを3つにする
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -148,12 +151,18 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	// ✨ 超便利機能「ルート定数」：バッファを作らずに直接intを3つ送る設定
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParameters[2].Constants.ShaderRegister = 0; // b0に送る
-	rootParameters[2].Constants.Num32BitValues = 3; // 3つのデータを送る
+	rootParameters[2].Constants.Num32BitValues = 4; // 従来の3項目と画面取り込みモード。
 	rootParameters[2].Constants.RegisterSpace = 0;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.NumParameters = 3; // ★ここも3にする
+	// 分離ぼかしの2段目が読む中間画像（t1）。従来のシェーダーは使用しない。
+    descriptorRange[2] = descriptorRange[0];
+    descriptorRange[2].BaseShaderRegister = 1;
+    rootParameters[3] = rootParameters[0];
+    rootParameters[3].DescriptorTable.pDescriptorRanges = &descriptorRange[2];
+
+    D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+	rootSignatureDesc.NumParameters = 4; // ★ここも3にする
 	rootSignatureDesc.pParameters = rootParameters;
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 
@@ -200,7 +209,7 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	D3D12_ROOT_PARAMETER ppParamConstants{};
 	ppParamConstants.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	ppParamConstants.Constants.ShaderRegister = 0; // b0
-	ppParamConstants.Constants.Num32BitValues = 4; // float 3つ分 (時間, 色収差, ノイズ)
+	ppParamConstants.Constants.Num32BitValues = 8; // レンズ設定と放射状ブラーの強さ・中心。
 	ppParamConstants.Constants.RegisterSpace = 0;
 	ppParamConstants.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
@@ -273,11 +282,17 @@ void Bloom::Initialize(DirectXCommon* dxCommon, int windowWidth, int windowHeigh
 	hr = device->CreateGraphicsPipelineState(&ppPsoDesc, IID_PPV_ARGS(&postProcessPipelineState_));
 	assert(SUCCEEDED(hr));
 
+	// 全画面の処理結果は加算せず置き換える。従来のBloom用PSOは維持する。
+	ppPsoDesc.BlendState.RenderTarget[0].BlendEnable = FALSE;
+	hr = device->CreateGraphicsPipelineState(&ppPsoDesc, IID_PPV_ARGS(&scenePostPipelineState_));
+	assert(SUCCEEDED(hr));
+
 }
 
 ID3D12GraphicsCommandList* Bloom::GetCommandList() { return dxCommon_->GetCommandList(); }
 
 void Bloom::PreDraw() {
+    sceneMode_ = false;
 	ID3D12GraphicsCommandList* cmdList = GetCommandList();
 
 	// 1. リソースバリア：状態を「読み取り用(SRV)」から「書き込み用(RTV)」へ変更
@@ -315,6 +330,11 @@ void Bloom::PostDraw() {
 }
 
 void Bloom::Execute() {
+    if (emissionLayer_) {
+        ExecuteEmissionBlur();
+        return;
+    }
+
 	ID3D12GraphicsCommandList* cmdList = GetCommandList();
 	ID3D12Device* device = GetDevice();
 
@@ -336,16 +356,17 @@ void Bloom::Execute() {
 	cmdList->SetComputeRootDescriptorTable(0, srvGpuHandle);
 	cmdList->SetComputeRootDescriptorTable(1, uavGpuHandle);
 
-	int constants[3] = { enableLuminance_ ? 1 : 0, enableBlur_ ? 1 : 0, enableAdditive_ ? 1 : 0 };
+	int constants[4] = { enableLuminance_ ? 1 : 0, enableBlur_ ? 1 : 0,
+		enableAdditive_ ? 1 : 0, sceneMode_ ? 1 : 0 };
 	// 配列ごとGPU（パラメータ2番 = b0レジスタ）に直接発射！
-	cmdList->SetComputeRoot32BitConstants(2, 3, constants, 0);
+	cmdList->SetComputeRoot32BitConstants(2, 4, constants, 0);
 
 	// 配列ごとGPU（パラメータ2番 = b0レジスタ）に直接発射！
-	cmdList->SetComputeRoot32BitConstants(2, 3, constants, 0);
+	cmdList->SetComputeRoot32BitConstants(2, 4, constants, 0);
 	// 5. コンピュートシェーダーの実行 (Dispatch)
 	// 画面サイズ(1280x720)を、シェーダーで指定したスレッド数(8x8)で割って実行回数を決める
-	UINT dispatchX = (1280 + 7) / 8;
-	UINT dispatchY = (720 + 7) / 8;
+	UINT dispatchX = (width_ + 7) / 8;
+	UINT dispatchY = (height_ + 7) / 8;
 	cmdList->Dispatch(dispatchX, dispatchY, 1);
 }
 
@@ -370,7 +391,7 @@ void Bloom::DrawResult() {
 
 	// 2. 画面描画用のパイプラインを設定
 	cmdList->SetGraphicsRootSignature(postProcessRootSignature_.Get());
-	cmdList->SetPipelineState(postProcessPipelineState_.Get());
+	cmdList->SetPipelineState(sceneMode_ ? scenePostPipelineState_.Get() : postProcessPipelineState_.Get());
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// 3. 画像が入っているヒープをセットし、3番目の部屋（結果画像）のアドレスを渡す
@@ -387,9 +408,11 @@ void Bloom::DrawResult() {
 		time_ = 0.0f; // オーバーフロー防止
 
 	// 時間とエフェクトの強さをHLSL (b0) に発射！
-	float ppData[4] = { time_, chromaticAberration_, noiseIntensity_, useACES_ ? 1.0f : 0.0f };
+	float ppData[8] = { time_, sceneMode_ ? 0.0f : chromaticAberration_,
+		sceneMode_ ? 0.0f : noiseIntensity_, sceneMode_ ? -1.0f : (useACES_ ? 1.0f : 0.0f),
+		radialBlur_, blurCenterX_, blurCenterY_, 0.0f };
 
-	cmdList->SetGraphicsRoot32BitConstants(1, 4, ppData, 0);
+	cmdList->SetGraphicsRoot32BitConstants(1, 8, ppData, 0);
 
 	//  画面全体を覆う巨大な三角形を描画
 	cmdList->DrawInstanced(3, 1, 0, 0);
@@ -418,3 +441,126 @@ void Bloom::DrawImGui() {
 	}
 }
 #endif
+
+void Bloom::SetRadialBlur(float strength, float centerX, float centerY) {
+    radialBlur_ = (std::clamp)(strength, 0.0f, 0.25f);
+    blurCenterX_ = (std::clamp)(centerX, 0.0f, 1.0f);
+    blurCenterY_ = (std::clamp)(centerY, 0.0f, 1.0f);
+}
+
+void Bloom::CaptureScene() {
+    Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
+    const UINT index = dxCommon_->GetSwapChain()->GetCurrentBackBufferIndex();
+    HRESULT result = dxCommon_->GetSwapChain()->GetBuffer(index, IID_PPV_ARGS(&backBuffer));
+    assert(SUCCEEDED(result));
+
+    if (!sceneTextureResource_) {
+        D3D12_RESOURCE_DESC description = backBuffer->GetDesc();
+        description.Flags = D3D12_RESOURCE_FLAG_NONE;
+        D3D12_HEAP_PROPERTIES heap{};
+        heap.Type = D3D12_HEAP_TYPE_DEFAULT;
+        result = GetDevice()->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &description,
+            D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&sceneTextureResource_));
+        assert(SUCCEEDED(result));
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC view{};
+        view.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        view.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        view.Texture2D.MipLevels = 1;
+        GetDevice()->CreateShaderResourceView(sceneTextureResource_.Get(), &view, srvHandle_);
+    }
+
+    D3D12_RESOURCE_BARRIER barriers[2]{};
+    for (auto& barrier : barriers) {
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    }
+
+    barriers[0].Transition.pResource = backBuffer.Get();
+    barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    barriers[1].Transition.pResource = sceneTextureResource_.Get();
+    barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
+    barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+    auto* commands = GetCommandList();
+    commands->ResourceBarrier(2, barriers);
+    commands->CopyResource(sceneTextureResource_.Get(), backBuffer.Get());
+    barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+    barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+    barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
+    commands->ResourceBarrier(2, barriers);
+    sceneMode_ = true;
+}
+
+
+void Bloom::EnableEmissionLayer() {
+    emissionLayer_ = true;
+    chromaticAberration_ = 0;
+    noiseIntensity_ = 0;
+    auto* device = GetDevice();
+    D3D12_HEAP_PROPERTIES heap{};
+    heap.Type = D3D12_HEAP_TYPE_DEFAULT;
+    auto description = uavTextureResource_->GetDesc();
+    HRESULT hr = device->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &description,
+        D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&blurScratch_));
+    assert(SUCCEEDED(hr));
+    const UINT step = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    auto handle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
+    handle.ptr += step * 3;
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uav{};
+    uav.Format = description.Format;
+    uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+    device->CreateUnorderedAccessView(blurScratch_.Get(), nullptr, &uav, handle);
+    handle.ptr += step;
+    D3D12_SHADER_RESOURCE_VIEW_DESC srv{};
+    srv.Format = description.Format;
+    srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srv.Texture2D.MipLevels = 1;
+    device->CreateShaderResourceView(blurScratch_.Get(), &srv, handle);
+    auto shader = dxCommon_->CompilerShader(L"Resources/Shaders/EmissionBlur.hlsl", L"cs_6_0",
+        dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+    D3D12_COMPUTE_PIPELINE_STATE_DESC pipeline{};
+    pipeline.pRootSignature = rootSignature_.Get();
+    pipeline.CS = {shader->GetBufferPointer(), shader->GetBufferSize()};
+    hr = device->CreateComputePipelineState(&pipeline, IID_PPV_ARGS(&emissionBlurPipeline_));
+    assert(SUCCEEDED(hr));
+}
+
+void Bloom::ExecuteEmissionBlur() {
+    auto* command = GetCommandList();
+    command->SetPipelineState(emissionBlurPipeline_.Get());
+    command->SetComputeRootSignature(rootSignature_.Get());
+    ID3D12DescriptorHeap* heaps[] = {srvHeap_.Get()};
+    command->SetDescriptorHeaps(1, heaps);
+    const UINT step = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    const auto start = srvHeap_->GetGPUDescriptorHandleForHeapStart();
+    auto handle = [=](int index) {
+        D3D12_GPU_DESCRIPTOR_HANDLE result = start;
+        result.ptr += step * index;
+        return result;
+    };
+    command->SetComputeRootDescriptorTable(0, handle(0));
+    command->SetComputeRootDescriptorTable(1, handle(3));
+    // 横パスはt1を使わないが、有効な読み取り用のHDRビューを設定しておく。
+    command->SetComputeRootDescriptorTable(3, handle(0));
+    int constants[4] = {0, 0, 0, 0};
+    command->SetComputeRoot32BitConstants(2, 4, constants, 0);
+    command->Dispatch((width_ + 7) / 8, (height_ + 7) / 8, 1);
+    D3D12_RESOURCE_BARRIER barrier{};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition.pResource = blurScratch_.Get();
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+    command->ResourceBarrier(1, &barrier);
+    command->SetComputeRootDescriptorTable(1, handle(1));
+    command->SetComputeRootDescriptorTable(3, handle(4));
+    constants[0] = 1;
+    command->SetComputeRoot32BitConstants(2, 4, constants, 0);
+    command->Dispatch((width_ + 7) / 8, (height_ + 7) / 8, 1);
+    std::swap(barrier.Transition.StateBefore, barrier.Transition.StateAfter);
+    command->ResourceBarrier(1, &barrier);
+}

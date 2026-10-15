@@ -547,4 +547,16 @@
       <Filter>Resources\Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\3D\EffectRenderer.cpp"><Filter>Engine\3D</Filter></ClCompile>
+    <ClInclude Include="Engine\3D\EffectRenderer.h"><Filter>Engine\3D</Filter></ClInclude>
+    <ClInclude Include="Application\Character\SpearEffects.h"><Filter>Application\Character</Filter></ClInclude>
+    <None Include="Resources\Shaders\Effect.VS.hlsl" />
+    <None Include="Resources\Shaders\Effect.PS.hlsl" />
+    <None Include="Resources\Shaders\EmissionBlur.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\3D\SceneLighting.h"><Filter>Engine\3D</Filter></ClInclude>
+    <None Include="Resources\Shaders\SceneLighting.hlsli" />
+  </ItemGroup>
 </Project>

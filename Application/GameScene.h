@@ -6,6 +6,7 @@
 #include "ViewProjection.h"
 #include "DirectXCommon.h"
 #include "Bloom.h"
+#include "Character/SpearPrototype.h"
 
 
 
@@ -21,13 +22,43 @@ public:
 	void Update();
 	void Draw();
 
+	        void PreviewPierce() {
+        spearPrototype_.PreviewPierce();
+    }
+
+    void SetFixedPreviewStep() { spearPrototype_.SetFixedPreviewStep(); }
+
+    void PreviewDodge() {
+        spearPrototype_.PreviewDodge();
+    }
+    void PreviewBossAttack(int role) {
+        spearPrototype_.PreviewBossAttack(role);
+    }
+
+    void PreviewBossDefeat() {
+        spearPrototype_.PreviewBossDefeat();
+    }
+    void OpenBossPractice() {
+		spearPrototype_.OpenBossPractice();
+	}
+
+	void OpenSpearEditor() {
+		spearPrototype_.OpenEditor();
+	}
+
+
 
 	~GameScene();
 
 private:
 
+	// 槍の操作を試すステージ（既存のプレイヤーとは独立）。
+	SpearPrototype spearPrototype_;
+
 	DirectXCommon* dxCommon_ = nullptr; 
 	Bloom* bloom_ = nullptr;
+    Bloom* effectBloom_ = nullptr;
+    EffectRenderer effectRenderer_;
 
 
 	//ModelData* modelData_ = nullptr;

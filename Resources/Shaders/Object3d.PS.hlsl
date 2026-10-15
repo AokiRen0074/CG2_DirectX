@@ -1,3 +1,5 @@
+#include "SceneLighting.hlsli"
+
 // ==========================================
 // 構造体の定義
 // ==========================================
@@ -17,6 +19,9 @@ struct DirectionalLight
     float32_t4 color; // ライトの色
     float32_t3 direction; // ライトの向き
     float intensity; // 輝度
+    int lightingType;
+    float3 padding;
+    SceneLighting scene;
 };
 
 // 頂点シェーダーから送られてきたデータ
@@ -49,6 +54,13 @@ float32_t4 main(VertexShaderOutput input) : SV_TARGET
         discard;
     }
     
+    if (gMaterial.enableLighting != 0 && gDirectionalLight.scene.cameraEnabled.w > 0) {
+        float3 lit = ShadeScene(gDirectionalLight.scene, gMaterial.color.rgb * textureColor.rgb,
+                                input.normal, input.worldPos, gDirectionalLight.color.rgb,
+                                gDirectionalLight.direction, gDirectionalLight.intensity);
+        return float4(lit, gMaterial.color.a * textureColor.a);
+    }
+
     float32_t4 outputColor;
 
     if (gMaterial.enableLighting != 0)

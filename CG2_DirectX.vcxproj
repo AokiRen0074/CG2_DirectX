@@ -368,7 +368,28 @@
     <None Include="externals\DXC\README.md" />
     <None Include="externals\imgui\LICENSE.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearPrototype.cpp" />
+    <ClInclude Include="Application\Character\SpearPrototype.h" />
+    <ClInclude Include="Application\Character\SpearMotion.h" />
+    <ClInclude Include="Application\Character\SpearEditorSettings.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\3D\EffectRenderer.cpp" />
+    <ClInclude Include="Engine\3D\EffectRenderer.h" />
+    <ClInclude Include="Application\Character\SpearEffects.h" />
+    <None Include="Resources\Shaders\Effect.VS.hlsl" />
+    <None Include="Resources\Shaders\Effect.PS.hlsl" />
+    <None Include="Resources\Shaders\EmissionBlur.hlsl" />
+    <ClCompile Include="Application\Character\SpearAdventureVisuals.cpp" />
+    <ClInclude Include="Application\Character\SpearAdventure.h" />
+    <ClInclude Include="Application\Character\SpearCapture.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="build\RuntimeFiles.targets" />
   <ImportGroup Label="ExtensionTargets"></ImportGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\3D\SceneLighting.h" />
+    <None Include="Resources\Shaders\SceneLighting.hlsli" />
+  </ItemGroup>
 </Project>
