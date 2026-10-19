@@ -405,8 +405,8 @@ void SpearPrototype::DrawEditor() {
     }
 
     ImGui::TextWrapped("%s", editorStatus_.c_str());
-    ImGui::Checkbox("Scorched floor attack (trial)", &adventure_.scorchedFloorEnabled);
-    ImGui::TextWrapped("Off: compare with the previous floor laser. Applies to this session.");
+    ImGui::Checkbox("Fracture floor attack (trial)", &adventure_.scorchedFloorEnabled);
+    ImGui::TextWrapped("Off: compare with the horizontal laser layout. Applies to this session.");
 
     if (ImGui::CollapsingHeader("Directional light", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::SliderFloat3("Direction", editorSettings_.lightDirection.data(), -1.0f, 1.0f, "%.3f",
@@ -673,20 +673,20 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         const float radius = (std::min)(12.0f, float(scorch.age + 1) * 1.4f);
         renderer.AddScorchedGround({scorch.centerX, -3.48f, 0.6f}, radius, scorch.age, fade,
                                    adventure_.frame);
-        // 撃ち込みは短く。以後は床に残る亀裂と低い炎が攻撃の主体になる。
+        // 撃ち込みは短く。以後は床の亀裂と噴出する光が攻撃の主体になる。
         if (floorActive && scorch.age < 14) {
             const float impact = 1 - float(scorch.age) / 14;
             if (scorch.age < 5) {
                 const float flash = 1 - float(scorch.age) / 5;
                 renderer.AddGlow({scorch.centerX, -3.3f, 0.2f}, {1, 0, 0}, 3.3f, 0.09f,
-                                 {5, 3, 2, flash});
+                                 {3.5f, 2.2f, 0.7f, flash});
             }
 
             renderer.AddElectricBeam({adventure_.bossX, adventure_.bossY, 0.1f},
                                      {scorch.centerX, -3.48f, 0.1f}, adventure_.frame,
                                      impact * 1.15f);
             renderer.AddGlow({scorch.centerX, -3.35f, -0.2f}, {1, 0, 0}, 2.4f, 0.55f,
-                             {4.5f, 0.65f, 0.2f, impact});
+                             {2.8f, 0.6f, 0.025f, impact * 0.8f});
         }
     }
 
@@ -707,7 +707,7 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
             for (int i = -1; i <= 1; ++i) {
                 const auto line = adventure_.BeamTrace(adventure_.beamAimAngle + float(i) * 0.35f);
                 renderer.AddBeam({line.x1, line.y1, -0.9f}, {line.x2, line.y2, -0.9f}, 0.013f,
-                                 {2.2f, 0.04f, 0.2f, i == 0 ? 0.4f : 0.15f});
+                                 {2.2f, 0.55f, 0.03f, i == 0 ? 0.4f : 0.15f});
             }
         } else {
             const auto line = adventure_.BeamTrace();
@@ -715,8 +715,8 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
             renderer.AddElectricBeam({line.x1, line.y1, 0.1f}, {line.x2, line.y2, 0.1f},
                                      adventure_.frame, 0.5f + fade * 0.5f);
             const Vector3 contact = {line.x2, line.y2, 0.05f};
-            renderer.AddGlow(contact, {1, 0, 0}, 0.7f, 0.18f, {3, 0.12f, 0.15f, fade * 0.7f});
-            renderer.AddArc(contact, rotation, 0.4f, 2.2f, 0.035f, {3, 0.5f, 0.5f, fade * 0.65f});
+            renderer.AddGlow(contact, {1, 0, 0}, 0.7f, 0.18f, {3, 0.5f, 0.025f, fade * 0.7f});
+            renderer.AddArc(contact, rotation, 0.4f, 2.2f, 0.035f, {3, 1.0f, 0.1f, fade * 0.65f});
             // 地面との接点から火花を跳ね上げ、終端を光の溜まりとして見せる。
             if (line.y2 < -3.29f) {
                 for (int i = 0; i < 10; ++i) {
@@ -742,18 +742,17 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
     for (const auto &floor : SpearAdventure::platforms) {
         const Vector3 center = {(floor.left + floor.right) * 0.5f, floor.top - 0.49f, -1.25f};
         const float length = (floor.right - floor.left) * 0.5f;
-        renderer.AddGlow(center, {1, 0, 0}, length, 0.06f, {0.04f, 0.4f, 1.3f, 0.45f});
-        renderer.AddGlow(center, {1, 0, 0}, length, 0.013f, {0.5f, 1.0f, 1.5f, 0.65f});
+        renderer.AddGlow(center, {1, 0, 0}, length, 0.06f, {0.14f, 0.25f, 0.45f, 0.35f});
+        renderer.AddGlow(center, {1, 0, 0}, length, 0.013f, {0.45f, 0.6f, 0.8f, 0.5f});
     }
 
-    // 遠景の光は弱く、敵の赤い核や攻撃の閃光より目立たせない。
+    // 遠景の光は弱く、敵の橙の核や攻撃の閃光より目立たせない。
     for (size_t i = 0; i < sceneryModels_.size(); i += 3) {
         const auto &transform = sceneryModels_[i]->GetTransform();
         auto center = transform.translate;
         center.z -= 0.4f;
         renderer.AddGlow(center, {0.15f, 1, 0}, transform.scale.y * 0.6f, 0.025f,
-                         i % 2 == 0 ? Vector4{0.04f, 0.2f, 0.8f, 0.25f}
-                                    : Vector4{0.7f, 0.04f, 0.2f, 0.2f});
+                         Vector4{0.12f, 0.2f, 0.35f, 0.18f});
     }
 
     for (size_t i = 0; i < adventure_.enemies.size(); ++i) {
@@ -765,19 +764,19 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         auto center = enemyModels_[i]->GetTransform().translate;
         center.z = -0.7f;
         const float pulse = 0.65f + std::sin(float(adventure_.frame) * 0.05f + float(i)) * 0.15f;
-        renderer.AddGlow(center, {1, 0, 0}, 0.24f, 0.13f, {2.5f, 0.05f, 0.25f, pulse});
+        renderer.AddGlow(center, {1, 0, 0}, 0.24f, 0.13f, {2.5f, 0.55f, 0.13f, pulse});
         renderer.AddArc(center, 0.7f, enemy.kind == 3 ? 1.0f : 0.72f, 4.4f, 0.018f,
-                        {1.5f, 0.06f, 0.25f, 0.3f});
+                        {1.5f, 0.3f, 0.08f, 0.3f});
         if (enemy.kind == 3) {
             center.y += 0.5f;
-            renderer.AddGlow(center, {1, 0, 0}, 0.2f, 0.055f, {1.5f, 2, 2.5f, 0.8f});
+            renderer.AddGlow(center, {1, 0, 0}, 0.2f, 0.055f, {2.5f, 1.8f, 1.0f, 0.8f});
         }
     }
 
     for (const auto &minion : adventure_.minions) {
         if (minion.life > 0) {
             renderer.AddGlow({minion.x, minion.y, -0.7f}, {1, 0, 0}, 0.22f, 0.12f,
-                             {2.5f, 0.05f, 0.25f, 0.8f});
+                             {2.5f, 0.55f, 0.13f, 0.8f});
         }
     }
 
@@ -792,20 +791,58 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         }
     }
 
-    // ボスも赤と青が交わる光を持つ結晶体として、槍と同じ視覚言語に揃える。
+    // ボスは攻撃と同じ橙・銅色の結晶体に揃える。プレイヤーの赤青は使わない。
     if (adventure_.bossState != SpearAdventure::BossState::Dormant && !adventure_.won) {
+        // Drawで更新された行列を使い、回転・倍率を変えても稜線を面に一致させる。
+        const auto edge = [&](size_t index, Vector3 localA, Vector3 localB, float opacity) {
+            auto a = Transform(localA, bossModels_[index]->GetWorldMatrix());
+            auto b = Transform(localB, bossModels_[index]->GetWorldMatrix());
+            a.z -= 0.035f;
+            b.z -= 0.035f;
+            renderer.AddBeam(a, b, 0.045f, {2.0f, 0.3f, 0.075f, opacity * 0.18f});
+            renderer.AddBeam(a, b, 0.018f, {2.6f, 0.65f, 0.16f, opacity});
+        };
+        static const std::array<Vector3, 4> equator{{{1, 0, 0}, {0, 0, 1}, {-1, 0, 0}, {0, 0, -1}}};
+        for (size_t i = 0; i < equator.size(); ++i) {
+            edge(0, {0, 1, 0}, equator[i], 0.6f);
+            edge(0, {0, -1, 0}, equator[i], 0.6f);
+            edge(0, equator[i], equator[(i + 1) % equator.size()], 0.5f);
+        }
+
+        // OBJのX反転を含む、前面の槍形の輪郭。
+        static const std::array<Vector3, 4> base{{{1, -1, -1}, {1, 1, -1}, {1, 1, 1}, {1, -1, 1}}};
+        for (size_t i = 0; i < base.size(); ++i) {
+            edge(1, {-1, 0, 0}, base[i], 0.55f);
+            edge(1, base[i], base[(i + 1) % base.size()], 0.45f);
+        }
+
+        static const std::array<Vector3, 4> armorFace{
+            {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}}};
+        for (size_t index = 2; index < 6; ++index) {
+            for (size_t i = 0; i < armorFace.size(); ++i) {
+                edge(index, armorFace[i], armorFace[(i + 1) % armorFace.size()], 0.55f);
+            }
+        }
+
+        const float corePulse = adventure_.bossFlash > 0
+                                    ? 0.95f
+                                    : 0.65f + std::sin(float(adventure_.frame) * 0.08f) * 0.08f;
+        const Vector3 nucleus = {adventure_.bossX, adventure_.bossY, -0.95f};
+        renderer.AddGlow(nucleus, {1, 0, 0}, 0.28f, 0.22f, {2.8f, 0.7f, 0.14f, corePulse});
+        renderer.AddGlow(nucleus, {1, 0, 0}, 0.07f, 0.06f, {3, 2.0f, 1.0f, corePulse * 0.55f});
+
         const float phase = float(adventure_.frame) * 0.025f;
         const float radius = 2.25f + adventure_.armorOpening * 0.35f;
         const Vector3 center = {adventure_.bossX, adventure_.bossY, 0.8f};
-        renderer.AddArc(center, phase, radius, 2.9f, 0.045f, {0.08f, 0.6f, 2.3f, 0.65f});
+        renderer.AddArc(center, phase, radius, 2.9f, 0.045f, {2.3f, 0.6f, 0.16f, 0.65f});
         renderer.AddArc(center, phase + 3.141593f, radius, 2.9f, 0.045f,
-                        {2.3f, 0.04f, 0.25f, 0.65f});
+                        {1.9f, 0.3f, 0.08f, 0.65f});
         for (int i = 0; i < 2; ++i) {
             const float angle = phase + float(i) * 3.141593f;
             const Vector3 light = {center.x + std::cos(angle) * radius,
                                    center.y + std::sin(angle) * radius * 0.7f, 0.6f};
             const Vector4 color =
-                i == 0 ? Vector4{0.08f, 0.7f, 2.5f, 0.75f} : Vector4{2.5f, 0.04f, 0.25f, 0.75f};
+                i == 0 ? Vector4{2.5f, 0.7f, 0.18f, 0.75f} : Vector4{2.1f, 0.3f, 0.08f, 0.75f};
             renderer.AddGlow(light, {1, 0, 0}, 0.35f, 0.15f, color);
         }
     }
@@ -871,15 +908,16 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         }
 
         const float strength = 1.0f + float(flash.rank) * 0.12f;
-        // 撃破の白い芯は最初の2フレームだけ強く見せ、破片へ視線をつなぐ。
-        if (flash.rank > 0 && flash.life >= 12) {
-            renderer.AddGlow(center, {1, 0, 0}, 2.3f * strength, 0.09f, {3.5f, 3.5f, 4, 0.8f});
-            renderer.AddGlow(center, {0, 1, 0}, 1.1f * strength, 0.06f, {2.5f, 3, 4, 0.7f});
+        // 撃破の白い芯は最初の1フレームだけ小さく見せ、色の弧と破片へ視線をつなぐ。
+        if (flash.rank > 0 && flash.life >= 13) {
+            renderer.AddGlow(center, {1, 0, 0}, 1.1f * strength, 0.055f, {1.6f, 2.0f, 2.5f, 0.65f});
+            renderer.AddGlow(center, {0, 1, 0}, 0.65f * strength, 0.035f,
+                             {1.0f, 1.6f, 2.4f, 0.55f});
         }
 
         const float radius = (0.7f + (1 - remaining) * 1.4f) * strength;
-        renderer.AddArc(center, flash.angle + 0.8f, radius, 2.4f, 0.08f * remaining,
-                        {1.5f, 2.0f, 2.8f, opacity});
+        renderer.AddArc(center, flash.angle + 0.8f, radius, 2.4f, 0.055f * remaining,
+                        {0.2f, 1.0f, 2.4f, opacity * 0.8f});
         renderer.AddArc(center, flash.angle - 1.1f, radius * 0.8f, 2.1f, 0.025f * remaining,
                         {0.35f, 0.8f, 2.5f, opacity});
         if (flash.rank > 0) {
@@ -888,7 +926,7 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         }
 
         renderer.AddGlow(center, {std::cos(flash.angle), std::sin(flash.angle), 0}, 1.6f, 0.065f,
-                         {2, 2.2f, 2.8f, opacity});
+                         {0.35f, 1.1f, 2.2f, opacity * 0.7f});
     }
 
     for (const auto &spark : effects_.sparks) {

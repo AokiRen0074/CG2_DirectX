@@ -704,3 +704,11 @@ void Object3d::SetDirectionalLight(const Vector3& direction, const Vector3& colo
 void Object3d::SetSceneLighting(const SceneLighting& lighting) {
     directionalLightData_->scene = lighting;
 }
+
+void Object3d::SetMaterialColor(const Vector4& color) {
+    for (auto& mesh : meshResources_) {
+        if (mesh.materialData) {
+            mesh.materialData->color = color;
+        }
+    }
+}

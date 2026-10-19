@@ -87,6 +87,8 @@ public:
 	void SetDirectionalLight(const Vector3& direction, const Vector3& color, float intensity);
 	// 既定は無効。ステージの実体モデルにだけ周辺光と投影影を適用する。
 	void SetSceneLighting(const SceneLighting& lighting);
+	// このインスタンスの面の色だけを変更し、共有モデルや他の物体には影響させない。
+	void SetMaterialColor(const Vector4& color);
 	void SetScale(const Vector3& scale);
 	void SetRotation(const Vector3& rotation);
 

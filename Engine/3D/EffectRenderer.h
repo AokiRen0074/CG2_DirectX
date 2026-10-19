@@ -19,7 +19,7 @@ public:
     void AddBeam(Vector3 start, Vector3 end, float width, Vector4 color);
     void AddElectricBeam(Vector3 start, Vector3 end, int frame, float intensity);
     void AddLaserEmitter(Vector3 center, float angle, int frame, float charge, bool firing);
-    // 床面の亀裂・低い炎・衝撃波。age=-1は予告だけを描く。
+    // 床の固定した亀裂・鋭い噴出光・結晶片。age=-1は予告だけを描く。
     void AddScorchedGround(Vector3 center, float radius, int age, float fade, int frame);
     void AddArc(Vector3 center, float angle, float radius, float sweep, float width, Vector4 color);
     void Draw(const ViewProjection &camera);

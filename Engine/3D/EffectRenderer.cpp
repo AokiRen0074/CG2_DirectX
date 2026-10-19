@@ -247,116 +247,59 @@ void EffectRenderer::AddElectricBeam(Vector3 start, Vector3 end, int frame, floa
         return;
     }
 
-    const Vector3 along = {(end.x - start.x) / length, (end.y - start.y) / length, 0};
-    const Vector3 normal = {-along.y, along.x, 0};
-    const float clock = float(frame);
-    const auto noise = [](int seed) {
-        const float value = std::sin(float(seed) * 12.9898f) * 43758.5453f;
-        return (value - std::floor(value)) * 2 - 1;
-    };
-    // 格子点の乱数を補間し、隣接点と次のフレームの形をつなげる。
-    const auto smoothNoise = [&](float coordinate, int seed) {
-        const int cell = int(std::floor(coordinate));
-        const float fraction = coordinate - float(cell);
-        const float t = fraction * fraction * (3 - 2 * fraction);
-        const float a = noise(cell + seed);
-        return a + (noise(cell + seed + 1) - a) * t;
-    };
-    const float pulse = intensity * (0.94f + std::sin(clock * 1.7f) * 0.06f);
-    // 幅を持つ薄い外光と、強い白い芯を分けて発光させる。
-    AddBeam(start, end, 1.05f, {2.2f, 0.025f, 0.09f, pulse * 0.12f});
-    AddBeam(start, end, 0.55f, {3.0f, 0.035f, 0.08f, pulse * 0.28f});
-
-    // 芯も均一な直線にせず、幅の異なる光の塊が発射方向へ流れる帯にする。
-    // UVの横軸は実距離。分割数が変わっても模様の大きさと流速を保つ。
-    const int segments = (std::clamp)(int(std::ceil(length / 0.24f)), 16, 384);
-    const float shape = 3.0f + float(frame % 2048) / 2048.0f;
-    const auto point = [&](float distance) {
-        return Offset(Offset(start, along, distance), normal,
-                      std::sin(distance * 4.3f - clock * 0.37f) * 0.025f);
-    };
-    const auto width = [&](float distance) {
-        return 0.29f + smoothNoise(distance * 1.8f - clock * 0.12f, 83) * 0.035f +
-               std::sin(distance * 6.1f - clock * 0.34f) * 0.015f;
-    };
-    const Vector4 color = {1, 1, 1, pulse};
-    for (int i = 0; i < segments; ++i) {
-        const float s0 = length * float(i) / float(segments);
-        const float s1 = length * float(i + 1) / float(segments);
-        const auto a = point(s0);
-        const auto b = point(s1);
-        AddQuad({Vertex{Offset(a, normal, -width(s0)), s0, -1, color, shape},
-                 Vertex{Offset(a, normal, width(s0)), s0, 1, color, shape},
-                 Vertex{Offset(b, normal, -width(s1)), s1, -1, color, shape},
-                 Vertex{Offset(b, normal, width(s1)), s1, 1, color, shape}});
-    }
-
-    // 芯を安定させたまま、周囲の細い放電だけを連続変形させる。
-    // 長く延ばしても稲妻が間延びしないよう、距離に合わせて点を増やす。
-    // 外側は長いたわみを主形状にし、短い枝を等間隔に突き出さない。
-    const int points = (std::clamp)(int(std::ceil(length / 0.15f)) + 1, 17, 641);
-    for (int filament = 0; filament < 2; ++filament) {
-        const float side = filament == 0 ? 1.0f : -1.0f;
-        const int seed = filament * 137 + 31;
-        const auto strandOffset = [&](float distance) {
-            const float opening = (std::min)(1.0f, distance / 0.9f);
-            const float lobe = (std::clamp)(
-                0.35f + smoothNoise(distance * 0.45f - clock * 0.04f, seed + 17) * 0.65f +
-                    smoothNoise(distance * 0.19f + clock * 0.025f, seed + 43) * 0.45f,
-                0.0f, 1.0f);
-            const float bow = 0.55f + smoothNoise(clock * 0.12f, seed + 67) * 0.18f;
-            const float detail = smoothNoise(distance * 5.1f - clock * 0.48f, seed + 53) * 0.08f +
-                                 smoothNoise(distance * 9.1f + clock * 0.3f, seed + 91) * 0.03f;
-            return (side * (0.24f + lobe * bow) + detail) * opening;
+    const Vector3 axis = {(end.x - start.x) / length, (end.y - start.y) / length, 0};
+    const Vector3 normal = {-axis.y, axis.x, 0};
+    const float phase = float(frame) * 0.11f;
+    const float fade = (std::min)(1.2f, intensity);
+    // 帯の形は保ち、敵の攻撃は金と橙に限定してプレイヤーの赤青と区別する。
+    AddBeam(start, end, 0.72f, {1.7f, 0.65f, 0.025f, fade * 0.10f});
+    AddBeam(start, end, 0.45f, {1.7f, 0.18f, 0.015f, fade * 0.10f});
+    const int segments = (std::clamp)(int(std::ceil(length / 0.16f)), 24, 512);
+    for (int band = 0; band < 2; ++band) {
+        const float side = band == 0 ? 1.0f : -1.0f;
+        const Vector4 color = band == 0 ? Vector4{2.4f, 0.6f, 0.14f, fade * 0.9f}
+                                        : Vector4{2.1f, 0.3f, 0.08f, fade * 0.9f};
+        const Vector4 core = band == 0 ? Vector4{3.0f, 2.1f, 1.25f, fade * 0.75f}
+                                       : Vector4{2.8f, 1.25f, 0.55f, fade * 0.7f};
+        const auto position = [&](float distance) {
+            const float envelope =
+                (std::min)(1.0f, distance / 0.75f) * (std::min)(1.0f, (length - distance) / 0.9f);
+            const float wave = distance + std::sin(distance * 0.36f) * 0.22f - phase;
+            auto point =
+                Offset(Offset(start, axis, distance), normal,
+                       side * std::sin(wave) *
+                           (0.3f + std::sin(distance * 0.37f - phase * 0.3f) * 0.07f) * envelope);
+            // 交差で奥行きを入れ替える。プレイヤーの手前には出さない。
+            point.z += side * std::cos(wave) * 0.045f;
+            return point;
         };
-        const auto fork = [&](float distance) {
-            const float value = smoothNoise(distance * 0.65f - clock * 0.035f, seed + 211);
-            const float gate = (std::clamp)((value - 0.1f) / 0.55f, 0.0f, 1.0f);
-            return gate * gate * (3 - 2 * gate);
+        const auto width = [&](float distance) {
+            const float endTaper = (std::clamp)((length - distance) / 0.7f, 0.0f, 1.0f);
+            const float head =
+                0.5f + std::cos(distance * 0.95f - phase + float(band) * 2.0f) * 0.5f;
+            return (0.028f + head * head * 0.2f) * endTaper;
         };
-        Vector3 previous = start;
-        float previousWidth = 0.018f;
-        float previousFork = 0;
-        for (int i = 1; i < points; ++i) {
-            const float distance = length * float(i) / float(points - 1);
-            const float offset = strandOffset(distance);
-            const auto next = Offset(Offset(start, along, distance), normal, offset);
-            const float width =
-                0.023f + smoothNoise(distance * 2.1f - clock * 0.095f, seed + 71) * 0.007f;
-            const float brightness =
-                0.7f + smoothNoise(distance * 1.3f - clock * 0.08f, seed + 101) * 0.2f;
-            // 細い暖白色の線のすぐ外だけを赤く光らせ、芯との間には空間を残す。
-            AddStrip(previous, next, normal, previousWidth * 3, width * 3,
-                     {2.6f, 0.015f, 0.035f, pulse * 0.18f}, {2.6f, 0.015f, 0.035f, pulse * 0.18f},
-                     1);
-            const Vector4 lineColor = {3.6f, 2.2f, 1.8f, pulse * brightness};
-            AddStrip(previous, next, normal, previousWidth, width, lineColor, lineColor, 1);
-            // 一部だけが二股になり、主線から滑らかに離れて戻る。
-            const float branch = fork(distance);
-            if (branch > 0.001f || previousFork > 0.001f) {
-                const auto a = Offset(previous, normal, side * previousFork * 0.16f);
-                const auto b = Offset(next, normal, side * branch * 0.16f);
-                AddStrip(a, b, normal, 0.014f * previousFork, 0.014f * branch,
-                         {2.4f, 0.7f, 0.5f, pulse * previousFork * 0.65f},
-                         {2.4f, 0.7f, 0.5f, pulse * branch * 0.65f}, 1);
-            }
-
-            previous = next;
-            previousWidth = width;
-            previousFork = branch;
+        for (int i = 0; i < segments; ++i) {
+            const float d0 = length * float(i) / float(segments);
+            const float d1 = length * float(i + 1) / float(segments);
+            const auto a = position(d0);
+            const auto b = position(d1);
+            AddStrip(a, b, normal, width(d0), width(d1), color, color, 1);
+            AddStrip(a, b, normal, width(d0) * 0.16f, width(d1) * 0.16f, core, core, 1);
         }
     }
 
-    // 本体から小さな火花が剥がれ、進行方向へ流れながら外側で消える。
-    const int motes = (std::min)(80, int(length / 0.9f));
+    // 芯は細く保つ。放電の枝を増やす代わりに、帯の流れと結晶片で速度を見せる。
+    AddBeam(start, end, 0.018f, {2.5f, 1.7f, 1.0f, fade * 0.35f});
+    const int motes = (std::min)(48, int(length / 1.4f));
     for (int i = 0; i < motes; ++i) {
-        const float age = std::fmod(clock * 0.037f + float(i) * 0.618034f, 1.0f);
-        const float distance = std::fmod(float(i) * 0.93f + clock * 0.21f, length);
+        const float distance = std::fmod(float(i) * 1.43f + float(frame) * 0.15f, length);
         const float side = i % 2 == 0 ? 1.0f : -1.0f;
-        const auto center =
-            Offset(Offset(start, along, distance), normal, side * (0.24f + age * 1.1f));
-        AddGlow(center, along, 0.04f + age * 0.05f, 0.012f,
-                {4, 0.7f, 0.3f, std::sin(age * 3.141593f) * pulse * 0.45f});
+        auto point = Offset(Offset(start, axis, distance), normal,
+                            side * (0.45f + std::sin(float(i) + phase * 0.3f) * 0.12f));
+        const Vector4 color = i % 2 == 0 ? Vector4{2.4f, 0.7f, 0.18f, fade * 0.5f}
+                                         : Vector4{2.4f, 0.3f, 0.02f, fade * 0.5f};
+        AddCrystal(point, std::atan2(axis.y, axis.x), 0.045f, color);
     }
 }
 
@@ -367,7 +310,7 @@ void EffectRenderer::AddLaserEmitter(Vector3 center, float angle, int frame, flo
     const float rotation = time * (firing ? 0.075f : 0.035f);
     const float radius = 1.15f + charge * 0.65f;
     const float alpha = 0.25f + charge * 0.65f;
-    const Vector4 red = {3.2f, 0.035f, 0.09f, alpha};
+    const Vector4 red = {2.6f, 0.55f, 0.13f, alpha};
     // 発射口は塗りつぶさず、逆回転する円弧と細い歯で機構の密度を作る。
     for (int ring = 0; ring < 3; ++ring) {
         const float direction = ring == 1 ? -1.0f : 1.0f;
@@ -385,12 +328,12 @@ void EffectRenderer::AddLaserEmitter(Vector3 center, float angle, int frame, flo
         const float age = std::fmod(time * 0.026f + float(i) * 0.618034f, 1.0f);
         const float distance = firing ? 0.3f + age * 1.8f : 2.2f - age * 1.8f;
         AddGlow(Offset(center, spoke, distance), spoke, 0.045f + age * 0.08f, 0.023f,
-                {3.5f, 0.4f, 0.15f, std::sin(age * 3.141593f) * alpha});
+                {3.2f, 1.0f, 0.12f, std::sin(age * 3.141593f) * alpha});
     }
 
     const float pulse = firing ? 0.95f + std::sin(time * 1.7f) * 0.05f : charge;
-    AddGlow(center, {1, 0, 0}, 0.8f, 0.65f, {3, 0.03f, 0.08f, pulse * 0.4f});
-    AddGlow(center, {1, 0, 0}, 0.26f, 0.2f, {6, 3.5f, 2.5f, pulse});
+    AddGlow(center, {1, 0, 0}, 0.8f, 0.65f, {2.6f, 0.35f, 0.025f, pulse * 0.4f});
+    AddGlow(center, {1, 0, 0}, 0.26f, 0.2f, {4.0f, 2.4f, 0.85f, pulse});
     AddGlow(center, {std::cos(angle), std::sin(angle), 0}, 1.0f, 0.022f,
             {4, 1.2f, 0.6f, pulse * 0.65f});
 }
@@ -407,45 +350,45 @@ void EffectRenderer::AddScorchedGround(Vector3 center, float radius, int age, fl
         const float value = std::sin(float(seed) * 12.9898f) * 43758.5453f;
         return value - std::floor(value);
     };
-    // 光の面を実際の床と平行に置き、キャラクターの背後へ浮いた帯にしない。
-    const Vector4 base = {1.5f, 0.025f, 0.045f, fade * (warning ? 0.18f : 0.24f)};
-    for (int i = 0; i < 16; ++i) {
-        const float t0 = float(i) / 16;
-        const float t1 = float(i + 1) / 16;
-        const Vector3 a = {center.x + (t0 * 2 - 1) * radius, center.y, center.z};
-        const Vector3 b = {center.x + (t1 * 2 - 1) * radius, center.y, center.z};
-        AddStrip(a, b, {0, 0, 1}, 1.35f, 1.35f, Fade(base, std::sin(t0 * 3.141593f)),
-                 Fade(base, std::sin(t1 * 3.141593f)), 1);
-    }
-
-    // 亀裂の形は固定し、光量だけを脈動させる。三本の不規則な筋から細い枝が伸びる。
-    constexpr int segments = 72;
+    // 床の亀裂は固定形状。火や帯を揺らさず、切れ目の明るさだけが脈動する。
+    constexpr int segments = 80;
     for (int vein = 0; vein < 3; ++vein) {
-        const float depth = (float(vein) - 1) * 0.7f;
+        const float depth = (float(vein) - 1) * 0.6f;
         for (int i = 0; i < segments; ++i) {
-            const float x0 = -12 + float(i) / 3;
-            const float x1 = x0 + 1.0f / 3;
-            if (x1 < -radius || x0 > radius) {
+            // 主亀裂は連続、脇の亀裂には長短と途切れを作る。
+            if (vein != 1 && hash(i / 3 * 29 + vein * 131) < 0.35f) {
                 continue;
             }
 
-            const float z0 = depth + (hash(i * 17 + vein * 83) - 0.5f) * 0.38f;
-            const float z1 = depth + (hash((i + 1) * 17 + vein * 83) - 0.5f) * 0.38f;
-            const float t0 = (std::clamp)((-radius - x0) * 3, 0.0f, 1.0f);
-            const float t1 = (std::clamp)((radius - x0) * 3, 0.0f, 1.0f);
-            const Vector3 a = {center.x + x0 + t0 / 3, center.y + 0.012f,
+            const float x0 = -12 + float(i) * 0.3f;
+            const float x1 = x0 + 0.3f;
+            if (x1 <= -radius || x0 >= radius) {
+                continue;
+            }
+
+            const float z0 = depth + (hash(i * 67 + vein * 113) - 0.5f) * 0.5f;
+            const float z1 = depth + (hash((i + 1) * 67 + vein * 113) - 0.5f) * 0.5f;
+            const float t0 = (std::clamp)((-radius - x0) / 0.3f, 0.0f, 1.0f);
+            const float t1 = (std::clamp)((radius - x0) / 0.3f, 0.0f, 1.0f);
+            const Vector3 a = {center.x + x0 + t0 * 0.3f, center.y + 0.014f,
                                center.z + z0 + (z1 - z0) * t0};
-            const Vector3 b = {center.x + x0 + t1 / 3, center.y + 0.012f,
+            const Vector3 b = {center.x + x0 + t1 * 0.3f, center.y + 0.014f,
                                center.z + z0 + (z1 - z0) * t1};
-            const float pulse = 0.65f + std::sin(clock * 0.07f + float(i) * 0.8f + vein) * 0.15f;
-            const Vector4 red = {warning ? 2.8f : 3.6f, 0.055f, 0.08f, fade * pulse};
-            AddStrip(a, b, {0, 0, 1}, 0.09f, 0.09f, Fade(red, 0.3f), Fade(red, 0.3f), 1);
-            AddStrip(a, b, {0, 0, 1}, 0.022f, 0.022f, red, red, 1);
-            if (i % 4 == vein) {
-                const float side = vein == 1 ? -1.0f : 1.0f;
-                const Vector3 tip = {b.x - 0.2f, b.y,
-                                     b.z + side * (0.25f + hash(i + vein) * 0.35f)};
-                AddStrip(b, tip, {0, 0, 1}, 0.018f, 0.004f, red, Fade(red, 0.4f), 1);
+            const float edge = (std::clamp)((radius - std::abs(x0 + 0.15f)) / 0.4f, 0.0f, 1.0f);
+            const float pulse =
+                warning ? 0.6f : 0.75f + std::sin(clock * 0.07f + float(i) * 0.8f) * 0.2f;
+            const float opacity = fade * pulse * edge;
+            const Vector4 orange = {2.5f, 0.32f, 0.015f, opacity};
+            const Vector4 gold = {2.8f, 0.8f, 0.23f, opacity};
+            AddStrip(a, b, {0, 0, 1}, 0.095f, 0.095f, Fade(orange, 0.35f), Fade(orange, 0.35f), 1);
+            AddStrip(a, b, {0, 0, 1}, vein == 1 ? 0.028f : 0.018f, vein == 1 ? 0.028f : 0.018f,
+                     gold, gold, 1);
+            if (hash(i * 41 + vein * 71) > 0.72f) {
+                const float side = vein == 0 ? -1.0f : 1.0f;
+                const Vector3 bend = {b.x - 0.13f, b.y, b.z + side * 0.24f};
+                const Vector3 tip = {b.x + 0.12f, b.y, b.z + side * (0.4f + hash(i * 7) * 0.25f)};
+                AddStrip(b, bend, {0, 0, 1}, 0.022f, 0.015f, gold, gold, 1);
+                AddStrip(bend, tip, {0, 0, 1}, 0.015f, 0.002f, gold, Fade(gold, 0.2f), 1);
             }
         }
     }
@@ -454,84 +397,63 @@ void EffectRenderer::AddScorchedGround(Vector3 center, float radius, int age, fl
         return;
     }
 
-    // 接点から左右へ広がる二つの低い衝撃。到達した場所に亀裂と炎が残る。
+    // 衝撃が左右へ伝わった瞬間だけ、床を横切る鋭い光を立てる。
     if (age < 12) {
-        const float frontFade = (1 - float(age) / 12) * fade;
+        const float opacity = (1 - float(age) / 12) * fade;
         for (float side : {-1.0f, 1.0f}) {
-            const Vector3 front = {center.x + side * radius, center.y + 0.35f, center.z - 0.1f};
-            AddGlow(front, {side, 0.25f, 0}, 1.05f, 0.4f, {4.2f, 0.32f, 0.1f, frontFade});
-            AddGlow(front, {0, 1, 0}, 0.65f, 0.14f, {4.0f, 1.0f, 0.4f, frontFade * 0.9f});
+            const Vector3 front = {center.x + side * radius, center.y + 0.3f, center.z + 0.1f};
+            AddGlow(front, {0, 1, 0}, 0.7f, 0.07f, {3.0f, 1.2f, 0.15f, opacity});
+            AddGlow(front, {1, 0, 0}, 0.65f, 0.07f, {2.8f, 0.4f, 0.02f, opacity * 0.8f});
         }
     }
 
-    // 撃ち込みの瞬間だけ大きな半円の衝撃と結晶片を噴き上げる。
-    // 奥側に置き、手前のプレイヤーの輪郭を隠さない。
-    if (age < 28) {
-        const float elapsed = float(age);
-        const float burstFade = (1 - elapsed / 28) * fade;
-        if (age < 16) {
-            const Vector3 contact = {center.x, center.y + 0.07f, center.z};
-            const float ringFade = (1 - elapsed / 16) * fade;
-            AddArc(contact, 1.570796f, 0.5f + elapsed * 0.18f, 3.141593f, 0.075f,
-                   {4, 0.28f, 0.1f, ringFade});
-            AddGlow(contact, {0, 1, 0}, 1.35f * ringFade, 0.3f, {4, 0.35f, 0.15f, ringFade * 0.8f});
-        }
-
-        for (int i = 0; i < 42; ++i) {
-            const float angle = 0.15f + hash(i * 59 + 7) * 2.84f;
-            const float speed = 0.13f + hash(i * 31 + 17) * 0.22f;
-            const float vx = std::cos(angle) * speed;
-            const float vy = std::sin(angle) * speed;
-            const Vector3 particle = {center.x + vx * elapsed,
-                                      center.y + 0.08f + vy * elapsed - elapsed * elapsed * 0.008f,
-                                      center.z + hash(i * 19) * 0.8f};
-            if (particle.y < center.y) {
-                continue;
-            }
-
-            const bool blue = i % 7 == 0;
-            const Vector4 color = blue ? Vector4{0.15f, 1.1f, 2.8f, burstFade * 0.8f}
-                                       : Vector4{3.6f, 0.4f, 0.12f, burstFade};
-            AddGlow(particle, {vx, vy - elapsed * 0.016f, 0}, 0.13f, 0.035f, color);
-            if (i % 3 == 0) {
-                AddCrystal(particle, angle + elapsed * 0.14f, 0.08f + hash(i * 11) * 0.05f, color);
-            }
-        }
-    }
-
-    // 炎はプレイヤーの背後に置く。赤い根元から細い橙色の先へ収束させる。
-    for (int i = 0; i < 36; ++i) {
-        const float x = -11.8f + float(i) * (23.6f / 35) + (hash(i + 13) - 0.5f) * 0.2f;
+    // 噴出は細い直線と尖った面。位置を動かさず、短い時間だけ光量を上げる。
+    for (int i = 0; i < 16; ++i) {
+        const float x = -11.5f + float(i) * (23.0f / 15) + (hash(i * 23) - 0.5f) * 0.25f;
         if (std::abs(x) > radius) {
             continue;
         }
 
-        const float phase = std::fmod(clock * 0.027f + hash(i * 71), 1.0f);
-        const float life = std::sin(phase * 3.141593f);
-        const float height = (0.6f + hash(i * 37 + 5) * 0.7f) * life * fade;
-        const float drift = std::sin(clock * 0.08f + float(i) * 2.1f) * 0.11f;
-        const float depth = center.z + 0.1f + hash(i * 23) * 1.2f;
-        const Vector3 root = {center.x + x, center.y + 0.025f, depth};
-        const Vector3 bend = {root.x + drift, root.y + height * 0.5f, depth};
-        const Vector3 tip = {root.x - drift * 0.4f, root.y + height, depth};
-        const Vector4 red = {3.5f, 0.06f, 0.1f, fade * life * 0.85f};
-        const Vector4 orange = {3.6f, 0.65f, 0.12f, fade * life * 0.7f};
-        AddStrip(root, bend, {1, 0, 0}, 0.2f, 0.09f, red, orange, 1);
-        AddStrip(bend, tip, {1, 0, 0}, 0.09f, 0, orange, Fade(orange, 0), 1);
-        if (i % 2 == 0) {
-            const Vector3 ember = {root.x + drift * 2, root.y + phase * 1.8f, depth};
-            AddGlow(ember, {0.2f, 1, 0}, 0.055f, 0.025f,
-                    {3.4f, 0.65f, 0.15f, (1 - phase) * fade * 0.8f});
+        const float cycle = std::fmod(clock * 0.019f + hash(i * 97 + 13), 1.0f);
+        if (cycle > 0.28f) {
+            continue;
         }
 
-        // 常時びりびりさせず、亀裂から短い放電が時々跳ねる程度に留める。
-        if (i % 6 == 0 && phase < 0.16f) {
-            const Vector3 a = {root.x - 0.16f, root.y + 0.025f, depth};
-            const Vector3 b = {root.x, root.y + 0.18f, depth};
-            const Vector3 c = {root.x + 0.18f, root.y + 0.04f, depth};
-            const Vector4 spark = {2.4f, 0.3f, 0.15f, fade * 0.45f};
-            AddBeam(a, b, 0.012f, spark);
-            AddBeam(b, c, 0.008f, spark);
+        const float t = cycle / 0.28f;
+        const float envelope = (1 - t) * (1 - t) * (std::min)(1.0f, t * 12);
+        const float opacity = envelope * fade;
+        const float height = 0.5f + hash(i * 37 + 7) * 0.7f;
+        const Vector3 root = {center.x + x, center.y + 0.03f, center.z + 0.5f};
+        const Vector3 tip = {root.x + (hash(i * 43) - 0.5f) * 0.1f, root.y + height, root.z};
+        AddStrip(root, tip, {1, 0, 0}, 0.11f, 0, {2.7f, 0.4f, 0.02f, opacity * 0.65f},
+                 {2.7f, 0.8f, 0.08f, 0}, 1);
+        AddGlow({root.x, root.y + height * 0.45f, root.z}, {0, 1, 0}, height * 0.55f, 0.025f,
+                {3.2f, 1.9f, 1.0f, opacity});
+        AddGlow(root, {1, 0, 0}, 0.22f, 0.05f, {3, 0.7f, 0.05f, opacity * 0.8f});
+    }
+
+    // 着弾の破片は敵色の金と橙。プレイヤーの赤青をここでは使わない。
+    if (age < 24) {
+        const float elapsed = float(age);
+        const float opacity = (1 - elapsed / 24) * fade;
+        for (int i = 0; i < 26; ++i) {
+            const float angle = 0.15f + hash(i * 59 + 7) * 2.84f;
+            const float speed = 0.12f + hash(i * 31 + 17) * 0.22f;
+            const float vx = std::cos(angle) * speed;
+            const float vy = std::sin(angle) * speed;
+            const Vector3 point = {center.x + vx * elapsed,
+                                   center.y + 0.08f + vy * elapsed - elapsed * elapsed * 0.008f,
+                                   center.z + 0.5f + hash(i * 19) * 0.6f};
+            if (point.y < center.y) {
+                continue;
+            }
+
+            const Vector4 color = i % 2 == 0 ? Vector4{2.8f, 0.85f, 0.24f, opacity}
+                                             : Vector4{2.6f, 0.35f, 0.02f, opacity};
+            AddGlow(point, {vx, vy - elapsed * 0.016f, 0}, 0.1f, 0.022f, color);
+            if (i % 2 == 0) {
+                AddCrystal(point, angle + elapsed * 0.14f, 0.07f + hash(i * 11) * 0.04f, color);
+            }
         }
     }
 }

@@ -86,9 +86,8 @@ void SpearPrototype::UpdateAdventureModels() {
             {adventure_.cameraX + relative - 48, -1.5f + float(i % 3) * 3.0f, 7.7f - layer * 1.2f});
         model->SetScale({0.7f + float(i % 3) * 0.35f, height, 0.35f});
         model->SetRotation({0, float(i) * 0.45f, (i % 2 == 0 ? 1 : -1) * 0.18f});
-        model->SetDirectionalLight(
-            {0, 0, 1}, i % 4 == 0 ? Vector3{0.8f, 0.28f, 0.55f} : Vector3{0.4f, 0.65f, 1},
-            (0.8f + layer * 0.25f) * 0.5f);
+        model->SetDirectionalLight({0, 0, 1}, Vector3{0.38f, 0.48f, 0.62f},
+                                   (0.8f + layer * 0.25f) * 0.5f);
     }
 
     laserCoreModel_->SetPosition({114, -2.6f, -0.85f});
@@ -277,11 +276,11 @@ void SpearPrototype::UpdateAdventureModels() {
         const auto &direction = editorSettings_.lightDirection;
         const auto &color = editorSettings_.lightColor;
         model->SetDirectionalLight({direction[0], direction[1], direction[2]},
-                                   {color[0] * 0.95f, color[1] * 0.4f, color[2] * 0.65f},
+                                   {color[0], color[1] * 0.5f, color[2] * 0.2f},
                                    editorSettings_.lightIntensity * 2.0f);
     };
 
-    // 敵は暗い結晶の外殻と赤い核。上昇練習の敵も背景に埋もれないようにする。
+    // 敵は暗い結晶の外殻と橙の核。上昇練習の敵も背景に埋もれないようにする。
     for (auto &model : enemyModels_) {
         applyEnemyLight(model);
     }
@@ -289,13 +288,28 @@ void SpearPrototype::UpdateAdventureModels() {
     applyAll(bossModels_);
     // 装甲の二色は、エディターのライト色・方向・強度も反映する。
     for (size_t i = 2; i < 6; ++i) {
-        const Vector3 tint = i % 2 == 0 ? Vector3{0.12f, 0.6f, 1.0f} : Vector3{1.0f, 0.08f, 0.24f};
+        const Vector3 tint = i % 2 == 0 ? Vector3{1.0f, 0.5f, 0.2f} : Vector3{0.7f, 0.2f, 0.07f};
         const auto &direction = editorSettings_.lightDirection;
         const auto &color = editorSettings_.lightColor;
         bossModels_[i]->SetDirectionalLight(
             {direction[0], direction[1], direction[2]},
             {tint.x * color[0], tint.y * color[1], tint.z * color[2]},
             editorSettings_.lightIntensity * 1.4f);
+    }
+
+    // 本体・装甲・HPも同じ暖色へ寄せ、プレイヤーの赤青と役割を分ける。
+    const auto &enemyDirection = editorSettings_.lightDirection;
+    for (size_t i : {size_t(0), size_t(1), size_t(7)}) {
+        bossModels_[i]->SetDirectionalLight(
+            {enemyDirection[0], enemyDirection[1], enemyDirection[2]}, {1.0f, 0.65f, 0.35f},
+            editorSettings_.lightIntensity);
+    }
+
+    // 面は暗い銅色に保ち、別描画の稜線と核に発光を集める。
+    bossModels_[0]->SetMaterialColor({0.065f, 0.026f, 0.014f, 1});
+    bossModels_[1]->SetMaterialColor({0.095f, 0.038f, 0.018f, 1});
+    for (size_t i = 2; i < 6; ++i) {
+        bossModels_[i]->SetMaterialColor({0.085f, 0.034f, 0.018f, 1});
     }
 
     applyAll(hazardModels_);
@@ -307,7 +321,7 @@ void SpearPrototype::UpdateAdventureModels() {
 
     applyLight(gateModel_);
     applyLight(warningModel_);
-    warningModel_->SetDirectionalLight({0, 0, 1}, {1, 0.1f, 0.28f}, 1.8f);
+    warningModel_->SetDirectionalLight({0, 0, 1}, {1, 0.4f, 0.12f}, 1.8f);
 }
 
 void SpearPrototype::UpdateSceneLighting() {
@@ -355,7 +369,10 @@ void SpearPrototype::UpdateSceneLighting() {
         const auto line = adventure_.BeamTrace();
         const float fade = (std::min)(1.0f, float(adventure_.bossTimer) / 12);
         lighting.lights[0] = segmentLight({line.x1, line.y1, 0.1f}, {line.x2, line.y2, 0.1f}, 4.5f,
-                                          fade * 2.0f, {1, 0.045f, 0.025f});
+                                          fade * 1.2f, {1, 0.14f, 0.015f});
+        lighting.lights[1] =
+            segmentLight({line.x1, line.y1 + 0.2f, 0.25f}, {line.x2, line.y2 + 0.2f, 0.25f}, 3.8f,
+                         fade * 1.5f, {1, 0.4f, 0.12f});
     } else if (adventure_.scorchedFloorEnabled && effects_.groundScorch.age >= 0) {
         const auto &scorch = effects_.groundScorch;
         const float radius = (std::min)(12.0f, float(scorch.age + 1) * 1.4f);
@@ -366,7 +383,10 @@ void SpearPrototype::UpdateSceneLighting() {
         lighting.lights[0] = segmentLight(
             {scorch.centerX - radius, -3.18f, 0.5f}, {scorch.centerX + radius, -3.18f, 0.5f}, 2.6f,
             fade * (1.9f + (std::max)(0.0f, 1 - float(scorch.age) / 14) * 1.2f),
-            {1, 0.065f, 0.025f});
+            {1, 0.18f, 0.015f});
+        lighting.lights[1] = segmentLight({scorch.centerX - radius, -3.15f, 0.9f},
+                                          {scorch.centerX + radius, -3.15f, 0.9f}, 2.6f,
+                                          fade * 1.6f, {1, 0.4f, 0.12f});
     } else if (adventure_.hazards[0].life > 0 && adventure_.hazards[0].kind == 2) {
         const float fade = (std::min)(1.0f, float(adventure_.hazards[0].life) / 10);
         lighting.lights[0] = segmentLight({98, -2.6f, 0.1f}, {130, -2.6f, 0.1f}, 4.0f, fade * 1.6f,
@@ -378,7 +398,7 @@ void SpearPrototype::UpdateSceneLighting() {
                                    : 75.0f;
         const float charge = (std::clamp)(1 - float(adventure_.bossTimer) / duration, 0.0f, 1.0f);
         const Vector3 source = {adventure_.bossX, adventure_.bossY, -0.8f};
-        lighting.lights[0] = segmentLight(source, source, 3.5f, charge * 0.8f, {1, 0.05f, 0.04f});
+        lighting.lights[0] = segmentLight(source, source, 3.5f, charge * 0.8f, {1, 0.4f, 0.12f});
     }
 
     // 突進も短い青い照り返しを持ち、同じ世界の発光として扱う。
