@@ -26,7 +26,7 @@ void SpearPrototype::Initialize() {
                             "Sounds/BigExplosion.wav", "Sounds/warp.wav"};
 
     for (size_t i = 0; i < effectSounds_.size(); ++i) {
-        effectSounds_[i] = Audio::GetInstance()->SoundLoadWave(sounds[i]);
+        effectSounds_[i] = Audio::GetInstance()->SoundLoad(sounds[i]);
     }
 
     motion_.settings = editorSettings_.movement;
@@ -294,7 +294,7 @@ SpearPrototype::~SpearPrototype() {
 void SpearPrototype::PlayEffect(size_t index) {
     // 前の音を止めてから再生するので、波形の寿命とボイスの管理が一致する。
     Audio::GetInstance()->SoundStopWave(effectVoice_);
-    effectVoice_ = Audio::GetInstance()->SoundPlayWave(effectSounds_[index]);
+    effectVoice_ = Audio::GetInstance()->SoundPlay(effectSounds_[index]);
     effectVoice_->SetVolume(0.35f);
     if (index == 1) {
         effectVoice_->SetVolume(0.35f + float((std::min)(4, adventure_.pierceCount)) * 0.035f);

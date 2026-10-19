@@ -158,6 +158,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR commandLine, _
     // 終了処理
     // ==========================================
     delete gameScene; // ゲームのデータを解放
+#ifdef USE_IMGUI
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+#endif
 	ModelManager::Finalize();
 	TextureManager::Finalize(); 
     delete dxCommon;
@@ -165,11 +170,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR commandLine, _
 
     CoUninitialize();
 
-#ifdef USE_IMGUI
-    ImGui_ImplDX12_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-#endif
 
     winApp->Finalize();
     Logger::Finalize();

@@ -222,6 +222,11 @@
     <ClInclude Include="Engine\3D\DebugCamera.h" />
     <ClCompile Include="Engine\3D\Model.cpp" />
     <ClCompile Include="Engine\3D\ModelManager.cpp" />
+    <ClCompile Include="Engine\3D\ParticleManager.cpp" />
+    <ClInclude Include="Engine\3D\ParticleManager.h" />
+    <ClInclude Include="Engine\3D\Particle.h" />
+    <None Include="Resources\Shaders\Particle.VS.hlsl" />
+    <None Include="Resources\Shaders\Particle.PS.hlsl" />
     <ClInclude Include="Engine\3D\ModelManager.h" />
     <ClInclude Include="Engine\3D\Model.h" />
     <ClCompile Include="Engine\3D\Object3d.cpp" />

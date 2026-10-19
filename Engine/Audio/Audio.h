@@ -26,9 +26,9 @@ struct FormatChunk {
 
 // 音声データ
 struct SoundData {
-	WAVEFORMATEX wfex;       // 波形フォーマット
-	BYTE* pBuffer;           // バッファの先頭アドレス
-	unsigned int bufferSize; // バッファのサイズ
+	WAVEFORMATEX wfex{};       // 波形フォーマット
+	BYTE* pBuffer = nullptr;           // バッファの先頭アドレス
+	unsigned int bufferSize = 0; // バッファのサイズ
 };
 
 
@@ -50,11 +50,18 @@ public:
 	// 音声データの読み込み
 	SoundData SoundLoadWave(const char* filename);
 
+	// WAVや圧縮音声をMedia FoundationでPCMへ変換して読み込む
+	// 読み込み済みデータはSoundPlayで繰り返し再生し、最後にSoundUnloadで解放する
+	SoundData SoundLoad(const char* filename);
+
 	// 音声データの解放
 	void SoundUnload(SoundData* soundData);
 
 	// 音声の再生関数
 	IXAudio2SourceVoice* SoundPlayWave(const SoundData& soundData, bool loop = false);
+
+	// ファイル形式に依存せず、読み込み済みのPCMデータを再生する
+	IXAudio2SourceVoice* SoundPlay(const SoundData& soundData, bool loop = false);
 
 
 
@@ -70,4 +77,7 @@ private:
 	IXAudio2MasteringVoice* masterVoice_ = nullptr;
 
 	std::list<IXAudio2SourceVoice*> voices_;
+
+	// MFStartupとMFShutdownを一度ずつ対応させる
+	bool mediaFoundationInitialized_ = false;
 };
