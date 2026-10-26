@@ -1,5 +1,6 @@
 #pragma once
 #include "SpearMotion.h"
+#include "SpearStage.h"
 #include <array>
 
 // ゲーム進行と当たり判定は描画から独立させ、60Hzで更新する。
@@ -19,6 +20,11 @@ public:
         int life = 0;
         int warning = 0;
         int kind = 0;
+    };
+    struct BossImpact {
+        float x=0,y=0;
+        int age=-1, kind=3;
+        bool ground=true;
     };
     struct Particle {
         float x = 0, y = 0, vx = 0, vy = 0;
@@ -48,26 +54,30 @@ public:
         Beam,
         SummonWarning,
         Summon,
+        FanWarning,
+        Fan,
+        RainWarning,
+        Rain,
+        NovaWarning,
+        Nova,
+        PhaseChange,
         Defeated
     };
 
-    static constexpr std::array<Platform, 8> platforms{{{-8, 6, -3},
-                                                        {8, 19, -3},
-                                                        {33, 46, -3},
-                                                        {46, 62, -3},
-                                                        {52, 59, 8.0f},
-                                                        {62, 80, -3},
-                                                        {80, 98, -3},
-                                                        {98, 130, -3}}};
-    std::array<Enemy, 7> enemies{{{14, -2.0f, 0},
-                                  {23, 0.2f, 1},
-                                  {29, 0.2f, 1},
-                                  {39, -2.0f, 0},
-                                  {56, 1.4f, 2},
-                                  {56, 10.2f, 2},
-                                  {71, -2.0f, 3}}};
-    std::array<Hazard, 12> hazards{};
+    SpearStage stage;
+    std::array<Enemy, 7> enemies{};
+    std::array<Hazard, 96> hazards{};
     std::array<Particle, 48> particles{};
+    std::array<BossImpact,24> bossImpacts{};
+    size_t bossImpactCursor=0;
+    int groundImpactSerial=0;
+    void EmitBossImpact(float x,float y,int kind,bool ground) {
+        bossImpacts[bossImpactCursor++ % bossImpacts.size()]={x,y,0,kind,ground};
+        if(ground) ++groundImpactSerial;
+    }
+    void TickBossImpacts() {
+        for(auto &impact:bossImpacts) if(impact.age>=0 && ++impact.age>=32) impact.age=-1;
+    }
     std::array<Impact, 4> impacts{};
     size_t particleCursor = 0;
     size_t impactCursor = 0;
@@ -96,7 +106,20 @@ public:
     int beamDuration = 100;
     int beamWarningDuration = 85;
     int chargeRefillFlash = 0;
-    int bossHp = 30;
+    static constexpr int bossMaxHp = 72;
+    static constexpr int phaseThreshold = bossMaxHp / 2;
+    int bossHp = bossMaxHp;
+    bool secondPhase = false;
+    float phaseFormBlend = 0;
+    float bossVisualAngle = 0;
+    float fanAimAngle = 0;
+    int rainSafeLane = 3;
+    int dashComboRemaining = 0;
+    int rainWave = 0;
+    float novaGapAngle = -2.35f;
+    int novaWave = 0;
+    std::array<std::array<float,2>,14> bossTrail{};
+    int bossTrailCount = 0, bossTrailLife = 0;
     int bossTimer = 0;
     int bossCycle = -1;
     int bossLastAttack = -1;
@@ -108,6 +131,7 @@ public:
     int score = 0;
     int chain = 0;
     int maximumChain = 0;
+    int attackHits = 0;
     int airborneDashes = 0;
     int checkpoint = 0;
     int frame = 0;
@@ -132,7 +156,23 @@ public:
     bool landingEffect = false;
 
     SpearAdventure() {
-        ConfigurePlayer();
+        RestartStage(stage);
+    }
+
+    void RestartStage(const SpearStage &definition) {
+        definition.Validate();
+        stage = definition;
+        checkpoint = 0;
+        bossState = BossState::Dormant;
+        won = false;
+        score = deaths = maximumChain = attackHits = frame = shake = 0;
+        jumped = tripleDashed = false;
+        bestPierce = dodgeCount = 0;
+        for (size_t i = 0; i < enemies.size(); ++i) {
+            const auto &e = stage.enemies[i];
+            enemies[i] = {e.x, e.y, e.kind, e.enabled, -1};
+        }
+        Respawn();
     }
 
     void ConfigurePlayer() {
@@ -143,19 +183,28 @@ public:
     }
 
     float GateX() const {
-        const float gates[] = {18, 34, 34, 46, 62, 62, 80};
+        float gate = 130;
         for (size_t i = 0; i < enemies.size(); ++i) {
-            if (enemies[i].alive) {
-                return gates[i];
-            }
+            if (enemies[i].alive) gate = (std::min)(gate, stage.enemies[i].gate);
         }
-
-        return 130;
+        return gate;
     }
 
     const char *Lesson() const {
         if (won) {
             return "VICTORY! R: play again";
+        }
+
+        if (bossState == BossState::PhaseChange) {
+            return "PHASE II: armor awakened! Prepare for new patterns";
+        }
+
+        if (bossState == BossState::FanWarning || bossState == BossState::Fan) {
+            return "CRYSTAL FAN: move through the gaps, then dash in to counter";
+        }
+
+        if (bossState == BossState::RainWarning || bossState == BossState::Rain) {
+            return "LANCE RAIN: find the unmarked lane and dash into the gap";
         }
 
         if (bossState == BossState::BeamWarning || bossState == BossState::Beam) {
@@ -176,35 +225,10 @@ public:
                        : "BOSS: read the warning, dodge, then counterattack";
         }
 
-        if (player.x < 10) {
-            return "1. JUMP: hold Space to cross the small gap";
-        }
-
-        if (enemies[0].alive) {
-            return "2. ATTACK: jump, then D + Space to pierce the enemy";
-        }
-
-        if (enemies[1].alive || enemies[2].alive) {
-            return "3. CHAIN: use up to 3 air dashes across the long gap";
-        }
-
-        if (enemies[3].alive) {
-            return "Keep moving! Land to restore 3 air dashes";
-        }
-
-        if (enemies[4].alive) {
-            return "4. UP: jump, then W + Space. Defeat the sky enemy to restore +1 dash";
-        }
-
-        if (enemies[5].alive) {
-            return "UP +1: use the restored dash to reach the next enemy and upper ledge";
-        }
-
-        if (enemies[6].alive) {
-            return "5. DOWN: get above the armored enemy, then S + Space";
-        }
-
-        return "BOSS AHEAD: all spear techniques are ready";
+        if (player.x < stage.spawns[1].x) return "JUMP: hold Space to cross the small gap";
+        for (size_t i = 0; i < enemies.size(); ++i)
+            if (enemies[i].alive) return stage.lessons[i].c_str();
+        return stage.bossEnabled ? "BOSS AHEAD: all spear techniques are ready" : "Reach x=98 to finish the tutorial";
     }
 
     void Emit(float x, float y, int count, float power = 1.0f) {
@@ -268,8 +292,8 @@ public:
         player = SpearMotion{};
         player.settings = settings;
         ConfigurePlayer();
-        const float positions[] = {-5, 10, 35, 48, 64, 83, 103};
-        player.x = positions[checkpoint];
+        player.x = checkpoint == 6 ? 103.0f : stage.spawns[size_t(checkpoint)].x;
+        player.y = checkpoint == 6 ? -3.0f : stage.spawns[size_t(checkpoint)].y;
         cameraX = checkpoint == 6 ? 114 : (std::clamp)(player.x + 2.5f, 0.0f, 90.0f);
         cameraY = checkpoint == 6 ? 3.3f : 1.5f;
         cameraVelocityX = cameraVelocityY = 0;
@@ -283,6 +307,7 @@ public:
         airborneDashes = 0;
         hitStop = 0;
         hazards = {};
+        bossImpacts={};bossImpactCursor=0;groundImpactSerial=0;
         particles = {};
         minions = {};
         defeatFrames = 0;
@@ -297,10 +322,15 @@ public:
             enemy.lastAttack = -1;
         }
 
-        if (checkpoint == 6) {
-            bossState = BossState::Intro;
-            bossTimer = 75;
-            bossHp = 30;
+        {
+            bossState = checkpoint == 6 ? BossState::Intro : BossState::Dormant;
+            bossTimer = checkpoint == 6 ? 75 : 0;
+            bossHp = bossMaxHp;
+            secondPhase = false;
+            phaseFormBlend = 0;
+            bossVisualAngle = 0;
+            dashComboRemaining = 0;
+            bossTrailCount = bossTrailLife = rainWave = novaWave = 0;
             bossCycle = -1;
             bossLastAttack = -1;
             bossX = 119;
@@ -355,6 +385,7 @@ public:
 
     void Tick(float inputX, float inputY, bool pressed, bool held) {
         ++frame;
+        TickBossImpacts();
         landingEffect = false;
         invincibility = (std::max)(0, invincibility - 1);
         bossFlash = (std::max)(0, bossFlash - 1);
@@ -391,7 +422,7 @@ public:
         const bool wasAttacking = player.IsAttacking();
         bool supported = false;
 
-        for (const auto &floor : platforms) {
+        for (const auto &floor : stage.platforms) {
             if (player.x >= floor.left && player.x <= floor.right &&
                 std::abs(player.y - floor.top) < 0.01f) {
                 supported = true;
@@ -424,7 +455,7 @@ public:
         // 足場は上からの着地だけを受け付ける。高速な下突進も区間で判定。
         if (!player.grounded && player.y <= oldY) {
             float landingY = -1000;
-            for (const auto &floor : platforms) {
+            for (const auto &floor : stage.platforms) {
                 if (player.x >= floor.left && player.x <= floor.right && oldY >= floor.top &&
                     player.y <= floor.top) {
                     landingY = (std::max)(landingY, floor.top);
@@ -467,6 +498,7 @@ public:
                 }
 
                 enemy.alive = false;
+                ++attackHits;
                 RegisterPierce(enemy.x, enemy.y);
                 ++chain;
                 maximumChain = (std::max)(maximumChain, chain);
@@ -487,6 +519,7 @@ public:
                 }
 
                 minion.life = 0;
+                ++attackHits;
                 RegisterPierce(minion.x, minion.y);
                 minion.lastAttack = player.attackId;
                 ++chain;
@@ -500,10 +533,12 @@ public:
             }
 
             if (bossState != BossState::Dormant && bossState != BossState::Intro &&
+                bossState != BossState::PhaseChange && bossState != BossState::Defeated &&
                 bossLastAttack != player.attackId &&
                 SegmentHit(oldX + ox, oldY + oy, player.x + ox, player.y + oy, bossX, bossY,
                            2.0f)) {
                 bossLastAttack = player.attackId;
+                ++attackHits;
                 int damage = bossState == BossState::Recovery
                                  ? (std::abs(player.directionY) > 0.45f ? 4 : 2)
                                  : 1;
@@ -516,8 +551,10 @@ public:
                 bossHp = (std::max)(0, bossHp - damage);
                 score += damage * 100;
                 bossFlash = 12;
-                hitStop = 4;
-                shake = 8;
+                const bool heavy=damage>=4;
+                hitStop = heavy?7:4;
+                shake = heavy?10:8;
+                if(heavy) EmitBossImpact(bossX,bossY,6,false);
                 Emit(bossX, bossY, 16, 2);
                 if (bossHp == 0) {
                     won = true;
@@ -551,16 +588,21 @@ public:
             Respawn();
         }
 
-        const float milestones[] = {10, 35, 48, 64, 83};
+
         for (int i = 0; i < 5; ++i) {
-            if (player.grounded && player.x >= milestones[i] && checkpoint < i + 1) {
+            if (player.grounded && player.x >= stage.spawns[size_t(i + 1)].x && checkpoint < i + 1) {
                 checkpoint = i + 1;
                 hp = 6;
                 Emit(player.x, player.y, 8);
             }
         }
 
-        if (bossState == BossState::Dormant && player.x >= 98) {
+        if (bossState == BossState::Dormant && player.x >= 98 && GateX() >= 98) {
+            if (!stage.bossEnabled) {
+                won = true;
+                UpdateCamera();
+                return;
+            }
             checkpoint = 6;
             bossState = BossState::Intro;
             bossTimer = 90;
@@ -637,10 +679,12 @@ public:
         return {bossX, bossY, bossX + dx * length, bossY + dy * length};
     }
 
+    float BeamSweepHalfAngle() const { return secondPhase ? .65f : .45f; }
+
     BeamLine BeamTrace() const {
         const float progress = (std::clamp)(1 - float(bossTimer) / float(beamDuration), 0.0f, 1.0f);
         const float smooth = progress * progress * (3 - 2 * progress);
-        return BeamTrace(beamAimAngle - 0.35f + smooth * 0.7f);
+        return BeamTrace(beamAimAngle - BeamSweepHalfAngle() + smooth * BeamSweepHalfAngle() * 2);
     }
 
     void SpawnHazard(float x, float y, float vx, float vy, int kind, int warning = 0) {
@@ -654,33 +698,104 @@ public:
         }
     }
 
-    void BeginBossMove() {
-        bossCycle = (bossCycle + 1) % 4;
-        bossState = BossState::Reposition;
-        bossTimer = 180;
+    float RainLaneX(int lane) const {
+        return 102.5f + float(lane) * 3.3f;
+    }
 
-        if (bossCycle == 0) {
-            nextWarning = BossState::LaserWarning;
-            bossTargetX = 118;
-            bossTargetY = 4.0f;
-        } else if (bossCycle == 1) {
-            nextWarning = BossState::DashWarning;
+    void BeginSecondPhase() {
+        bossTrailCount = bossTrailLife = 0;
+        secondPhase = true;
+        bossState = BossState::PhaseChange;
+        bossTimer = 90;
+        bossCycle = -1;
+        dashComboRemaining = 0;
+        bossTargetX = 114;
+        bossTargetY = 4;
+        hazards = {};
+        minions = {};
+        player.charges = 3;
+        invincibility = (std::max)(invincibility, 100);
+        shake = (std::max)(shake, 6);
+        Emit(bossX, bossY, 16, 1.5f);
+    }
+
+    void BeginBossMove() {
+        // 第一形態は基本技と扇状弾、第二形態は槍雨と連続突進を織り交ぜる。
+        static constexpr std::array<BossState, 5> first{
+            {BossState::FanWarning, BossState::DashWarning, BossState::LaserWarning,
+             BossState::SummonWarning, BossState::BeamWarning}};
+        static constexpr std::array<BossState, 8> second{
+            {BossState::NovaWarning, BossState::RainWarning, BossState::DashWarning, BossState::FanWarning,
+             BossState::LaserWarning, BossState::BeamWarning, BossState::DashWarning,
+             BossState::SummonWarning}};
+        bossCycle = (bossCycle + 1) % int(secondPhase ? second.size() : first.size());
+        nextWarning = secondPhase ? second[size_t(bossCycle)] : first[size_t(bossCycle)];
+        bossState = BossState::Reposition;
+        bossTimer = secondPhase ? 105 : 125;
+        bossTargetX = 118;
+        bossTargetY = 4;
+        if (nextWarning == BossState::DashWarning) {
             bossTargetX = player.x < 114 ? 123.0f : 105.0f;
             bossTargetY = 3.2f;
-        } else if (bossCycle == 2) {
-            nextWarning = BossState::SummonWarning;
+        } else if (nextWarning == BossState::SummonWarning ||
+                   nextWarning == BossState::RainWarning || nextWarning == BossState::NovaWarning) {
             bossTargetX = 114;
-            bossTargetY = 4.5f;
-        } else {
-            nextWarning = BossState::BeamWarning;
+            bossTargetY = 4.8f;
+        } else if (nextWarning == BossState::FanWarning || nextWarning == BossState::BeamWarning) {
             bossTargetX = player.x < 114 ? 120.0f : 108.0f;
-            bossTargetY = 4.0f;
+        }
+    }
+
+    int FanCount() const { return secondPhase ? 9 : 7; }
+    float FanSpacing() const { return .24f; }
+    bool RainSafe(int lane, int wave) const {
+        const int safe = (std::clamp)(rainSafeLane + (wave % 2), 0, 6);
+        return lane == safe || lane == safe + 1;
+    }
+    void FireRainWave(int wave, int warning) {
+        rainWave = wave;
+        ++bossDashSequence;
+        for (int lane=0;lane<8;++lane)
+            if (!RainSafe(lane,wave)) SpawnHazard(RainLaneX(lane),10,0,-.34f,3,warning);
+        shake = (std::max)(shake,3);
+    }
+    float NovaGap(int wave) const { return novaGapAngle + float(wave) * .42f; }
+    bool InNovaGap(float angle, int wave) const {
+        return std::abs(std::remainder(angle-NovaGap(wave),6.2831853f)) < .48f;
+    }
+    void FireNova(int wave) {
+        novaWave = wave;
+        ++bossDashSequence;
+        constexpr int count=24;
+        for (int i=0;i<count;++i) {
+            const float angle=float(i)*6.2831853f/count;
+            if (InNovaGap(angle,wave)) continue;
+            SpawnHazard(bossX,bossY,std::cos(angle)*.205f,std::sin(angle)*.205f,5);
+        }
+        shake = (std::max)(shake,5);
+        Emit(bossX,bossY,10,1.5f);
+    }
+    void EnterBossRecovery(int frames) {
+        bossState=BossState::Recovery;
+        bossTimer=frames;
+        // The last wave ends before the counterattack window begins.
+        hazards={};
+    }
+    void FireCrystalFan(bool offsetWave) {
+        const int count = FanCount();
+        const float spacing = FanSpacing();
+        const float speed = secondPhase ? 0.23f : 0.195f;
+        ++bossDashSequence;
+        for (int i = 0; i < count; ++i) {
+            const float angle = fanAimAngle + (float(i) - float(count - 1) * 0.5f) * spacing +
+                                (offsetWave ? spacing * 0.5f : 0);
+            SpawnHazard(bossX, bossY, std::cos(angle) * speed, std::sin(angle) * speed, 4);
         }
     }
 
     void MoveBossSmoothly(float targetX, float targetY) {
-        const float desiredX = (std::clamp)((targetX - bossX) * 0.07f, -0.18f, 0.18f);
-        const float desiredY = (std::clamp)((targetY - bossY) * 0.07f, -0.18f, 0.18f);
+        const float desiredX = (std::clamp)((targetX - bossX) * 0.085f, -0.26f, 0.26f);
+        const float desiredY = (std::clamp)((targetY - bossY) * 0.085f, -0.23f, 0.23f);
         bossVelocityX += (desiredX - bossVelocityX) * 0.18f;
         bossVelocityY += (desiredY - bossVelocityY) * 0.18f;
         bossX += bossVelocityX;
@@ -692,10 +807,30 @@ public:
             return;
         }
 
+        if (!secondPhase && bossHp <= phaseThreshold && bossHp > 0 &&
+            bossState != BossState::Intro) {
+            BeginSecondPhase();
+        }
+
+        bossTrailLife = (std::max)(0,bossTrailLife-1);
+        phaseFormBlend += ((secondPhase ? 1.0f : 0.0f) - phaseFormBlend) * 0.045f;
+        bossVisualAngle += (0.011f + phaseFormBlend * 0.009f) * (bossState==BossState::Recovery?.25f:1);
+        if (bossState == BossState::PhaseChange) {
+            armorOpening += (1 - armorOpening) * 0.045f;
+            MoveBossSmoothly(bossTargetX, bossTargetY);
+            if (--bossTimer <= 0) {
+                BeginBossMove();
+            }
+
+            return;
+        }
+
         const bool warning =
             bossState == BossState::DashWarning || bossState == BossState::LaserWarning ||
-            bossState == BossState::SummonWarning || bossState == BossState::BeamWarning;
-        armorOpening += ((warning ? 1.0f : 0.0f) - armorOpening) * 0.12f;
+            bossState == BossState::SummonWarning || bossState == BossState::BeamWarning ||
+            bossState == BossState::FanWarning || bossState == BossState::RainWarning ||
+            bossState == BossState::NovaWarning;
+        armorOpening += ((bossState==BossState::Recovery ? 1.65f : warning ? 1.0f : 0.0f) - armorOpening) * 0.12f;
         --bossTimer;
 
         if (bossState == BossState::Recovery) {
@@ -708,6 +843,10 @@ public:
             bossX = dashStartX + (dashTargetX - dashStartX) * eased;
             bossY = dashStartY + (dashTargetY - dashStartY) * eased;
             bossVelocityX = bossVelocityY = 0;
+            if (bossTrailCount < int(bossTrail.size())) ++bossTrailCount;
+            for (int i=bossTrailCount-1;i>0;--i) bossTrail[size_t(i)]=bossTrail[size_t(i-1)];
+            bossTrail[0]={bossX,bossY};
+            bossTrailLife=20;
 
             const bool collision = SegmentHit(oldX, oldY, bossX, bossY, player.x, player.y, 1.7f);
             if (collision) {
@@ -730,20 +869,50 @@ public:
             }
         }
 
+        if (bossState == BossState::Fan) {
+            const int elapsed=132-bossTimer;
+            const int interval=secondPhase?28:40;
+            if (elapsed>=1 && (elapsed-1)%interval==0 && elapsed<= (secondPhase?85:81))
+                FireCrystalFan(((elapsed-1)/interval)%2!=0);
+        }
+        if (bossState == BossState::Rain && (bossTimer==132 || bossTimer==84))
+            FireRainWave(bossTimer==132?1:2,30);
+        if (bossState == BossState::Nova && (bossTimer==140 || bossTimer==92))
+            FireNova(bossTimer==140?1:2);
+
         if (bossState == BossState::Reposition) {
             const float dx = bossX - bossTargetX, dy = bossY - bossTargetY;
             if (dx * dx + dy * dy < 0.08f || bossTimer <= 0) {
                 bossState = nextWarning;
-                bossTimer = bossHp <= 15 ? 55 : 75;
+                bossTimer = secondPhase ? 55 : 75;
                 if (bossState == BossState::BeamWarning) {
                     beamAimAngle = std::atan2(player.y - bossY, player.x - bossX);
-                    beamWarningDuration = bossHp <= 15 ? 65 : 85;
+                    beamWarningDuration = secondPhase ? 65 : 85;
                     bossTimer = beamWarningDuration;
                 }
 
+                if (bossState == BossState::FanWarning) {
+                    fanAimAngle = std::atan2(player.y - bossY, player.x - bossX);
+                    bossTimer = secondPhase ? 60 : 75;
+                }
+
+                if (bossState == BossState::RainWarning) {
+                    const int nearest =
+                        (std::clamp)(int(std::lround((player.x - 102.5f) / 3.3f)), 0, 7);
+                    rainSafeLane = (std::clamp)(nearest < 4 ? nearest + 1 : nearest - 2,0,6);
+                    rainWave=0;
+                    bossTimer = 65;
+                }
+
+                if (bossState == BossState::NovaWarning) {
+                    novaGapAngle=std::atan2(player.y-bossY,player.x-bossX);
+                    novaWave=0;
+                    bossTimer=85;
+                }
                 if (bossState == BossState::DashWarning) {
                     dashTargetX = player.x;
                     dashTargetY = player.y;
+                    dashComboRemaining = secondPhase ? 2 : 0;
                 }
             }
 
@@ -766,6 +935,7 @@ public:
             BeginBossMove();
             break;
         case BossState::DashWarning: {
+            bossTrailCount = 0;
             dashStartX = bossX;
             dashStartY = bossY;
             const float dx = dashTargetX - bossX, dy = dashTargetY - bossY;
@@ -775,14 +945,14 @@ public:
             dashTargetY = (std::clamp)(dashTargetY + dy / length * 3.0f, -1.8f, 7.0f);
             bossState = BossState::Dash;
             ++bossDashSequence;
-            dashDuration = bossHp <= 15 ? 26 : 34;
+            dashDuration = secondPhase ? 23 : 30;
             bossTimer = dashDuration;
             break;
         }
 
         case BossState::LaserWarning:
             bossState = BossState::Laser;
-            bossTimer = bossHp <= 15 ? 105 : 90;
+            bossTimer = secondPhase ? 105 : 90;
             floorLaserDuration = bossTimer;
             hazards[0] = {114, -2.6f, 0, 0, bossTimer, 0, 2};
             shake = 6;
@@ -790,10 +960,24 @@ public:
             break;
         case BossState::BeamWarning:
             bossState = BossState::Beam;
-            beamDuration = bossHp <= 15 ? 90 : 110;
+            beamDuration = secondPhase ? 90 : 110;
             bossTimer = beamDuration;
             shake = 8;
             Emit(bossX, bossY, 12, 1.6f);
+            break;
+        case BossState::FanWarning:
+            bossState = BossState::Fan;
+            bossTimer = 132;
+            break;
+        case BossState::RainWarning:
+            bossState = BossState::Rain;
+            bossTimer = 180;
+            FireRainWave(0,0);
+            break;
+        case BossState::NovaWarning:
+            bossState=BossState::Nova;
+            bossTimer=188;
+            FireNova(0);
             break;
         case BossState::SummonWarning:
             bossState = BossState::Summon;
@@ -801,7 +985,7 @@ public:
             formationAxis = summonCount++ % 2;
             formationX = (std::clamp)(player.x + (player.x < 114 ? 5.0f : -5.0f), 108.0f, 120.0f);
             for (size_t i = 0; i < minions.size(); ++i) {
-                if (i >= size_t(bossHp <= 15 ? 4 : 3)) {
+                if (i >= size_t(secondPhase ? 4 : 3)) {
                     continue;
                 }
 
@@ -817,11 +1001,28 @@ public:
 
             break;
         case BossState::Dash:
+            if (dashComboRemaining > 0) {
+                --dashComboRemaining;
+                bossState = BossState::DashWarning;
+                bossTimer = 36;
+                bossTargetX = bossX;
+                bossTargetY = bossY;
+                dashTargetX = player.x;
+                dashTargetY = player.y;
+                break;
+            }
+
+            EnterBossRecovery(100);
+            break;
+        case BossState::Nova:
+            EnterBossRecovery(130);
+            break;
+        case BossState::Fan:
+        case BossState::Rain:
         case BossState::Laser:
         case BossState::Beam:
         case BossState::Summon:
-            bossState = BossState::Recovery;
-            bossTimer = 100;
+            EnterBossRecovery(100);
             break;
         default:
             break;
@@ -867,13 +1068,31 @@ public:
             const float oldX = h.x, oldY = h.y;
             h.x += h.vx;
             h.y += h.vy;
-            if (h.x < 99 || h.x > 130 || h.y < -3.5f) {
+            const auto &floor=stage.platforms[7];
+            const float floorY=floor.top-.48f;
+            const bool ground=h.kind>=3 && h.vy<0 && oldY>=floorY && h.y<=floorY &&
+                h.x>=floor.left && h.x<=floor.right;
+            if(ground) {
+                const float t=(floorY-oldY)/(h.y-oldY);
+                h.x=oldX+(h.x-oldX)*t;
+                h.y=floorY;
+            }
+            if (h.x < 99 || h.x > 130 || (!ground && h.y < -3.5f) || h.y > 12.0f) {
                 h.life = 0;
             }
 
-            if (h.life > 0 && SegmentHit(oldX, oldY, h.x, h.y, player.x, player.y, 0.6f)) {
+            const float hitRadius = h.kind == 5 ? .38f : h.kind >= 3 ? 0.32f : 0.6f;
+            if (h.life > 0 && SegmentHit(oldX, oldY, h.x, h.y, player.x, player.y, hitRadius)) {
                 h.life = 0;
+                if(h.kind>=3) EmitBossImpact(h.x,h.y,4,false);
                 Hurt();
+            } else if (h.kind >= 3 && h.life > 0 &&
+                       SegmentHit(oldX, oldY, h.x, h.y, player.x, player.y, hitRadius + 0.65f)) {
+                RegisterDodge();
+            }
+            if(ground && h.life>0) {
+                EmitBossImpact(h.x,floorY,h.kind,true);
+                h.life=0;
             }
         }
     }
@@ -916,3 +1135,4 @@ public:
         return value(cell) + (value(cell + 1) - value(cell)) * smooth;
     }
 };
+

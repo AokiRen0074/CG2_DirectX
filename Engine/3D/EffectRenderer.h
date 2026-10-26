@@ -5,6 +5,8 @@
 #include <array>
 #include <span>
 
+struct ModelData;
+
 // 光の板・移動経路の帯・円弧を一つの動的メッシュにまとめる。
 // HDRの描画先で使用し、加算合成する。深度は読み取りだけで書き込まない。
 class EffectRenderer {
@@ -16,6 +18,8 @@ public:
     // 二つの帯を実際の移動経路に沿って交差させ、端で一つに収束させる。
     void AddInterwovenRibbon(std::span<const Vector3> path, float fade, float phase);
     void AddCrystal(Vector3 center, float angle, float size, Vector4 color);
+    // Draw the actual crystal facets into the HDR emission layer.
+    void AddModelEmission(const ModelData &model, const Matrix4x4 &world, float intensity);
     void AddBeam(Vector3 start, Vector3 end, float width, Vector4 color);
     void AddElectricBeam(Vector3 start, Vector3 end, int frame, float intensity);
     void AddLaserEmitter(Vector3 center, float angle, int frame, float charge, bool firing);

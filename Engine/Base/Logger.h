@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <fstream>
+#include <memory>
 
 class Logger {
 public:
@@ -17,5 +18,5 @@ public:
     static std::string ConvertString(const std::wstring& str);
 
 private:
-    static std::ofstream* logStream_; // ログファイルへのストリーム
+    static std::unique_ptr<std::ofstream> logStream_; // ログファイルへのストリーム
 };

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "Base/DirectXCommon.h"
 #include <wrl.h>
 #include "Logger.h"
@@ -69,7 +70,7 @@ public:
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
 
-	static NeonModel* Create(const std::string& directoryPath, const std::string& filename);
+	static std::unique_ptr<NeonModel> Create(const std::string& directoryPath, const std::string& filename);
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();

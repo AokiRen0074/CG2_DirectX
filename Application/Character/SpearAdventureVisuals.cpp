@@ -10,12 +10,15 @@ void SpearPrototype::InitializeAdventureModels() {
 
     initialize(platformModels_, "floor.obj");
     initialize(sceneryModels_, "bossCrystal.obj");
+    for (auto &model : sceneryModels_) {
+        model->SetModel("Resources/AL4/Runtime", "background_crystal.obj");
+    }
     initialize(enemyModels_, "bossCrystal.obj");
     initialize(bossModels_, "target.obj");
-    bossModels_[0]->SetModel("Resources/Spear", "bossCrystal.obj");
-    bossModels_[1]->SetModel("Resources/Spear", "tip.obj");
+    bossModels_[0]->SetModel("Resources/AL4/Boss", "boss_core.obj");
+    bossModels_[1]->SetModel("Resources/AL4/Boss", "boss_emitter.obj");
     for (size_t i = 2; i < 6; ++i) {
-        bossModels_[i]->SetModel("Resources/Spear", "bossArmor.obj");
+        bossModels_[i]->SetModel("Resources/AL4/Boss", "boss_armor.obj");
     }
 
     bossModels_[6]->SetModel("Resources/Spear", "floor.obj");
@@ -48,7 +51,7 @@ void SpearPrototype::InitializeAdventureModels() {
 
 void SpearPrototype::UpdateAdventureModels() {
     const float gaugeY =
-        (std::min)(motion_.y + 0.9f,
+        (std::min)(motion_.y + 1.3f,
                    adventure_.cameraY + (adventure_.cameraDistance - 1.2f) * 0.228875f - 0.35f);
     dashGaugeModels_[0]->SetPosition({motion_.x, gaugeY, -1.0f});
     dashGaugeModels_[0]->SetScale({0.42f, 0.15f, 0.025f});
@@ -66,7 +69,7 @@ void SpearPrototype::UpdateAdventureModels() {
     }
 
     // 背景はカメラに合わせ、明るい攻撃予告と粒子を読みやすくする。
-    backdropModel_->SetPosition({adventure_.cameraX, 1.0f, 9.0f});
+    backdropModel_->SetPosition({adventure_.cameraX, 1.0f, 12.0f});
     backdropModel_->SetScale({40.0f, 25.0f, 0.5f});
     backdropModel_->SetDirectionalLight({0, 0, 1}, {1, 1, 1}, 1.0f);
     // 遠景・中景・近景を異なる速度で流し、カメラ移動から奥行きを感じられるようにする。
@@ -94,10 +97,14 @@ void SpearPrototype::UpdateAdventureModels() {
     laserCoreModel_->SetScale({12, 0.035f, 0.02f});
     laserCoreModel_->SetDirectionalLight({0, 0, 1}, {1, 1, 1}, 1.0f);
     for (size_t i = 0; i < platformModels_.size(); ++i) {
-        const auto &floor = SpearAdventure::platforms[i];
+        const auto &floor = adventure_.stage.platforms[i];
+        const float width = floor.right - floor.left;
+        platformModels_[i]->SetModel("Resources/AL4/Runtime",
+                                     width < 10 ? "ground_short.obj" : width > 20 ? "ground_long.obj"
+                                                                                 : "ground_normal.obj");
         platformModels_[i]->SetPosition(
-            {(floor.left + floor.right) * 0.5f, floor.top - 0.9f, 0.8f});
-        platformModels_[i]->SetScale({(floor.right - floor.left) * 0.5f, 0.4f, 2.0f});
+            {(floor.left + floor.right) * 0.5f, floor.top - 0.49f, 0.8f});
+        platformModels_[i]->SetScale({(floor.right - floor.left) * 0.5f, 0.85f, 2.0f});
         const auto &scale = editorSettings_.scales[1];
         auto &transform = platformModels_[i]->GetTransform();
         transform.scale.x *= scale[0];
@@ -130,10 +137,11 @@ void SpearPrototype::UpdateAdventureModels() {
     }
 
     const float phase = float(adventure_.frame) * 0.045f;
-    const float bossScale = adventure_.bossFlash > 0 ? 1.35f : 1.65f;
+    const float exposed=(std::clamp)((adventure_.armorOpening-1)/.65f,0.0f,1.0f);
+    const float bossScale = adventure_.bossFlash > 0 ? 1.35f : 1.65f+exposed*(.13f+std::sin(phase*2)*.04f);
     bossModels_[0]->SetPosition({adventure_.bossX, adventure_.bossY, 0.6f});
     bossModels_[0]->SetScale({bossScale, bossScale, 0.7f});
-    bossModels_[0]->SetRotation({0, phase * 0.25f, 0.785f});
+    bossModels_[0]->SetRotation({0, phase * 0.25f, std::sin(phase) * 0.08f});
     const auto &coreScale = editorSettings_.scales[4];
     bossModels_[0]->SetScale(
         {bossScale * coreScale[0], bossScale * coreScale[1], 0.7f * coreScale[2]});
@@ -143,7 +151,7 @@ void SpearPrototype::UpdateAdventureModels() {
     coreTransform.rotate.y += coreRotation[1] * 0.0174533f;
     coreTransform.rotate.z += coreRotation[2] * 0.0174533f;
     bossModels_[1]->SetPosition({adventure_.bossX, adventure_.bossY, -0.35f});
-    bossModels_[1]->SetScale({0.9f, 0.8f, 0.4f});
+    bossModels_[1]->SetScale({.9f-exposed*.15f,.8f-exposed*.14f,.4f});
     float floorPose = 0;
     if (adventure_.scorchedFloorEnabled) {
         if (adventure_.bossState == SpearAdventure::BossState::LaserWarning) {
@@ -165,15 +173,21 @@ void SpearPrototype::UpdateAdventureModels() {
     const bool warning = adventure_.bossState == SpearAdventure::BossState::DashWarning ||
                          adventure_.bossState == SpearAdventure::BossState::LaserWarning ||
                          adventure_.bossState == SpearAdventure::BossState::SummonWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::BeamWarning;
+                         adventure_.bossState == SpearAdventure::BossState::BeamWarning ||
+                         adventure_.bossState == SpearAdventure::BossState::FanWarning ||
+                         adventure_.bossState == SpearAdventure::BossState::RainWarning ||
+                         adventure_.bossState == SpearAdventure::BossState::NovaWarning ||
+                         adventure_.bossState == SpearAdventure::BossState::PhaseChange;
     for (size_t i = 2; i < 6; ++i) {
-        const float angle = float(i - 2) * 1.570796f + phase * 0.25f;
-        const float radius =
-            2.1f + adventure_.armorOpening * 0.45f + (warning ? std::sin(phase * 4) * 0.08f : 0);
+        const float angle = float(i - 2) * 1.570796f + adventure_.bossVisualAngle;
+        const float radius = 2.1f + adventure_.phaseFormBlend * 0.4f +
+                             (adventure_.bossState==SpearAdventure::BossState::NovaWarning?.6f:0) +
+                             adventure_.armorOpening * 0.45f +
+                             (warning ? std::sin(phase * 4) * 0.08f : 0);
         bossModels_[i]->SetPosition({adventure_.bossX + std::cos(angle) * radius,
                                      adventure_.bossY + std::sin(angle) * radius, 0.2f});
-        bossModels_[i]->SetScale({0.9f, 0.12f, 0.15f});
-        bossModels_[i]->SetRotation({0, 0, angle + 0.35f});
+        bossModels_[i]->SetScale({0.9f + adventure_.phaseFormBlend * 0.2f, 0.65f, 0.65f});
+        bossModels_[i]->SetRotation({0, 0, angle + .35f+exposed*.9f});
     }
 
     // 3DのHPバーも用意し、開発用UIを閉じてもボスの残りHPが読める。
@@ -182,7 +196,7 @@ void SpearPrototype::UpdateAdventureModels() {
         adventure_.cameraY + (adventure_.cameraDistance - 0.7f) * 0.228875f * 0.84f;
     bossModels_[6]->SetPosition({114, healthY, -0.5f});
     bossModels_[6]->SetScale({5, 0.16f, 0.1f});
-    const float hpWidth = float(adventure_.bossHp) / 30.0f * 4.9f;
+    const float hpWidth = float(adventure_.bossHp) / float(SpearAdventure::bossMaxHp) * 4.9f;
     bossModels_[7]->SetPosition({109.1f + hpWidth, healthY, -0.7f});
     bossModels_[7]->SetScale({(std::max)(0.01f, hpWidth), 0.10f, 0.1f});
 
@@ -305,12 +319,7 @@ void SpearPrototype::UpdateAdventureModels() {
             editorSettings_.lightIntensity);
     }
 
-    // 面は暗い銅色に保ち、別描画の稜線と核に発光を集める。
-    bossModels_[0]->SetMaterialColor({0.065f, 0.026f, 0.014f, 1});
-    bossModels_[1]->SetMaterialColor({0.095f, 0.038f, 0.018f, 1});
-    for (size_t i = 2; i < 6; ++i) {
-        bossModels_[i]->SetMaterialColor({0.085f, 0.034f, 0.018f, 1});
-    }
+    // Keep the Blender-authored metal facets and emissive inlays from each MTL.
 
     applyAll(hazardModels_);
     applyAll(particleModels_);
@@ -428,6 +437,9 @@ void SpearPrototype::UpdateSceneLighting() {
     apply(minionModels_);
     // 画面上の矢印・残り回数・HPは照明の影響を受けず、常に読みやすくする。
     objects_[0]->SetSceneLighting(lighting);
+    for (auto &armor : playerArmor_) {
+        armor->SetSceneLighting(lighting);
+    }
     objects_[2]->SetSceneLighting(lighting);
     objects_[3]->SetSceneLighting(lighting);
     for (size_t i = 0; i < 6; ++i) {

@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "2D/TextureManager.h"
 #include <string>
+#include <memory>
 
 class NeonObj {
 public:
@@ -27,10 +28,10 @@ public:
 	Vector3 GetNeonColor() const { return { color_[0], color_[1], color_[2] }; }
 	float GetIntensity() const { return actualIntensity_; }
 
-	NeonModel* GetModel() { return model_; }
+	NeonModel* GetModel() { return model_.get(); }
 
 private:
-	NeonModel* model_ = nullptr;
+	std::unique_ptr<NeonModel> model_;
 	WorldTransform transform_;
 	uint32_t dummyTexture_ = 0;
 

@@ -10,12 +10,7 @@
 #include "externals/imgui/imgui.h"
 #endif
 
-GameScene::~GameScene() {
-	delete debugCamera_;
-	delete bloom_;
-    delete effectBloom_;
-	delete object3d_;
-}
+GameScene::~GameScene() = default;
 
 
 
@@ -36,7 +31,7 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	WorldTransform::SetDevice(dxCommon->GetDevice());
 
 	// カメラの生成と初期化
-	debugCamera_ = new DebugCamera();
+	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize();
 
 	/*----------------------------
@@ -50,12 +45,12 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	/*-------------------------------
 	Bloomの生成と初期化
 	----------------------------------*/
-	bloom_ = new Bloom();
+	bloom_ = std::make_unique<Bloom>();
 	bloom_->Initialize(dxCommon,1280,720);
 
     // ステージの色は保ち、エフェクトだけをHDRで発光させて重ねる。
     effectRenderer_.Initialize(dxCommon);
-    effectBloom_ = new Bloom();
+    effectBloom_ = std::make_unique<Bloom>();
     effectBloom_->Initialize(dxCommon, 1280, 720);
     effectBloom_->EnableEmissionLayer();
 
@@ -65,14 +60,14 @@ void GameScene::Initialize(DirectXCommon* dxCommon) {
 	textureHandle_ = TextureManager::Load("Resources/uvChecker.png");
 
 	// 3Dオブジェクトの生成
-	object3d_ = new Object3d();
+	object3d_ = std::make_unique<Object3d>();
 	object3d_->Initialize("Resources", "fence.obj");
 	object3d_->GetTransform().rotate.y = 3.14f;
 	object3d_->GetTransform().scale = { 0.5f,0.5f,0.5f };
 
 	// 元の確認用フェンスはステージの外に置く。
 	object3d_->SetPosition({ 30.0f, 0.0f, 0.0f });
-	spearPrototype_.Initialize();
+	spearPrototype_.Initialize(dxCommon);
 
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
@@ -187,6 +182,6 @@ void GameScene::Draw() {
     }
 
     // 回数表示はポストエフェクトの後に描画して読みやすさを保つ。
-	spearPrototype_.DrawDashGauge();
+    spearPrototype_.DrawPresentation();
 
 }

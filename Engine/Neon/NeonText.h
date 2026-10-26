@@ -3,6 +3,7 @@
 #include "DirectXCommon.h"
 #include "Matrix4x4.h"
 #include <vector>
+#include <memory>
 #include <string>
 
 class NeonText {
@@ -32,7 +33,7 @@ private:
 	DirectXCommon* dxCommon_ = nullptr;
 
 	// 生成されたネオンの棒を全て管理するリスト
-	std::vector<NeonSign*> neonSigns_;
+	std::vector<std::unique_ptr<NeonSign>> neonSigns_;
 
 	// マテリアルの設定値を保持しておく変数
 	float radius_ = 0.03f;

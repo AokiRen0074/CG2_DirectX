@@ -7,12 +7,10 @@
 #include "externals/imgui/imgui.h"
 #endif
 
-NeonObj::~NeonObj() {
-	delete model_;
-}
+NeonObj::~NeonObj() = default;
 
 void NeonObj::Initialize(const std::string& directoryPath, const std::string& filename) {
-	model_ = new NeonModel();
+	model_ = std::make_unique<NeonModel>();
 	model_->Initialize(directoryPath, filename);
 
 	transform_.Initialize();

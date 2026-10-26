@@ -4,6 +4,7 @@
 #include <wrl.h>
 #include <string>
 #include <list>
+#include <memory>
 
 
 // チャンクヘッダ
@@ -27,10 +28,20 @@ struct FormatChunk {
 // 音声データ
 struct SoundData {
 	WAVEFORMATEX wfex{};       // 波形フォーマット
-	BYTE* pBuffer = nullptr;           // バッファの先頭アドレス
+	std::shared_ptr<BYTE[]> pBuffer;           // バッファの先頭アドレス
 	unsigned int bufferSize = 0; // バッファのサイズ
 };
 
+
+// XAudio2のボイスはCOMではないため、専用の解放関数をスマートポインタに設定する
+struct AudioVoiceDeleter {
+	template<class TVoice>
+	void operator()(TVoice* voice) const noexcept {
+		if (voice) {
+			voice->DestroyVoice();
+		}
+	}
+};
 
 class Audio {
 
@@ -74,9 +85,15 @@ private:
 	// XAudio2エンジンのインスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
 	// マスターボイス
-	IXAudio2MasteringVoice* masterVoice_ = nullptr;
+	std::unique_ptr<IXAudio2MasteringVoice, AudioVoiceDeleter> masterVoice_;
 
-	std::list<IXAudio2SourceVoice*> voices_;
+	// ボイスが波形を参照している間は、SoundUnloadの後もデータの寿命を保つ
+	struct PlayingVoice {
+		std::shared_ptr<BYTE[]> buffer;
+		std::unique_ptr<IXAudio2SourceVoice, AudioVoiceDeleter> voice;
+	};
+
+	std::list<PlayingVoice> voices_;
 
 	// MFStartupとMFShutdownを一度ずつ対応させる
 	bool mediaFoundationInitialized_ = false;

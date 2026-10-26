@@ -102,7 +102,9 @@ void Audio::Initialize() {
 	CheckAudioResult(result, "Create XAudio2 engine");
 
 	// マスターボイスを生成
-	result = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	IXAudio2MasteringVoice* masterVoice = nullptr;
+	result = xAudio2_->CreateMasteringVoice(&masterVoice);
+	masterVoice_.reset(masterVoice);
 
 	if (FAILED(result)) {
 		xAudio2_.Reset();
@@ -113,8 +115,7 @@ void Audio::Initialize() {
 	result = MFStartup(MF_VERSION, MFSTARTUP_FULL);
 
 	if (FAILED(result)) {
-		masterVoice_->DestroyVoice();
-		masterVoice_ = nullptr;
+		masterVoice_.reset();
 		xAudio2_.Reset();
 		CheckAudioResult(result, "Start Media Foundation");
 	}
@@ -207,13 +208,13 @@ SoundData Audio::SoundLoad(const char* filename) {
 		throw std::runtime_error("Decoded audio is empty or has incomplete PCM frames");
 	}
 
-	auto pcmBuffer = std::make_unique<BYTE[]>(decodedBytes.size());
+	auto pcmBuffer = std::make_shared<BYTE[]>(decodedBytes.size());
 	std::memcpy(pcmBuffer.get(), decodedBytes.data(), decodedBytes.size());
 
 	SoundData soundData{};
 	soundData.wfex = format;
 	soundData.bufferSize = static_cast<unsigned int>(decodedBytes.size());
-	soundData.pBuffer = pcmBuffer.release();
+	soundData.pBuffer = std::move(pcmBuffer);
 
 	return soundData;
 }
@@ -266,15 +267,15 @@ SoundData Audio::SoundLoadWave(const char* filename) {
 	}
 
 	// Dataチャンクのデータ読み込み
-	BYTE* pBuffer = new BYTE[data.size];
-	file.read(reinterpret_cast<char*>(pBuffer), data.size);
+	auto pBuffer = std::make_shared<BYTE[]>(data.size);
+	file.read(reinterpret_cast<char*>(pBuffer.get()), data.size);
 
 	// ファイルクローズ
 	file.close();
 
 	SoundData soundData = {};
 	soundData.wfex = format.fmt;
-	soundData.pBuffer = pBuffer;
+	soundData.pBuffer = std::move(pBuffer);
 	soundData.bufferSize = data.size;
 
 	return soundData;
@@ -292,9 +293,9 @@ IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop)
 
 	for (auto it = voices_.begin(); it != voices_.end(); ) {
 		XAUDIO2_VOICE_STATE state;
-		(*it)->GetState(&state);
+		it->voice->GetState(&state);
 		if (state.BuffersQueued == 0) { // 再生が終わっていたら
-			(*it)->DestroyVoice();      // スピーカーを壊す
+			it->voice.reset();      // スピーカーを壊す
 			it = voices_.erase(it);     // リストから削除
 		}
 		else {
@@ -307,11 +308,12 @@ IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop)
 	// 波形フォーマットを元にSourceVoiceの生成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
 	result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundData.wfex);
+	std::unique_ptr<IXAudio2SourceVoice, AudioVoiceDeleter> ownedVoice(pSourceVoice);
 	CheckAudioResult(result, "Create source voice");
 
 	// 再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
-	buf.pAudioData = soundData.pBuffer;
+	buf.pAudioData = soundData.pBuffer.get();
 	buf.AudioBytes = soundData.bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 
@@ -323,18 +325,18 @@ IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop)
 	result = pSourceVoice->SubmitSourceBuffer(&buf);
 
 	if (FAILED(result)) {
-		pSourceVoice->DestroyVoice();
+		ownedVoice.reset();
 		CheckAudioResult(result, "Submit audio buffer");
 	}
 
 	result = pSourceVoice->Start();
 
 	if (FAILED(result)) {
-		pSourceVoice->DestroyVoice();
+		ownedVoice.reset();
 		CheckAudioResult(result, "Start source voice");
 	} 
 
-	voices_.push_back(pSourceVoice);
+	voices_.push_back({ soundData.pBuffer, std::move(ownedVoice) });
 
 	return pSourceVoice;
 }
@@ -348,8 +350,8 @@ void Audio::SoundUnload(SoundData* soundData) {
 	}
 
 	// new で確保した波形データメモリを解放する
-	delete[] soundData->pBuffer;
-	soundData->pBuffer = nullptr;
+	// 所有を外すだけにし、再生中のボイスがあればその終了まで波形を保持する
+	soundData->pBuffer.reset();
 	soundData->bufferSize = 0;
 	soundData->wfex = {};
 }
@@ -359,16 +361,14 @@ void Audio::SoundUnload(SoundData* soundData) {
 ---------------------------------*/
 void Audio::Finalize() {
 	// 再生中のボイスを破棄してから、出力先とエンジンを解放する
-	for (auto* voice : voices_) {
-		voice->Stop();
-		voice->DestroyVoice();
+	for (auto& playingVoice : voices_) {
+		playingVoice.voice->Stop();
 	}
 
 	voices_.clear();
 
 	if (masterVoice_) {
-		masterVoice_->DestroyVoice();
-		masterVoice_ = nullptr;
+		masterVoice_.reset();
 	}
 
 	xAudio2_.Reset();
@@ -380,10 +380,12 @@ void Audio::Finalize() {
 }
 
 void Audio::SoundStopWave(IXAudio2SourceVoice* pVoice) {
-	auto it = std::find(voices_.begin(), voices_.end(), pVoice);
+	auto it = std::find_if(voices_.begin(), voices_.end(), [pVoice](const PlayingVoice& playing) {
+		return playing.voice.get() == pVoice;
+	});
+
 	if (it != voices_.end()) {
-		(*it)->Stop();
-		(*it)->DestroyVoice();
+		it->voice->Stop();
 		voices_.erase(it);
 	}
 }

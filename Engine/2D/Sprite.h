@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <d3d12.h>
 #include <wrl.h>
 #include "Math/Vector2.h"
@@ -34,7 +35,7 @@ public:
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
 
-	static Sprite* Create(uint32_t textureHandle, Vector2 position);
+	static std::unique_ptr<Sprite> Create(uint32_t textureHandle, Vector2 position);
 
 	void Initialize(DirectXCommon* dxCommon, uint32_t textureHandle);
 	void Update();

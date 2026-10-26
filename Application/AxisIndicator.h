@@ -1,5 +1,6 @@
 
 #pragma once
+#include <memory>
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Object3d.h" 
@@ -17,6 +18,7 @@ public:
     static AxisIndicator* GetInstance();
 
     void Initialize();
+    void Finalize();
     void Update();
     void Draw();
 
@@ -28,7 +30,7 @@ private:
     ViewProjection* targetCamera_ = nullptr;
 
     // 3Dモデル用
-    Object3d* object3d_ = nullptr;
+    std::unique_ptr<Object3d> object3d_;
     WorldTransform worldTransform_;
     uint32_t textureHandle_ = 0;
 

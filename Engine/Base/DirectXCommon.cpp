@@ -452,3 +452,10 @@ void DirectXCommon::SetBackBufferRenderTarget() {
 	// 描画先をバックバッファと深度バッファに設定
 	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
 }
+// イベントはCOMオブジェクトではないため、Windowsのハンドルとして閉じる
+DirectXCommon::~DirectXCommon() {
+    if (fenceEvent_) {
+        CloseHandle(fenceEvent_);
+        fenceEvent_ = nullptr;
+    }
+}

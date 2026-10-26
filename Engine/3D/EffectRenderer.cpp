@@ -1,4 +1,5 @@
 #include "EffectRenderer.h"
+#include "Model.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -95,6 +96,33 @@ void EffectRenderer::Initialize(DirectXCommon *dxCommon) {
 void EffectRenderer::Begin() {
     // エンジンは毎フレームGPU完了を待つため、同じアップロード領域を再利用できる。
     vertexCount_ = 0;
+}
+
+void EffectRenderer::AddModelEmission(const ModelData &model, const Matrix4x4 &world,
+                                      float intensity) {
+    if (intensity <= 0) {
+        return;
+    }
+    for (const auto &mesh : model.meshes) {
+        const auto found = model.materials.find(mesh.useMaterialName);
+        const Vector4 base = found == model.materials.end()
+                                 ? Vector4{0.04f, 0.6f, 1.0f, 1.0f}
+                                 : found->second.diffuseColor;
+        const Vector4 color = {base.x * intensity, base.y * intensity,
+                               base.z * intensity, base.w};
+        for (size_t i = 0; i + 2 < mesh.vertices.size(); i += 3) {
+            if (vertexCount_ + 3 > capacity) {
+                return;
+            }
+            for (size_t corner = 0; corner < 3; ++corner) {
+                const auto &local = mesh.vertices[i + corner].position;
+                Vector3 point = Transform({local.x, local.y, local.z}, world);
+                // Keep the emission on the opaque surface without depth flicker.
+                point.z -= 0.006f;
+                vertices_[vertexCount_++] = Vertex{point, 0, 0, color, 2};
+            }
+        }
+    }
 }
 
 void EffectRenderer::AddQuad(const std::array<Vertex, 4> &quad) {

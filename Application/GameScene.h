@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "3D/Object3d.h"
 #include "2D/Sprite.h"
 #include "3D/DebugCamera.h"
@@ -16,6 +17,11 @@ class DirectXCommon;
 
 class GameScene {
 public:
+    void OpenStageEditor() { spearPrototype_.OpenStageEditor(); }
+    void OpenUiEditor(const char *page = "title") { spearPrototype_.OpenUiEditor(page); }
+    void SetUiEditorTestSavePath() { spearPrototype_.SetUiEditorTestSavePath(); }
+    void RestartRun() { spearPrototype_.RestartRun(); }
+    bool IsResultReady() const { return spearPrototype_.IsResultReady(); }
 
 
 	void Initialize(DirectXCommon* dxCommon);
@@ -56,8 +62,8 @@ private:
 	SpearPrototype spearPrototype_;
 
 	DirectXCommon* dxCommon_ = nullptr; 
-	Bloom* bloom_ = nullptr;
-    Bloom* effectBloom_ = nullptr;
+	std::unique_ptr<Bloom> bloom_;
+    std::unique_ptr<Bloom> effectBloom_;
     EffectRenderer effectRenderer_;
 
 
@@ -74,12 +80,12 @@ private:
 	//uint32_t skydomeTex_ = 0u;
 
 	// デバッグカメラ
-	DebugCamera* debugCamera_ = nullptr;
+	std::unique_ptr<DebugCamera> debugCamera_;
 	bool isDebugCameraActive_ = false;
 
 	// オブジェクト
-	Object3d* object3d_ = nullptr;
-	Sprite* sprite_ = nullptr;
+	std::unique_ptr<Object3d> object3d_;
+	std::unique_ptr<Sprite> sprite_;
 
 	// ビュープロジェクション
 	ViewProjection viewProjection_;
@@ -99,3 +105,4 @@ private:
 
 
 };
+

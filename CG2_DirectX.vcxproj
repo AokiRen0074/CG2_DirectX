@@ -388,7 +388,22 @@
     <None Include="Resources\Shaders\EmissionBlur.hlsl" />
     <ClCompile Include="Application\Character\SpearAdventureVisuals.cpp" />
     <ClInclude Include="Application\Character\SpearAdventure.h" />
+    <ClInclude Include="Application\Character\SpearStage.h" />
     <ClInclude Include="Application\Character\SpearCapture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\GameApplication.cpp" />
+    <ClInclude Include="Application\GameApplication.h" />
+    <ClCompile Include="Application\SpearSceneStates.cpp" />
+    <ClInclude Include="Application\SpearSceneStates.h" />
+    <ClCompile Include="Engine\Scene\SceneManager.cpp" />
+    <ClInclude Include="Engine\Scene\SceneManager.h" />
+    <ClInclude Include="Engine\Scene\IScene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tests\SceneManagerTests.cpp" />
+    <None Include="tests\run-scene-manager-tests.cmd" />
+    <None Include="docs\SceneManagement.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="build\RuntimeFiles.targets" />
@@ -396,5 +411,20 @@
   <ItemGroup>
     <ClInclude Include="Engine\3D\SceneLighting.h" />
     <None Include="Resources\Shaders\SceneLighting.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearScreenRenderer.cpp" />
+    <ClInclude Include="Application\Character\SpearScreenRenderer.h" />
+    <ClInclude Include="Application\Character\SpearGameFlow.h" />
+    <None Include="Resources\Shaders\PrismUI.VS.hlsl" />
+    <None Include="Resources\Shaders\PrismUI.PS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearUiPresentation.cpp" />
+    <ClInclude Include="Application\Character\SpearUiLayout.h" />
+    <None Include="Resources\UI\PrismUI\layout.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearBossEffects.cpp" />
   </ItemGroup>
 </Project>

@@ -12,6 +12,8 @@ class WindowApp;
 
 class DirectXCommon {
 public:
+    ~DirectXCommon();
+
     // 初期化
     void Initialize(WindowApp* winApp);
 

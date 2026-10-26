@@ -23,14 +23,14 @@ void Object3d::StaticInitialize(DirectXCommon* dxCommon) {
 }
 
 //Create関数
-Object3d* Object3d::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<Object3d> Object3d::Create(const std::string& directoryPath, const std::string& filename) {
 	// メモリを確保
 	auto object3d = std::make_unique<Object3d>();
 
 	// 初期化処理
 	object3d->Initialize(directoryPath, filename);
 
-	return object3d.release();
+	return object3d;
 }
 
 /*--------------------------
@@ -96,8 +96,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
 	// シリアライズしてバイナリにする
-	ID3DBlob* signatureBlob = nullptr;
-	ID3DBlob* errorBlob = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
 	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature,
 		D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
@@ -107,7 +107,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	}
 
 	// バイナリを元に生成
-	ID3D12RootSignature* rootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 	hr = device->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(&rootSignature_));
@@ -237,8 +237,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	rootSigDescNoTex.pParameters = rootParamsNoTex;
 	rootSigDescNoTex.NumParameters = _countof(rootParamsNoTex);
 
-	ID3DBlob* sigBlobNoTex = nullptr;
-	ID3DBlob* errBlobNoTex = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> sigBlobNoTex;
+	Microsoft::WRL::ComPtr<ID3DBlob> errBlobNoTex;
 	hr = D3D12SerializeRootSignature(&rootSigDescNoTex, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlobNoTex, &errBlobNoTex);
 	assert(SUCCEEDED(hr));
 	hr = device->CreateRootSignature(0, sigBlobNoTex->GetBufferPointer(), sigBlobNoTex->GetBufferSize(), IID_PPV_ARGS(&rootSignatureNoTexture_));

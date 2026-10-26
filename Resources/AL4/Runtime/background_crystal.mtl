@@ -1,0 +1,15 @@
+newmtl Crystal_Sapphire
+Kd 0.100000 0.220000 0.430000
+illum 2
+
+newmtl Crystal_DarkBlue
+Kd 0.045000 0.100000 0.230000
+illum 2
+
+newmtl Crystal_MidBlue
+Kd 0.075000 0.160000 0.340000
+illum 2
+
+newmtl Crystal_Edge
+Kd 0.140000 0.290000 0.500000
+illum 2

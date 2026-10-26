@@ -1,0 +1,27 @@
+newmtl Dark_copper
+Kd 0.130000 0.042000 0.018000
+illum 2
+
+newmtl Copper_facet
+Kd 0.340000 0.115000 0.035000
+illum 2
+
+newmtl Reactor_amber
+Kd 1.000000 0.230000 0.012000
+illum 2
+
+newmtl Reactor_highlight
+Kd 1.000000 0.560000 0.075000
+illum 2
+
+newmtl Reactor_shadow
+Kd 0.450000 0.045000 0.003000
+illum 2
+
+newmtl Obsidian
+Kd 0.026000 0.018000 0.019000
+illum 2
+
+newmtl Bronze_edge
+Kd 0.550000 0.290000 0.090000
+illum 2

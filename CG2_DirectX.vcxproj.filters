@@ -584,4 +584,47 @@
       <Filter>Resources\Shaders</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application\Character\SpearStage.h">
+      <Filter>Application\Character</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearScreenRenderer.cpp"><Filter>Application\Character</Filter></ClCompile>
+    <ClInclude Include="Application\Character\SpearScreenRenderer.h"><Filter>Application\Character</Filter></ClInclude>
+    <ClInclude Include="Application\Character\SpearGameFlow.h"><Filter>Application\Character</Filter></ClInclude>
+    <None Include="Resources\Shaders\PrismUI.VS.hlsl" />
+    <None Include="Resources\Shaders\PrismUI.PS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearUiPresentation.cpp" />
+    <ClInclude Include="Application\Character\SpearUiLayout.h" />
+    <None Include="Resources\UI\PrismUI\layout.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\Character\SpearBossEffects.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application\GameApplication.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClInclude Include="Application\GameApplication.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClCompile Include="Application\SpearSceneStates.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClInclude Include="Application\SpearSceneStates.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClCompile Include="Engine\Scene\SceneManager.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClInclude Include="Engine\Scene\SceneManager.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\IScene.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

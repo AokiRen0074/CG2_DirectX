@@ -6,12 +6,10 @@ AxisIndicator* AxisIndicator::GetInstance() {
     return &instance;
 }
 
-AxisIndicator::~AxisIndicator() {
-    delete object3d_;
-}
+AxisIndicator::~AxisIndicator() = default;
 
 void AxisIndicator::Initialize() {
-    object3d_ = new Object3d();
+    object3d_ = std::make_unique<Object3d>();
     object3d_->Initialize("Resources", "axis.obj");
 
     object3d_->GetTransform().scale = { 0.2f, 0.2f, 0.2f };
@@ -41,4 +39,8 @@ void AxisIndicator::Draw() {
     if (!isVisible_ || !object3d_) { return; }
 
     object3d_->Draw(textureHandle_);
+}
+void AxisIndicator::Finalize() {
+    targetCamera_ = nullptr;
+    object3d_.reset();
 }

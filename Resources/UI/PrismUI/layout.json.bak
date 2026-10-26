@@ -1,0 +1,1103 @@
+{
+  "version": 1,
+  "canvas": [
+    1280,
+    720
+  ],
+  "elements": [
+    {
+      "id": "title_jewel",
+      "page": "title",
+      "position": [
+        0,
+        -18
+      ],
+      "size": [
+        18,
+        18
+      ],
+      "texture": "Resources/UI/PrismUI/diamond.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "anchor": "title"
+    },
+    {
+      "id": "title_line_left",
+      "page": "title",
+      "position": [
+        -185,
+        -18
+      ],
+      "size": [
+        150,
+        1
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        0.6
+      ],
+      "anchor": "title"
+    },
+    {
+      "id": "title_line_right",
+      "page": "title",
+      "position": [
+        35,
+        -18
+      ],
+      "size": [
+        150,
+        1
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        0.6
+      ],
+      "anchor": "title"
+    },
+    {
+      "id": "title_logo",
+      "page": "title",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        592,
+        108
+      ],
+      "texture": "Resources/UI/PrismUI/title_logo.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "anchor": "title",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "title_tagline",
+      "page": "title",
+      "position": [
+        0,
+        88
+      ],
+      "size": [
+        347,
+        26
+      ],
+      "texture": "Resources/UI/PrismUI/title_tagline.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        0.85
+      ],
+      "anchor": "title",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "title_controls",
+      "page": "title",
+      "position": [
+        0,
+        128
+      ],
+      "size": [
+        332,
+        23
+      ],
+      "texture": "Resources/UI/PrismUI/title_controls.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.65
+      ],
+      "anchor": "title",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "health_panel",
+      "page": "hud",
+      "position": [
+        24,
+        20
+      ],
+      "size": [
+        212,
+        54
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.012,
+        0.025,
+        0.045,
+        0.65
+      ]
+    },
+    {
+      "id": "health_label",
+      "page": "hud",
+      "position": [
+        36,
+        24
+      ],
+      "size": [
+        52,
+        21
+      ],
+      "texture": "Resources/UI/PrismUI/health_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.65
+      ]
+    },
+    {
+      "id": "health_icons",
+      "page": "hud",
+      "position": [
+        102,
+        47
+      ],
+      "size": [
+        10,
+        10
+      ],
+      "texture": "Resources/UI/PrismUI/diamond.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "repeat": 6,
+      "spacing": [
+        20,
+        0
+      ],
+      "meter": "hp"
+    },
+    {
+      "id": "score_label",
+      "page": "hud",
+      "position": [
+        930,
+        20
+      ],
+      "size": [
+        53,
+        20
+      ],
+      "texture": "Resources/UI/PrismUI/score_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.5
+      ]
+    },
+    {
+      "id": "score_value",
+      "page": "hud",
+      "position": [
+        930,
+        36
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{score6}",
+      "fontSize": 24,
+      "tracking": 1,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "time_label",
+      "page": "hud",
+      "position": [
+        1110,
+        20
+      ],
+      "size": [
+        43,
+        20
+      ],
+      "texture": "Resources/UI/PrismUI/time_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.5
+      ]
+    },
+    {
+      "id": "time_value",
+      "page": "hud",
+      "position": [
+        1080,
+        36
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{time}",
+      "fontSize": 23,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "dash_icons",
+      "page": "hud",
+      "position": [
+        -12,
+        0
+      ],
+      "size": [
+        12,
+        12
+      ],
+      "texture": "Resources/UI/PrismUI/diamond.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "anchor": "player",
+      "repeat": 3,
+      "spacing": [
+        12,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "meter": "charges"
+    },
+    {
+      "id": "dodge_feedback",
+      "page": "hud",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        169,
+        38
+      ],
+      "texture": "Resources/UI/PrismUI/dodge_feedback.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "anchor": "feedback",
+      "condition": "dodge",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "pierce_feedback",
+      "page": "hud",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "PIERCE x{pierce}",
+      "fontSize": 25,
+      "tracking": 1,
+      "tint": [
+        1,
+        0.7,
+        0.25,
+        1
+      ],
+      "anchor": "feedback",
+      "pivot": [
+        0.5,
+        0
+      ],
+      "condition": "pierce"
+    },
+    {
+      "id": "refill_feedback",
+      "page": "hud",
+      "position": [
+        26,
+        12
+      ],
+      "size": [
+        29,
+        27
+      ],
+      "texture": "Resources/UI/PrismUI/refill_feedback.png",
+      "tint": [
+        0.6,
+        1,
+        0.6,
+        1
+      ],
+      "anchor": "player",
+      "condition": "refill"
+    },
+    {
+      "id": "boss_health_panel",
+      "page": "boss",
+      "position": [
+        400,
+        34
+      ],
+      "size": [
+        480,
+        14
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.04,
+        0.025,
+        0.02,
+        0.9
+      ]
+    },
+    {
+      "id": "boss_health_fill",
+      "page": "boss",
+      "position": [
+        403,
+        37
+      ],
+      "size": [
+        474,
+        8
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        1,
+        0.4,
+        0.08,
+        1
+      ],
+      "meter": "bossHp"
+    },
+    {
+      "id": "boss_name",
+      "page": "boss",
+      "position": [
+        640,
+        8
+      ],
+      "size": [
+        167,
+        24
+      ],
+      "texture": "Resources/UI/PrismUI/boss_name.png",
+      "tint": [
+        1,
+        0.65,
+        0.3,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "boss_phase_icons",
+      "page": "boss",
+      "position": [
+        385,
+        41
+      ],
+      "size": [
+        8,
+        8
+      ],
+      "texture": "Resources/UI/PrismUI/diamond.png",
+      "tint": [
+        1,
+        0.6,
+        0.2,
+        1
+      ],
+      "repeat": 2,
+      "spacing": [
+        -14,
+        0
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "meter": "phase"
+    },
+    {
+      "id": "clear_bar_top",
+      "page": "impact",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        1280,
+        38
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.005,
+        0.01,
+        0.02,
+        0.95
+      ],
+      "animation": "bars"
+    },
+    {
+      "id": "clear_bar_bottom",
+      "page": "impact",
+      "position": [
+        0,
+        720
+      ],
+      "size": [
+        1280,
+        38
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.005,
+        0.01,
+        0.02,
+        0.95
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "animation": "bars"
+    },
+    {
+      "id": "clear_flash",
+      "page": "impact",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        1280,
+        720
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.65,
+        0.9,
+        1,
+        0.65
+      ],
+      "animation": "flash"
+    },
+    {
+      "id": "shattered_caption",
+      "page": "impact",
+      "position": [
+        640,
+        108
+      ],
+      "size": [
+        296,
+        36
+      ],
+      "texture": "Resources/UI/PrismUI/shattered_caption.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "animation": "impact",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "result_shade",
+      "page": "clear",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        1280,
+        720
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.005,
+        0.014,
+        0.03,
+        0.76
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_mission",
+      "page": "clear",
+      "position": [
+        640,
+        122
+      ],
+      "size": [
+        240,
+        27
+      ],
+      "texture": "Resources/UI/PrismUI/result_mission.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "result_heading",
+      "page": "clear",
+      "position": [
+        640,
+        176
+      ],
+      "size": [
+        666,
+        132
+      ],
+      "texture": "Resources/UI/PrismUI/result_heading.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "result_divider",
+      "page": "clear",
+      "position": [
+        310,
+        290
+      ],
+      "size": [
+        660,
+        1
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        0.5
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_jewel",
+      "page": "clear",
+      "position": [
+        640,
+        290
+      ],
+      "size": [
+        12,
+        12
+      ],
+      "texture": "Resources/UI/PrismUI/diamond.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "rank_panel",
+      "page": "clear",
+      "position": [
+        288,
+        334
+      ],
+      "size": [
+        120,
+        140
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.04,
+        0.15,
+        0.2,
+        0.45
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "rank_border",
+      "page": "clear",
+      "position": [
+        288,
+        334
+      ],
+      "size": [
+        2,
+        140
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "rank_label",
+      "page": "clear",
+      "position": [
+        348,
+        342
+      ],
+      "size": [
+        51,
+        23
+      ],
+      "texture": "Resources/UI/PrismUI/rank_label.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "rank_value",
+      "page": "clear",
+      "position": [
+        348,
+        363
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{rank}",
+      "fontSize": 108,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_time_label",
+      "page": "clear",
+      "position": [
+        480,
+        334
+      ],
+      "size": [
+        51,
+        26
+      ],
+      "texture": "Resources/UI/PrismUI/result_time_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.55
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_time_value",
+      "page": "clear",
+      "position": [
+        770,
+        331
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{time}",
+      "fontSize": 25,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_score_label",
+      "page": "clear",
+      "position": [
+        480,
+        373
+      ],
+      "size": [
+        62,
+        26
+      ],
+      "texture": "Resources/UI/PrismUI/result_score_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.55
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_score_value",
+      "page": "clear",
+      "position": [
+        770,
+        370
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{score}",
+      "fontSize": 25,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_chain_label",
+      "page": "clear",
+      "position": [
+        480,
+        412
+      ],
+      "size": [
+        118,
+        26
+      ],
+      "texture": "Resources/UI/PrismUI/result_chain_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.55
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_chain_value",
+      "page": "clear",
+      "position": [
+        770,
+        409
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{chain}",
+      "fontSize": 25,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_retries_label",
+      "page": "clear",
+      "position": [
+        480,
+        451
+      ],
+      "size": [
+        85,
+        26
+      ],
+      "texture": "Resources/UI/PrismUI/result_retries_label.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.55
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "result_retries_value",
+      "page": "clear",
+      "position": [
+        770,
+        448
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{retries}",
+      "fontSize": 25,
+      "tracking": 0,
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "new_best",
+      "page": "clear",
+      "position": [
+        640,
+        504
+      ],
+      "size": [
+        180,
+        23
+      ],
+      "texture": "Resources/UI/PrismUI/new_best.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "condition": "newBest",
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "replay_button",
+      "page": "clear",
+      "position": [
+        445,
+        560
+      ],
+      "size": [
+        390,
+        62
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.025,
+        0.14,
+        0.2,
+        0.85
+      ],
+      "action": "replay",
+      "condition": "replay",
+      "animation": "reveal"
+    },
+    {
+      "id": "replay_border_top",
+      "page": "clear",
+      "position": [
+        445,
+        560
+      ],
+      "size": [
+        390,
+        2
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "condition": "replay",
+      "animation": "reveal"
+    },
+    {
+      "id": "replay_border_bottom",
+      "page": "clear",
+      "position": [
+        445,
+        620
+      ],
+      "size": [
+        390,
+        2
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.22,
+        0.86,
+        1,
+        1
+      ],
+      "condition": "replay",
+      "animation": "reveal"
+    },
+    {
+      "id": "replay_caption",
+      "page": "clear",
+      "position": [
+        640,
+        572
+      ],
+      "size": [
+        324,
+        32
+      ],
+      "texture": "Resources/UI/PrismUI/replay_caption.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        1
+      ],
+      "condition": "replay",
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "replay_controls",
+      "page": "clear",
+      "position": [
+        640,
+        641
+      ],
+      "size": [
+        254,
+        20
+      ],
+      "texture": "Resources/UI/PrismUI/replay_controls.png",
+      "tint": [
+        0.88,
+        0.95,
+        1,
+        0.45
+      ],
+      "condition": "replay",
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "restart_blackout",
+      "page": "transition",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        1280,
+        720
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "animation": "blackout"
+    }
+  ]
+}

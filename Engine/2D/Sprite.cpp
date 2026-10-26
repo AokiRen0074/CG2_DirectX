@@ -33,7 +33,7 @@ void Sprite::StaticInitialize(DirectXCommon* dxCommon) {
     sDxCommon_ = dxCommon;
 }
 
-Sprite* Sprite::Create(uint32_t textureHandle, Vector2 position) {
+std::unique_ptr<Sprite> Sprite::Create(uint32_t textureHandle, Vector2 position) {
     // メモリを確保
     auto sprite = std::make_unique<Sprite>();
 
@@ -45,7 +45,7 @@ Sprite* Sprite::Create(uint32_t textureHandle, Vector2 position) {
 
     // 完成品を返す
     sprite->Update();
-    return sprite.release();
+    return sprite;
 }
 
 void Sprite::InitializePipeline() {

@@ -67,7 +67,7 @@ public:
 
 	static void StaticInitialize(DirectXCommon* dxCommon);
 
-	static Object3d* Create(const std::string& directoryPath, const std::string& filename);
+	static std::unique_ptr<Object3d> Create(const std::string& directoryPath, const std::string& filename);
 
 	void Initialize(const std::string& directoryPath, const std::string& filename);
 	void Update();

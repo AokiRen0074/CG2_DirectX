@@ -68,7 +68,7 @@ void NeonText::Update(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMa
 		currentIntensity = 0.0f;
 	}
 
-	for (NeonSign* sign : neonSigns_) {
+	for (const auto& sign : neonSigns_) {
 		// 💥 計算した currentIntensity を各パーツに送る！
 		sign->SetMaterial(radius_, softness_, currentIntensity, color_[0], color_[1], color_[2], lengthOffset_);
 
@@ -80,7 +80,7 @@ void NeonText::Update(const Matrix4x4& viewMatrix, const Matrix4x4& projectionMa
 // 描画処理
 // ==========================================
 void NeonText::Draw() {
-	for (NeonSign* sign : neonSigns_) {
+	for (const auto& sign : neonSigns_) {
 		sign->Draw();
 	}
 }
@@ -89,9 +89,8 @@ void NeonText::Draw() {
 // メモリのクリーンアップ
 // ==========================================
 void NeonText::Clear() {
-	for (NeonSign* sign : neonSigns_) {
-		delete sign; // newした分を忘れずにdelete！
-	}
+	// newした分を忘れずにdelete！
+	// 所有しているスマートポインタをまとめて解放する
 	neonSigns_.clear();
 }
 
@@ -101,14 +100,14 @@ void NeonText::Clear() {
 void NeonText::CreateLetter(char c, float baseX, float baseY, float scale) {
 
 	auto addBar = [&](float ox, float oy, float len, float rot) {
-		NeonSign* bar = new NeonSign();
+		auto bar = std::make_unique<NeonSign>();
 		bar->Initialize(dxCommon_);
 
 		float canvasLength = len + 0.5f;
 		bar->SetTransform({ baseX + (ox * scale), baseY + (oy * scale), 0.0f }, { 1.0f * scale, canvasLength * scale, 1.0f }, rot);
 		bar->SetTubeLength(len * scale);
 
-		neonSigns_.push_back(bar);
+		neonSigns_.push_back(std::move(bar));
 		};
 
 	auto vl = [&]() { addBar(-0.75f, 0.0f, 2.0f, 0.0f); };

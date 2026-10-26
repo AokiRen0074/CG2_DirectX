@@ -375,3 +375,6 @@ imgui.ini
 !/externals/DXC/bin/
 !/externals/DXC/bin/x64/
 !/externals/DXC/bin/x64/*.dll
+
+# Blender models are runtime assets, not compiler object files.
+!Resources/AL4/**/*.obj

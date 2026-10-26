@@ -22,9 +22,9 @@ void NeonModel::StaticInitialize(DirectXCommon* dxCommon) {
 }
 
 //Create関数
-NeonModel* NeonModel::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<NeonModel> NeonModel::Create(const std::string& directoryPath, const std::string& filename) {
 	// メモリを確保
-	NeonModel* neonModel = new NeonModel();
+	auto neonModel = std::make_unique<NeonModel>();
 
 	// 初期化処理
 	neonModel->Initialize(directoryPath, filename);
@@ -91,8 +91,8 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
 	// シリアライズしてバイナリにする
-	ID3DBlob* signatureBlob = nullptr;
-	ID3DBlob* errorBlob = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
 	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature,
 		D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
@@ -102,7 +102,7 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	}
 
 	// バイナリを元に生成
-	ID3D12RootSignature* rootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 	hr = device->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(&rootSignature_));
@@ -201,7 +201,7 @@ void NeonModel::Initialize(const std::string& directoryPath, const std::string& 
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	//実際に生成
-	ID3D12PipelineState* graphicsPipelineState = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState;
 
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

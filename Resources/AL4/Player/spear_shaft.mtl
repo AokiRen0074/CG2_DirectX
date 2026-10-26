@@ -1,0 +1,19 @@
+newmtl M00
+Kd 0.03500 0.08500 0.16000
+illum 2
+
+newmtl M01
+Kd 0.26000 0.40000 0.55000
+illum 2
+
+newmtl M02
+Kd 0.26000 0.40000 0.55000
+illum 2
+
+newmtl M03
+Kd 0.26000 0.40000 0.55000
+illum 2
+
+newmtl M04
+Kd 0.01500 0.55000 0.85000
+illum 2
