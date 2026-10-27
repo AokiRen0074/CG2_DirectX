@@ -17,9 +17,14 @@ class DirectXCommon;
 
 class GameScene {
 public:
+    void BeginStageEditorSmokeTest() { spearPrototype_.BeginStageEditorSmokeTest(); }
     void OpenStageEditor() { spearPrototype_.OpenStageEditor(); }
     void OpenUiEditor(const char *page = "title") { spearPrototype_.OpenUiEditor(page); }
     void SetUiEditorTestSavePath() { spearPrototype_.SetUiEditorTestSavePath(); }
+    void SetPaused(bool paused) { spearPrototype_.SetPaused(paused); }
+    void RetryFromPause() { spearPrototype_.RetryFromPause(); }
+    bool IsPaused() const { return spearPrototype_.IsPaused(); }
+    std::string PauseSimulationStamp() const { return spearPrototype_.PauseSimulationStamp(); }
     void RestartRun() { spearPrototype_.RestartRun(); }
     bool IsResultReady() const { return spearPrototype_.IsResultReady(); }
 
@@ -34,6 +39,14 @@ public:
 
     void SetFixedPreviewStep() { spearPrototype_.SetFixedPreviewStep(); }
 
+    void PreviewJumpCount(int charges) { spearPrototype_.PreviewJumpCount(charges); }
+    void AudioSmokeAction(int action) { spearPrototype_.AudioSmokeAction(action); }
+    std::string AudioStatus() const { return spearPrototype_.AudioStatus(); }
+    void PreviewFinish(int point) { spearPrototype_.PreviewFinish(point); }
+    void RequestFinishPhase() { spearPrototype_.RequestFinishPhase(); }
+    void PreviewAirRoute() { spearPrototype_.PreviewAirRoute(); }
+    void PreviewAirChain(bool strike) { spearPrototype_.PreviewAirChain(strike); }
+    void PreviewTutorialRefill() { spearPrototype_.PreviewTutorialRefill(); }
     void PreviewDodge() {
         spearPrototype_.PreviewDodge();
     }

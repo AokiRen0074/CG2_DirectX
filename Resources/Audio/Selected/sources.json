@@ -1,0 +1,196 @@
+{
+  "selectedOn": "2026-10-28",
+  "assets": [
+    {
+      "id": "m01",
+      "file": "title_outer_space.wav",
+      "role": "タイトル・道中",
+      "title": "Outer Space Loop",
+      "author": "wipics",
+      "source": "https://opengameart.org/content/outer-space-loop",
+      "original": "outer_space.mp3",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 69.904,
+      "channels": 2,
+      "sampleRate": 44100,
+      "sha256": "2bd19689590700db0bb23609f90b54f80c021bd8d39964983f811009146b4d8f",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "Peak limited by a constant gain to 0.96."
+      ]
+    },
+    {
+      "id": "m05",
+      "file": "battle_electric_stream.wav",
+      "role": "激しい戦闘の別案",
+      "title": "Electric Stream / 180 BPM",
+      "author": "Alexander Ehlers (tricksntraps)",
+      "source": "https://opengameart.org/content/t-t-free-cyberpunk-pack-2",
+      "original": "electric_stream_180bpm.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 79.785,
+      "channels": 2,
+      "sampleRate": 44100,
+      "sha256": "0a51a657c5f820053e8b76b13a757be347336cb4b74323f412a8be4a751201c1",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "600 ms tail-to-head crossfade for a continuous loop; first 600 ms folded into the tail.",
+        "Peak limited by a constant gain to 0.96."
+      ]
+    },
+    {
+      "id": "s03",
+      "file": "landing.wav",
+      "role": "着地",
+      "title": "impactGeneric_light_002",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/impact-sounds",
+      "original": "Audio/impactGeneric_light_002.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.14,
+      "channels": 2,
+      "sampleRate": 44100,
+      "sha256": "a425336fefbce760d07e153bed445cade317068cfa11d0eac8895d98600d41a6",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s08",
+      "file": "strong_hit.wav",
+      "role": "強化攻撃の命中",
+      "title": "impactMetal_heavy_000",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/impact-sounds",
+      "original": "Audio/impactMetal_heavy_000.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.168,
+      "channels": 2,
+      "sampleRate": 44100,
+      "sha256": "6fe562fc15f97a009dcc8e1b35775e9daca1c320cc5cc2451040a145c1538a77",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s11",
+      "file": "checkpoint.wav",
+      "role": "チェックポイント",
+      "title": "confirmation_004",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/interface-sounds",
+      "original": "Audio/confirmation_004.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.49,
+      "channels": 1,
+      "sampleRate": 44100,
+      "sha256": "000c874d037f05f00073d8d6e2e28a938f14e1cf6356ae066c611f237e52d138",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s14",
+      "file": "fan_shot.wav",
+      "role": "扇状弾の発射",
+      "title": "laserSmall_000",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/sci-fi-sounds",
+      "original": "Audio/laserSmall_000.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.239,
+      "channels": 2,
+      "sampleRate": 44100,
+      "sha256": "2846dd1d59d336f4c7019ec3568c6e1d8ec52280616ce69921ecf9660977abad",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s15",
+      "file": "laser.wav",
+      "role": "レーザー",
+      "title": "laserLarge_000",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/sci-fi-sounds",
+      "original": "Audio/laserLarge_000.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.677,
+      "channels": 1,
+      "sampleRate": 44100,
+      "sha256": "fc7c8d35989e04513d61d975866a37dc99ea4df121fc0ef9147b7922d4281d9b",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s21",
+      "file": "ui_select.wav",
+      "role": "項目の選択",
+      "title": "click_003",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/interface-sounds",
+      "original": "Audio/click_003.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.01,
+      "channels": 1,
+      "sampleRate": 44100,
+      "sha256": "86e00ffe0794a960332f30a780a14f39aee53122c8a5b444c8f85dbed9642254",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s22",
+      "file": "ui_confirm.wav",
+      "role": "決定",
+      "title": "confirmation_001",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/interface-sounds",
+      "original": "Audio/confirmation_001.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.29,
+      "channels": 1,
+      "sampleRate": 44100,
+      "sha256": "fefa39e5d8764608c34ba8c43eef1faf05cd1bb6a040fa8dc736ec1d8acd5a68",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    },
+    {
+      "id": "s23",
+      "file": "ui_back.wav",
+      "role": "戻る",
+      "title": "back_001",
+      "author": "Kenney",
+      "source": "https://kenney.nl/assets/interface-sounds",
+      "original": "Audio/back_001.ogg",
+      "license": "CC0 1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "duration": 0.064,
+      "channels": 1,
+      "sampleRate": 44100,
+      "sha256": "4a66385524fffc1371d058109b6ae4e2132c76a71a991c024c70f9e37503092e",
+      "changes": [
+        "Decoded to 16-bit PCM WAV; original sample rate and channel count retained.",
+        "2 ms edge fades to avoid clicks."
+      ]
+    }
+  ]
+}

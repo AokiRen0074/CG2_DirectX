@@ -1,0 +1,20 @@
+newmtl Facet_Light
+Kd 0.95000 0.95000 0.95000
+Ka 0 0 0
+Ks 0.35 0.35 0.35
+Ns 48
+d 1
+
+newmtl Facet_Mid
+Kd 0.68000 0.68000 0.68000
+Ka 0 0 0
+Ks 0.35 0.35 0.35
+Ns 48
+d 1
+
+newmtl Facet_Dark
+Kd 0.38000 0.38000 0.38000
+Ka 0 0 0
+Ks 0.35 0.35 0.35
+Ns 48
+d 1

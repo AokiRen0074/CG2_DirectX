@@ -383,6 +383,7 @@
     <ClCompile Include="Engine\3D\EffectRenderer.cpp" />
     <ClInclude Include="Engine\3D\EffectRenderer.h" />
     <ClInclude Include="Application\Character\SpearEffects.h" />
+    <ClInclude Include="Application\Character\SpearEffectSettings.h" />
     <None Include="Resources\Shaders\Effect.VS.hlsl" />
     <None Include="Resources\Shaders\Effect.PS.hlsl" />
     <None Include="Resources\Shaders\EmissionBlur.hlsl" />
@@ -421,10 +422,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Character\SpearUiPresentation.cpp" />
+    <ClCompile Include="Application\Character\SpearPausePresentation.cpp" />
+    <ClCompile Include="Application\Character\SpearAudio.cpp" />
     <ClInclude Include="Application\Character\SpearUiLayout.h" />
     <None Include="Resources\UI\PrismUI\layout.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Character\SpearBossEffects.cpp" />
+    <ClCompile Include="Application\Character\SpearAmbientEffects.cpp" />
+    <ClCompile Include="Application\Character\SpearStageEditor.cpp" />
   </ItemGroup>
 </Project>

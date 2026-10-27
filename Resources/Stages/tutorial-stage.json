@@ -1,0 +1,122 @@
+{
+  "arenaPlatform": 3,
+  "bossEnabled": true,
+  "bossStart": 98.0,
+  "enemies": [
+    [
+      14.0,
+      -1.5,
+      0,
+      true,
+      18.0,
+      false
+    ],
+    [
+      23.0,
+      0.20000000298023224,
+      0,
+      true,
+      34.0,
+      false
+    ],
+    [
+      27.5,
+      0.20000000298023224,
+      0,
+      true,
+      32.5,
+      false
+    ],
+    [
+      35.0,
+      0.5,
+      0,
+      true,
+      37.0,
+      false
+    ],
+    [
+      41.5,
+      0.5,
+      0,
+      true,
+      43.5,
+      false
+    ],
+    [
+      48.5,
+      0.5,
+      0,
+      true,
+      50.5,
+      false
+    ],
+    [
+      55.5,
+      0.5,
+      0,
+      true,
+      57.5,
+      false
+    ],
+    [
+      62,
+      0.5,
+      0,
+      true,
+      64,
+      false
+    ]
+  ],
+  "lessons": [
+    "Jump with Space / A",
+    "Defeat an enemy to restore +1 air jump",
+    "Chain air jumps through the enemies",
+    "Defeat an enemy to restore +1 air jump",
+    "Defeat an enemy to restore +1 air jump",
+    "Defeat an enemy to restore +1 air jump",
+    "Defeat an enemy to restore +1 air jump",
+    "Keep attacking without landing"
+  ],
+  "platforms": [
+    [
+      -8.0,
+      6.0,
+      -3.0
+    ],
+    [
+      8.0,
+      31.6,
+      -3.0
+    ],
+    [
+      69.75,
+      98.0,
+      -3.0
+    ],
+    [
+      98.0,
+      130.0,
+      -3.0
+    ]
+  ],
+  "spawns": [
+    [
+      -5.0,
+      -3.0
+    ],
+    [
+      10.0,
+      -3.0
+    ],
+    [
+      30,
+      -3
+    ],
+    [
+      72,
+      -3
+    ]
+  ],
+  "version": 2
+}

@@ -72,25 +72,11 @@ void SpearPrototype::DrawBossOverhaulEffects(EffectRenderer &renderer) {
     renderer.AddArc(core, -phase * .5f, .95f, 4.6f, .018f,
                     {2.3f, 1.3f, .4f, .2f});
   }
-  if (state == State::SummonWarning) {
-    const float charge =
-        (std::clamp)(1 - float(adventure_.bossTimer) / 75, 0.0f, 1.0f);
-    const int axis = adventure_.summonCount % 2;
-    for (int i = 0; i < (adventure_.secondPhase ? 4 : 3); ++i) {
-      const float offset = (float(i) - 1.5f) * 1.45f;
-      const Vector3 portal{core.x + (axis == 0 ? offset : 0),
-                           core.y - .5f + (axis == 1 ? offset : 0), -.5f};
-      renderer.AddArc(portal, phase, .35f + charge * .3f, 5.4f, .025f,
-                      {2.2f, .6f, .1f, .15f + charge * .3f});
-      renderer.AddCrystal(portal, phase, .08f + charge * .17f,
-                          {2.7f, .9f, .2f, charge * .6f});
-    }
-  }
   for (const auto &minion : adventure_.minions)
     if (minion.life > 390) {
       const float age = float(420 - minion.life) / 30;
       renderer.AddArc({minion.x, minion.y, -.4f}, -phase, .4f + age * .8f, 5.5f,
-                      .035f, {2.7f, .85f, .16f, (1 - age) * .5f});
+                      .025f, {2.2f, .7f, .18f, (1 - age) * .24f});
     }
   const bool nova = state == State::Nova, warning = state == State::NovaWarning;
   if (nova || warning) {

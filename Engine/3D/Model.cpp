@@ -1,5 +1,6 @@
 #include "Model.h"
 #include <fstream>
+#include <filesystem>
 #include <sstream>
 #include <cassert>
 #include <stdexcept>
@@ -10,7 +11,7 @@
 std::map<std::string, MaterialData> LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	std::map<std::string, MaterialData> materialDataMap;
 	std::string line;
-	std::ifstream file(directoryPath + "/" + filename);
+	std::ifstream file(std::filesystem::path(std::u8string(directoryPath.begin(), directoryPath.end())) / std::filesystem::path(std::u8string(filename.begin(), filename.end())));
 	// 開けなかったら止める
 	if (!file.is_open()) {
 		throw std::runtime_error("Failed to open material file: " + directoryPath + "/" + filename);
@@ -71,7 +72,7 @@ ModelData LoadObjectFile(const std::string& directoryPath, const std::string& fi
 
 	MeshData* currentMesh = nullptr; 
 
-	std::ifstream file(directoryPath + "/" + filename);
+	std::ifstream file(std::filesystem::path(std::u8string(directoryPath.begin(), directoryPath.end())) / std::filesystem::path(std::u8string(filename.begin(), filename.end())));
 	if (!file.is_open()) {
 		throw std::runtime_error("Failed to open model file: " + directoryPath + "/" + filename);
 	}

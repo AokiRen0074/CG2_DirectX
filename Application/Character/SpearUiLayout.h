@@ -13,6 +13,7 @@ struct SpearUiElement {
   std::string condition, action, animation, meter;
   std::array<float, 2> position{0, 0}, size{100, 40}, pivot{0, 0},
       spacing{0, 0};
+  std::array<float, 2> worldPosition{0, 0};
   std::array<float, 4> tint{1, 1, 1, 1}, emptyTint{.1f, .2f, .25f, .7f};
   float fontSize = 24, tracking = 0;
   int repeat = 1;
@@ -21,16 +22,23 @@ struct SpearUiElement {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     SpearUiElement, id, page, anchor, texture, text, condition, action,
     animation, meter, position, size, pivot, spacing, tint, emptyTint, fontSize,
-    tracking, repeat, visible)
+    tracking, repeat, visible, worldPosition)
 
 struct SpearUiContext {
   bool finished = false, boss = false, canReplay = false, newBest = false;
-  bool dodge = false, pierce = false, refill = false;
+  bool airReady=false, airStrike=false;
+  bool paused=false;
+  int pauseChoice=0;
+  bool dodge = false, pierce = false, refill = false, tutorial = false;
+  std::array<std::array<float, 4>, 4> worldProjection{};
+  float playerWorldX = 0;
   int hp = 6, charges = 3, phase = 1;
   float bossHp = 1, titleAlpha = 1, titleScale = 1;
   float reveal = 0, bars = 0, flash = 0, impact = 0, blackout = 0;
   float rankReveal = 0, statsReveal = 0;
   float chartReveal = 0, rankScale = 1;
+  float chargeRefill = 0, chargeUse = 0;
+  int spentCharge = -1;
   std::array<int, 5> evaluation{1, 1, 1, 1, 1};
   std::array<float, 2> title{640, 145}, player{380, 520}, feedback{640, 360};
   std::vector<std::pair<std::string, std::string>> values;
@@ -68,16 +76,17 @@ struct SpearUiLayout {
       };
       if (e.id.empty() || e.id.size() > 100 || !ids.insert(e.id).second)
         throw std::runtime_error("UI element IDs must be unique and nonempty.");
-      if (!oneOf(e.page,
-                 {"title", "hud", "boss", "impact", "clear", "transition"}) ||
-          !oneOf(e.anchor, {"screen", "title", "player", "feedback"}) ||
+      if (!oneOf(e.page, {"title", "hud", "boss", "impact", "clear",
+                          "transition", "tutorial", "pause"}) ||
+          !oneOf(e.anchor,
+                 {"screen", "title", "player", "feedback", "world"}) ||
           !oneOf(e.condition, {"", "replay", "newBest", "dodge", "pierce",
-                               "refill", "lowHealth"}) ||
+                               "refill", "lesson", "airReady", "airStrike", "lowHealth", "pauseResumeSelected", "pauseRetrySelected"}) ||
           !oneOf(e.animation, {"", "reveal", "bars", "flash", "impact",
-                               "blackout", "rank", "stats", "chart"}) ||
+                               "blackout", "rank", "stats", "chart", "charge"}) ||
           !oneOf(e.meter,
                  {"", "hp", "charges", "bossHp", "phase", "evaluation"}) ||
-          !oneOf(e.action, {"", "replay"}))
+          !oneOf(e.action, {"", "replay", "pauseResume", "pauseRetry"}))
         throw std::runtime_error("Unsupported UI option: " + e.id);
       if (!e.texture.empty() && !AssetPath(e.texture))
         throw std::runtime_error("PNG must be inside Resources/UI: " + e.id);
@@ -85,6 +94,8 @@ struct SpearUiLayout {
         throw std::runtime_error("Choose either PNG or text: " + e.id);
       if (e.text.size() > 256 || e.repeat < 1 || e.repeat > 16)
         throw std::runtime_error("Text/repeat too large: " + e.id);
+      if ((e.action=="pauseResume" || e.action=="pauseRetry") && e.page!="pause")
+        throw std::runtime_error("Pause actions belong on the pause page.");
       if (e.action == "replay" &&
           (++replayActions > 1 || e.page != "clear" || e.condition != "replay"))
         throw std::runtime_error("Use one replay button on the clear page with "
@@ -93,6 +104,8 @@ struct SpearUiLayout {
         if (!std::isfinite(v) || v < lo || v > hi)
           throw std::runtime_error("UI value out of range: " + e.id);
       };
+      for (auto v : e.worldPosition)
+        check(v, -4096, 4096);
       for (auto v : e.position)
         check(v, -4096, 4096);
       for (auto v : e.size)
@@ -124,6 +137,15 @@ struct SpearUiLayout {
   }
   std::vector<SpearUiDraw> Resolve(const SpearUiContext &c) const {
     std::vector<SpearUiDraw> draws;
+    // A single nearby lesson is enough. Positions stay authored in the UI resource.
+    size_t nearestLesson = elements.size();
+    float nearestDistance = 100000;
+    for (size_t i = 0; i < elements.size(); ++i) {
+      const auto &hint = elements[i];
+      if (!hint.visible || hint.page != "tutorial" || hint.condition != "lesson") continue;
+      const float distance = std::abs(c.playerWorldX - hint.worldPosition[0]);
+      if (distance < nearestDistance) { nearestDistance=distance; nearestLesson=i; }
+    }
     for (size_t index = 0; index < elements.size(); ++index) {
       const auto &e = elements[index];
       if (!e.visible)
@@ -134,16 +156,21 @@ struct SpearUiLayout {
               ? (e.page == c.preview ||
                  (c.preview == "title" && e.page == "hud") ||
                  (c.preview == "boss" && e.page == "hud"))
-              : e.page == "transition" ||
-                    (!c.finished && (e.page == "title" || e.page == "hud" ||
-                                     (e.page == "boss" && c.boss))) ||
-                    (c.finished && (e.page == "impact" || e.page == "clear"));
-      if (!pageVisible)
+              : e.page == "transition" || (c.paused && e.page=="pause") ||
+                    (!c.paused && !c.finished && (e.page == "title" || e.page == "hud" ||
+                                     (e.page == "boss" && c.boss) ||
+                                     (e.page == "tutorial" && c.tutorial))) ||
+                    (!c.paused && c.finished && (e.page == "impact" || e.page == "clear"));
+      if (!pageVisible || (!preview && e.condition=="lesson" && index!=nearestLesson))
         continue;
       if ((!preview && ((e.condition == "replay" && !c.canReplay) ||
                         (e.condition == "newBest" && !c.newBest))) ||
+          (e.condition=="pauseResumeSelected" && c.pauseChoice!=0) ||
+          (e.condition=="pauseRetrySelected" && c.pauseChoice!=1) ||
           (e.condition == "dodge" && !c.dodge) ||
           (e.condition == "refill" && !c.refill) ||
+          (e.condition == "airReady" && !c.airReady) ||
+          (e.condition == "airStrike" && !c.airStrike) ||
           (e.condition == "lowHealth" && c.hp > 2) ||
           (e.condition == "pierce" && (!c.pierce || c.dodge)))
         continue;
@@ -168,6 +195,10 @@ struct SpearUiLayout {
         if (e.animation == "chart")
           alpha *= c.chartReveal;
       }
+      if (!preview && e.anchor == "world")
+        alpha *= (std::clamp)(
+            (18 - std::abs(c.playerWorldX - e.worldPosition[0])) / 6, 0.0f,
+            1.0f);
       if (alpha <= .001f)
         continue;
       std::array<float, 2> origin{0, 0};
@@ -177,6 +208,16 @@ struct SpearUiLayout {
         origin = c.player;
       if (e.anchor == "feedback")
         origin = c.feedback;
+      if (e.anchor == "world") {
+        const auto &m = c.worldProjection;
+        const float x = e.worldPosition[0], y = e.worldPosition[1];
+        const float w = x * m[0][3] + y * m[1][3] + m[3][3];
+        if (w <= .001f)
+          continue;
+        origin = {
+            ((x * m[0][0] + y * m[1][0] + m[3][0]) / w * .5f + .5f) * 1280,
+            (.5f - (x * m[0][1] + y * m[1][1] + m[3][1]) / w * .5f) * 720};
+      }
       const float scale =
           e.anchor == "title"
               ? c.titleScale
@@ -217,6 +258,18 @@ struct SpearUiLayout {
                          e.meter != "evaluation" && n >= amount
                      ? e.emptyTint
                      : e.tint;
+        if(!preview && e.animation=="charge" && e.meter=="charges") {
+          if(n==c.charges-1 && c.chargeRefill>0) {
+            const float f=(std::clamp)(c.chargeRefill,0.0f,1.0f);
+            for(int channel=0;channel<3;++channel) d.tint[size_t(channel)]+=(1-d.tint[size_t(channel)])*f;
+          }
+          if(n>=c.charges && n==c.spentCharge && c.chargeUse>0) {
+            const float f=(std::clamp)(c.chargeUse,0.0f,1.0f);
+            const std::array<float,3> spent{.6f,.9f,1};
+            for(int channel=0;channel<3;++channel) d.tint[size_t(channel)]+=(spent[size_t(channel)]-d.tint[size_t(channel)])*f;
+            d.tint[3]=f*.7f;
+          }
+        }
         d.tint[3] *= alpha;
         draws.push_back(d);
       }

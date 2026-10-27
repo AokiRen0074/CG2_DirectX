@@ -101,3 +101,20 @@ struct SpearRestartTransition {
     return 1 - SpearGameFlow::Ease(30, 60, float(frame));
   }
 };
+
+// UI state only. While active, the owner skips every simulation update.
+struct SpearPauseState {
+  enum class Action { None, Resume, Retry };
+  bool active=false;
+  int selection=0;
+  void Open() {active=true;selection=0;}
+  void Close() {active=false;}
+  void Move(int direction) {
+    if(active && direction!=0) selection=(selection+(direction>0?1:-1)+2)%2;
+  }
+  Action Confirm() {
+    if(!active) return Action::None;
+    const auto result=selection==0?Action::Resume:Action::Retry;
+    return result;
+  }
+};

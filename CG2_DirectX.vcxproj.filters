@@ -598,11 +598,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Character\SpearUiPresentation.cpp" />
+    <ClCompile Include="Application\Character\SpearPausePresentation.cpp" />
+    <ClCompile Include="Application\Character\SpearAudio.cpp" />
     <ClInclude Include="Application\Character\SpearUiLayout.h" />
     <None Include="Resources\UI\PrismUI\layout.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Character\SpearBossEffects.cpp" />
+    <ClCompile Include="Application\Character\SpearAmbientEffects.cpp" />
+    <ClCompile Include="Application\Character\SpearStageEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\GameApplication.cpp">

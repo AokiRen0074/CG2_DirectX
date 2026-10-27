@@ -5,6 +5,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <cstdint>
 
 
 // チャンクヘッダ
@@ -78,6 +79,17 @@ public:
 
 	// 鳴っている音を途中で止める関数
 	void SoundStopWave(IXAudio2SourceVoice* pVoice);
+    void SoundPauseWave(IXAudio2SourceVoice* pVoice, bool paused);
+
+    // Stable IDs let independent sound layers survive completed-voice cleanup safely.
+    using VoiceId = std::uint64_t;
+    struct VoiceSnapshot { bool active=false, paused=false; std::uint64_t samplesPlayed=0; };
+    VoiceId PlayVoice(const SoundData &sound, bool loop=false);
+    void StopVoice(VoiceId id);
+    void PauseVoice(VoiceId id, bool paused);
+    void SetVoiceVolume(VoiceId id, float volume);
+    void SetVoicePitch(VoiceId id, float ratio);
+    VoiceSnapshot GetVoiceSnapshot(VoiceId id) const;
 
 	void Finalize();
 
@@ -91,9 +103,12 @@ private:
 	struct PlayingVoice {
 		std::shared_ptr<BYTE[]> buffer;
 		std::unique_ptr<IXAudio2SourceVoice, AudioVoiceDeleter> voice;
+        VoiceId id=0;
+        bool paused=false;
 	};
 
 	std::list<PlayingVoice> voices_;
+    VoiceId nextVoiceId_=1;
 
 	// MFStartupとMFShutdownを一度ずつ対応させる
 	bool mediaFoundationInitialized_ = false;

@@ -336,7 +336,7 @@ IXAudio2SourceVoice* Audio::SoundPlayWave(const SoundData& soundData, bool loop)
 		CheckAudioResult(result, "Start source voice");
 	} 
 
-	voices_.push_back({ soundData.pBuffer, std::move(ownedVoice) });
+	voices_.push_back({ soundData.pBuffer, std::move(ownedVoice), nextVoiceId_++ });
 
 	return pSourceVoice;
 }
@@ -388,4 +388,62 @@ void Audio::SoundStopWave(IXAudio2SourceVoice* pVoice) {
 		it->voice->Stop();
 		voices_.erase(it);
 	}
+}
+void Audio::SoundPauseWave(IXAudio2SourceVoice* pVoice, bool paused) {
+    // Completed voices may already have been released by Update().
+    const auto it=std::find_if(voices_.begin(),voices_.end(),[pVoice](const PlayingVoice &voice) {
+        return voice.voice.get()==pVoice;
+    });
+    if(it==voices_.end()) return;
+    if(paused) it->voice->Stop(); else it->voice->Start();
+}
+
+Audio::VoiceId Audio::PlayVoice(const SoundData &sound, bool loop) {
+    SoundPlayWave(sound,loop);
+    return voices_.back().id;
+}
+void Audio::StopVoice(VoiceId id) {
+  const auto it =
+      std::find_if(voices_.begin(), voices_.end(),
+                   [id](const PlayingVoice &v) { return v.id == id; });
+  if (it != voices_.end()) {
+    it->voice->Stop();
+    voices_.erase(it);
+  }
+}
+void Audio::PauseVoice(VoiceId id, bool paused) {
+  const auto it =
+      std::find_if(voices_.begin(), voices_.end(),
+                   [id](const PlayingVoice &v) { return v.id == id; });
+  if (it == voices_.end() || it->paused == paused)
+    return;
+  if (paused)
+    it->voice->Stop();
+  else
+    it->voice->Start();
+  it->paused = paused;
+}
+void Audio::SetVoiceVolume(VoiceId id, float volume) {
+  const auto it =
+      std::find_if(voices_.begin(), voices_.end(),
+                   [id](const PlayingVoice &v) { return v.id == id; });
+  if (it != voices_.end())
+    it->voice->SetVolume((std::clamp)(volume, 0.0f, 1.0f));
+}
+void Audio::SetVoicePitch(VoiceId id, float ratio) {
+  const auto it =
+      std::find_if(voices_.begin(), voices_.end(),
+                   [id](const PlayingVoice &v) { return v.id == id; });
+  if (it != voices_.end())
+    it->voice->SetFrequencyRatio((std::clamp)(ratio, .5f, 2.0f));
+}
+Audio::VoiceSnapshot Audio::GetVoiceSnapshot(VoiceId id) const {
+  const auto it =
+      std::find_if(voices_.cbegin(), voices_.cend(),
+                   [id](const PlayingVoice &v) { return v.id == id; });
+  if (it == voices_.cend())
+    return {};
+  XAUDIO2_VOICE_STATE state{};
+  it->voice->GetState(&state);
+  return {state.BuffersQueued > 0, it->paused, state.SamplesPlayed};
 }

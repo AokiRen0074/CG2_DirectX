@@ -110,7 +110,7 @@ int main() {
     a.bossState = State::Recovery;
     a.bossHp = SpearAdventure::phaseThreshold;
     a.SpawnHazard(110, 3, 0, 0, 4);
-    a.UpdateBoss();
+    for(int i=0;i<18;++i) a.UpdateBoss();
     assert(a.secondPhase && a.bossState == State::PhaseChange &&
            Alive(a) == 0 && a.player.charges == 3);
     for (int i = 0; i < 91; ++i)
@@ -163,6 +163,70 @@ int main() {
     for (int i = 0; i < 20; ++i)
       a.UpdateBoss();
     assert(a.armorOpening > 1.5f);
+  }
+  // Both phases must keep cycling without creating the removed floor attack.
+  for(bool second:{false,true}) {
+    auto a=Arena(second);
+    for(int frame=0;frame<6000;++frame) {
+      a.Tick(0,0,false,true);
+      for(const auto &h:a.hazards) if(h.life>0) assert(h.kind!=2);
+    }
+    a.hazards={};a.SpawnHazard(a.player.x,-2.6f,0,0,2);
+    assert(Alive(a)==0);
+    a.invincibility=0;const int hp=a.hp;
+    a.hazards[0]={a.player.x,-2.6f,0,0,90,0,2};a.UpdateHazards();
+    assert(a.hazards[0].life==0 && a.hp==hp);
+  }
+  // Refill crystals are safe to touch, including with no jumps remaining.
+  {
+    auto a=Arena(false);a.invincibility=0;a.player.charges=0;
+    a.minions[0]={a.player.x,a.player.y,0,0,420,-1,a.player.x,a.player.y,true};
+    for(int frame=0;frame<60;++frame) a.UpdateMinions();
+    assert(a.hp==6 && a.invincibility==0 && a.player.charges==0 && a.minions[0].life==360);
+    a.player.y=0;a.player.x=105;a.player.grounded=false;a.player.charges=1;
+    a.bossState=State::Recovery;a.bossTimer=300;
+    a.minions[0]={107,0,0,0,420,-1,107,0,true};
+    a.Tick(1,0,true,true);
+    assert(a.minions[0].life==0 && a.player.charges==1 && a.chargeRefillFlash==36 && a.hp==6);
+  }
+  for(bool second:{false,true}) {
+    auto a=Arena(second);a.bossX=a.bossTargetX=120;a.bossY=a.bossTargetY=4.8f;
+    a.SeedRefillRoute();
+    int alive=0;float previousX=a.player.x;
+    for(const auto &node:a.minions) if(node.life>0) {
+      ++alive;assert(node.route && node.x>previousX && node.x>=a.stage.ArenaX(103.5f) && node.x<=a.stage.ArenaX(124.5f));
+      assert(node.y>=-.8f && node.y<=5.8f);previousX=node.x;
+    }
+    assert(alive==(second?4:3));
+    const auto live=a.minions[1];a.minions[0].life=0;a.player.x=124;
+    a.SeedRefillRoute();
+    assert(a.minions[0].life==420 && a.minions[1].x==live.x && a.minions[1].y==live.y && a.minions[1].life==live.life);
+    for(const auto attack:{State::FanWarning,State::BeamWarning,State::RainWarning,State::NovaWarning,State::SummonWarning}) {
+      a.minions={};a.bossState=State::Reposition;a.nextWarning=attack;a.bossTimer=1;
+      a.UpdateBoss();
+      assert(a.bossState==attack && a.minions[0].life==420);
+    }
+    a.Respawn();for(const auto &node:a.minions) assert(node.life==0);
+  }
+  {
+    auto a=Arena(false);a.bossX=a.bossTargetX=120;
+    a.bossState=State::Intro;a.bossTimer=1000;
+    a.player.y=-.8f;a.player.grounded=false;a.player.charges=1;
+    a.SeedRefillRoute();
+    for(int jump=0;jump<4;++jump) {
+      size_t next=0;while(next<a.minions.size() && a.minions[next].life<=0) ++next;
+      if(next==a.minions.size()) break;
+      const float dx=a.minions[next].x-a.player.x,dy=a.minions[next].y-a.player.y;
+      assert(a.player.charges>0);
+      for(int frame=0;frame<11;++frame) a.Tick(dx,dy,frame==0,true);
+    }
+    int remaining=0;for(const auto &node:a.minions) remaining+=node.life>0;
+    assert(remaining==0 && a.chain==3 && a.player.charges>0 && !a.player.grounded && a.hp==6);
+  }
+  {
+    auto a=Arena(false);a.bossState=State::Recovery;a.bossTimer=1000;
+    a.invincibility=0;a.enemies[0]={a.player.x,a.player.y,0,true,-1};
+    a.Tick(0,0,false,true);assert(a.hp==5); // Ordinary enemies remain hazards.
   }
   std::cout
       << "PASS: fan waves/pool, rain safe corridor and telegraph, nova gaps "

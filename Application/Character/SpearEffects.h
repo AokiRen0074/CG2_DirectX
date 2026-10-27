@@ -1,5 +1,6 @@
 #pragma once
 #include "SpearMotion.h"
+#include "SpearEffectSettings.h"
 #include <array>
 #include <cmath>
 #include <algorithm>
@@ -11,6 +12,7 @@ struct SpearEffects {
     };
     struct Trail {
         std::array<Point, 12> points{};
+        int duration = 16;
         int count = 0, fade = 0, attack = -1;
         float dx = 1, dy = 0;
     };
@@ -35,12 +37,7 @@ struct SpearEffects {
         int life = 0;
         bool landing = false;
     };
-    struct GroundScorch {
-        int age = -1;
-        int duration = 90;
-        float centerX = 114;
-    };
-    GroundScorch groundScorch;
+    SpearEffectSettings settings;
     std::array<Trail, 4> trails{};
     std::array<Flash, 8> flashes{};
     std::array<Spark, 64> sparks{};
@@ -52,11 +49,6 @@ struct SpearEffects {
     float kickX = 0, kickY = 0;
 
     void Tick() {
-        // 危険時間が終わってから24フレームだけ、床の光と火の粉を消していく。
-        if (groundScorch.age >= 0 && ++groundScorch.age >= groundScorch.duration + 24) {
-            groundScorch.age = -1;
-        }
-
         kickX *= 0.72f;
         kickY *= 0.72f;
         for (auto &shard : shards) {
@@ -122,7 +114,7 @@ struct SpearEffects {
 
             const auto previous = trail.points[trail.count - 1];
             if (std::hypot(previous.x - motion.x, previous.y - motion.y) < 0.001f) {
-                trail.fade = 16;
+                trail.fade = trail.duration = settings.trailFrames;
                 break;
             }
 
@@ -130,9 +122,9 @@ struct SpearEffects {
                 trail.points[trail.count++] = {motion.x, motion.y};
             }
 
-            trail.fade = 16;
+            trail.fade = trail.duration = settings.trailFrames;
             // 毎フレーム大量に出さず、後ろへ小粒が散る。
-            if (trail.count % 2 == 0) {
+            if (trail.count % settings.dashSparkInterval == 0) {
                 const float side = trail.count % 4 == 0 ? 1.0f : -1.0f;
                 SpawnSpark(motion.x - trail.dx * 0.9f, motion.y - trail.dy * 0.9f,
                            -trail.dx * 0.09f - trail.dy * side * 0.06f,
@@ -146,7 +138,7 @@ struct SpearEffects {
     void Hit(float x, float y, float angle, int rank = 0) {
         rank = (std::clamp)(rank, 0, 4);
         flashes[flashCursor++ % flashes.size()] = {x, y, angle, 13, true, rank};
-        for (int i = 0; i < 8; ++i) {
+        for (int i = 0; i < settings.hitSparkCount; ++i) {
             const float direction = angle + float(i) * 2.39996f;
             const float speed = 0.08f + float(i % 3) * 0.04f;
             SpawnSpark(x, y, std::cos(direction) * speed, std::sin(direction) * speed,
@@ -192,6 +184,7 @@ struct SpearEffects {
     }
 
     void SpawnSpark(float x, float y, float vx, float vy, int duration, bool red = false) {
-        sparks[sparkCursor++ % sparks.size()] = {x, y, vx, vy, duration, duration, red};
+        duration = (std::max)(1, int(float(duration) * settings.sparkLife));
+        sparks[sparkCursor++ % sparks.size()] = {x, y, vx * settings.sparkSpeed, vy * settings.sparkSpeed, duration, duration, red};
     }
 };

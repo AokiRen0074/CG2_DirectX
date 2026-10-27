@@ -36,12 +36,14 @@ void SpearPrototype::Initialize(DirectXCommon *graphics) {
     InitializeAdventureModels();
     const char *sounds[] = {"Sounds/Shot.wav",         "Sounds/hit.wav",
                             "Sounds/BossCharge.wav",   "Sounds/WasAttacked.wav",
-                            "Sounds/BigExplosion.wav", "Sounds/warp.wav"};
+                            "Sounds/BigExplosion.wav", "Sounds/warp.wav",
+                            "Resources/Sounds/AirRefill.wav", "Resources/Sounds/AirStrike.wav"};
 
     for (size_t i = 0; i < effectSounds_.size(); ++i) {
         effectSounds_[i] = Audio::GetInstance()->SoundLoad(sounds[i]);
     }
 
+    InitializeSelectedAudio();
     motion_.settings = editorSettings_.movement;
     lastUpdate_ = std::chrono::steady_clock::now();
     UpdateObjects();
@@ -56,6 +58,7 @@ void SpearPrototype::Update() {
 
     XINPUT_STATE pad{};
     bool padJump = false;
+    unsigned short padButtons=0;
 
     for (DWORD index = 0; index < XUSER_MAX_COUNT; ++index) {
         if (XInputGetState(index, &pad) == ERROR_SUCCESS) {
@@ -68,6 +71,7 @@ void SpearPrototype::Update() {
                 directionY = stickY;
             }
 
+            padButtons=pad.Gamepad.wButtons;
             padJump = (pad.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
             break;
         }
@@ -85,11 +89,35 @@ void SpearPrototype::Update() {
     previousPadJump_ = padJump;
     jumpHeld_ = !fixedPreviewStep_ && (input->PushKey(DIK_SPACE) || padJump);
     const auto now = std::chrono::steady_clock::now();
-    accumulator_ +=
+    const float elapsed =
         fixedPreviewStep_
             ? 1.0f / 60.0f
             : (std::min)(std::chrono::duration<float>(now - lastUpdate_).count(), 0.10f);
+    accumulator_ += elapsed;
+    if(!pause_.active) ambientTime_ += elapsed;
     lastUpdate_ = now;
+    UpdateGameAudio(elapsed);
+
+    const bool mouseLeft = input->PushMouseLeft();
+    const bool mousePressed = mouseLeft && !previousMouseLeft_;
+    previousMouseLeft_ = mouseLeft;
+    POINT cursor{};GetCursorPos(&cursor);ScreenToClient(WindowApp::GetInstance()->GetHwnd(),&cursor);
+    const unsigned short padPressed=static_cast<unsigned short>(padButtons & ~previousPadButtons_);
+    previousPadButtons_=padButtons;
+    const int stick=directionY>.55f?-1:directionY<-.55f?1:0;
+    int navigation=(input->TriggerKey(DIK_UP)||input->TriggerKey(DIK_W)||(padPressed&XINPUT_GAMEPAD_DPAD_UP))?-1:
+                   (input->TriggerKey(DIK_DOWN)||input->TriggerKey(DIK_S)||(padPressed&XINPUT_GAMEPAD_DPAD_DOWN))?1:0;
+    if(stick!=0 && previousPauseStick_==0) navigation=stick;
+    previousPauseStick_=stick;
+    bool toggle=input->TriggerKey(DIK_ESCAPE)||(padPressed&XINPUT_GAMEPAD_START);
+    bool confirm=input->TriggerKey(DIK_RETURN)||pendingJump_;
+    bool cancel=(padPressed&XINPUT_GAMEPAD_B)!=0;
+    if(!fixedPreviewStep_ && pause_.active && input->TriggerKey(DIK_R)) {pause_.selection=1;confirm=true;}
+    if(fixedPreviewStep_) {toggle=confirm=cancel=false;navigation=0;}
+    if(HandlePause(toggle,confirm,cancel,navigation,!fixedPreviewStep_ && mousePressed,fixedPreviewStep_?pauseMouse_[0]:float(cursor.x),fixedPreviewStep_?pauseMouse_[1]:float(cursor.y))) {
+        pendingJump_=jumpHeld_=false;accumulator_=0;
+        UpdateObjects();return;
+    }
 
     if (restartTransition_.Active()) {
         pendingJump_ = false;
@@ -141,6 +169,7 @@ void SpearPrototype::Update() {
     if (editorOpen_) {
         DrawEditor();
         motion_.settings = editorSettings_.movement;
+        UpdateEffectPreview();
         // 調整中はゲームを止め、終了時に溜まった時間や入力を消す。
         accumulator_ = 0.0f;
         pendingJump_ = false;
@@ -167,13 +196,9 @@ void SpearPrototype::Update() {
         pendingJump_ = false;
     }
 
-    const bool mouseLeft = input->PushMouseLeft();
-    const bool mousePressed = mouseLeft && !previousMouseLeft_;
-    previousMouseLeft_ = mouseLeft;
-    POINT cursor{};
-    GetCursorPos(&cursor);
-    ScreenToClient(WindowApp::GetInstance()->GetHwnd(), &cursor);
+    const bool previousReplayHover=replayHovered_;
     replayHovered_ = UiReplayHovered(float(cursor.x), float(cursor.y));
+    if(flow_.CanReplay() && replayHovered_ && !previousReplayHover) PlayExtra(ExtraCue::Select);
     if (!fixedPreviewStep_ && flow_.CanReplay() &&
         (input->TriggerKey(DIK_RETURN) || input->TriggerKey(DIK_R) || pendingJump_ ||
          (mousePressed && replayHovered_))) {
@@ -234,7 +259,7 @@ void SpearPrototype::Update() {
     }
 
     if (adventure_.bossState != SpearAdventure::BossState::Dormant) {
-        ImGui::TextUnformatted("PRISM LANCER");
+        ImGui::TextUnformatted("空を穿つ");
         ImGui::ProgressBar(float(adventure_.bossHp) / float(SpearAdventure::bossMaxHp),
                            ImVec2(350, 18));
         if (!adventure_.won) {
@@ -248,31 +273,11 @@ void SpearPrototype::Update() {
                            : motion_.IsAttacking() ? "SPEAR ATTACK"
                                                    : "AIRBORNE");
     ImGui::End();
-    std::string feedback;
-    ImU32 feedbackColor = IM_COL32(255, 230, 135, 255);
-    if (adventure_.dodgeFlash > 0) {
-        feedback = "JUST DODGE!";
-        feedbackColor = IM_COL32(125, 255, 255, 255);
-    } else if (adventure_.pierceFlash > 0 && adventure_.pierceCount >= 2) {
-        feedback = "PIERCE x" + std::to_string(adventure_.pierceCount);
-    }
-
-    if (!feedback.empty()) {
-        ImGui::GetForegroundDrawList()->AddText(
-            ImGui::GetFont(), 26, ImVec2(feedbackScreenPoint_[0] - 60, feedbackScreenPoint_[1]),
-            feedbackColor, feedback.c_str());
-    }
-
-    if (adventure_.chargeRefillFlash > 0) {
-        ImGui::GetForegroundDrawList()->AddText(
-            ImGui::GetFont(), 18,
-            ImVec2(dashGaugeScreenPoint_[0] + 24, dashGaugeScreenPoint_[1] + 12),
-            IM_COL32(160, 255, 155, 255), "+1");
-    }
 #endif
 }
 
 void SpearPrototype::FixedUpdate(float directionX, float directionY, bool pressed) {
+    effects_.settings = editorSettings_.effects;
     effects_.Tick();
     const SpearEffects::Point origin = {motion_.x, motion_.y};
     const bool wasAttacking = motion_.IsAttacking();
@@ -280,9 +285,14 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
     const size_t previousImpacts = adventure_.impactCursor;
     const int oldAttack = motion_.attackId;
     const int oldScore = adventure_.score;
+    const int oldAirKills = adventure_.airKillSerial;
+    const int oldAirStrike = adventure_.airStrikeSerial;
     const int oldHp = adventure_.hp;
+    const int oldCharges = motion_.charges;
+    jumpUseFlash_ = (std::max)(0,jumpUseFlash_-1);
     const int oldBossHp = adventure_.bossHp;
     const int oldDeaths = adventure_.deaths;
+    const int oldCheckpoint = adventure_.checkpoint;
     const auto oldBossState = adventure_.bossState;
     const bool wasWon = adventure_.won;
     const int oldDodges = adventure_.dodgeCount;
@@ -290,9 +300,11 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
     const int oldGroundImpact=adventure_.groundImpactSerial;
     bossImpactSoundCooldown_=(std::max)(0,bossImpactSoundCooldown_-1);
     adventure_.Tick(directionX, directionY, pressed, jumpHeld_);
+    if(motion_.charges<oldCharges) { jumpUseFlash_=12;jumpSpentSlot_=motion_.charges; }
     if (adventure_.deaths > oldDeaths) {
         effects_ = {};
     } else {
+        effects_.settings = editorSettings_.effects;
         effects_.Movement(origin, wasGrounded, motion_, adventure_.landingEffect);
         if (motion_.attackId != oldAttack) {
             effects_.BeginDash(motion_, origin);
@@ -314,20 +326,18 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
         }
     }
 
-    if (adventure_.hazards[0].life > 0 && adventure_.hazards[0].kind == 2 &&
-        adventure_.scorchedFloorEnabled) {
-        effects_.groundScorch = {adventure_.floorLaserDuration - adventure_.hazards[0].life,
-                                 adventure_.floorLaserDuration, adventure_.hazards[0].x};
-    } else if (adventure_.won || !adventure_.scorchedFloorEnabled ||
-               adventure_.bossState == SpearAdventure::BossState::PhaseChange) {
-        effects_.groundScorch.age = -1;
+    if (adventure_.airKillSerial > oldAirKills) {
+        Audio::GetInstance()->StopVoice(refillVoice_);
+        refillVoice_ = Audio::GetInstance()->PlayVoice(effectSounds_[6]);
+        ++legacyPlayCounts_[6];
+        static constexpr float notes[] = {1,1.12246f,1.25992f,1.49831f,1.68179f,2};
+        Audio::GetInstance()->SetVoicePitch(refillVoice_,notes[(std::min)(5,(std::max)(0,adventure_.chain-1))]);
+        Audio::GetInstance()->SetVoiceVolume(refillVoice_,.30f);
     }
-
     int effect = motion_.attackId != oldAttack ? 0 : -1;
 
     if (adventure_.bossState != oldBossState &&
         (adventure_.bossState == SpearAdventure::BossState::DashWarning ||
-         adventure_.bossState == SpearAdventure::BossState::LaserWarning ||
          adventure_.bossState == SpearAdventure::BossState::SummonWarning ||
          adventure_.bossState == SpearAdventure::BossState::BeamWarning ||
          adventure_.bossState == SpearAdventure::BossState::FanWarning ||
@@ -338,8 +348,7 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
     }
 
     if (adventure_.bossState != oldBossState &&
-        (adventure_.bossState == SpearAdventure::BossState::Laser ||
-         adventure_.bossState == SpearAdventure::BossState::Beam)) {
+        (adventure_.bossState == SpearAdventure::BossState::Beam)) {
         effect = 0;
     }
 
@@ -352,6 +361,8 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
     if (adventure_.score > oldScore) {
         effect = 1;
     }
+
+    if(adventure_.airStrikeSerial > oldAirStrike) effect=7;
 
     if (adventure_.dodgeCount > oldDodges) {
         effect = 5;
@@ -376,6 +387,13 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
         effect = 4;
     }
 
+    if(adventure_.deaths==oldDeaths) {
+        if(adventure_.landingEffect) PlayExtra(ExtraCue::Landing);
+        if(adventure_.checkpoint>oldCheckpoint) PlayExtra(ExtraCue::Checkpoint);
+        if(adventure_.airStrikeSerial>oldAirStrike || oldBossHp-adventure_.bossHp>=4) PlayExtra(ExtraCue::StrongHit);
+        if(adventure_.bossDashSequence>oldVolley && adventure_.bossState==SpearAdventure::BossState::Fan) PlayExtra(ExtraCue::Fan);
+        if(adventure_.bossState!=oldBossState && adventure_.bossState==SpearAdventure::BossState::Beam) PlayExtra(ExtraCue::Beam);
+    }
     if (effect >= 0) {
         PlayEffect(size_t(effect));
     }
@@ -388,7 +406,9 @@ void SpearPrototype::FixedUpdate(float directionX, float directionY, bool presse
 }
 
 SpearPrototype::~SpearPrototype() {
-    Audio::GetInstance()->SoundStopWave(effectVoice_);
+    FinalizeSelectedAudio();
+    Audio::GetInstance()->StopVoice(refillVoice_);
+    Audio::GetInstance()->StopVoice(effectVoice_);
 
     for (auto &sound : effectSounds_) {
         Audio::GetInstance()->SoundUnload(&sound);
@@ -396,13 +416,14 @@ SpearPrototype::~SpearPrototype() {
 }
 
 void SpearPrototype::PlayEffect(size_t index) {
-    // 前の音を止めてから再生するので、波形の寿命とボイスの管理が一致する。
-    Audio::GetInstance()->SoundStopWave(effectVoice_);
-    effectVoice_ = Audio::GetInstance()->SoundPlay(effectSounds_[index]);
-    effectVoice_->SetVolume(0.35f);
+    // Preserve the original effect layer independently of the selected additional cues.
+    Audio::GetInstance()->StopVoice(effectVoice_);
+    effectVoice_ = Audio::GetInstance()->PlayVoice(effectSounds_[index]);
+    ++legacyPlayCounts_[index];
+    Audio::GetInstance()->SetVoiceVolume(effectVoice_,0.35f);
     if (index == 1) {
-        effectVoice_->SetVolume(0.35f + float((std::min)(4, adventure_.pierceCount)) * 0.035f);
-        effectVoice_->SetFrequencyRatio(1.0f +
+        Audio::GetInstance()->SetVoiceVolume(effectVoice_,0.35f + float((std::min)(4, adventure_.pierceCount)) * 0.035f);
+        Audio::GetInstance()->SetVoicePitch(effectVoice_,1.0f +
                                         float((std::min)(4, adventure_.pierceCount)) * 0.10f);
     }
 }
@@ -517,10 +538,39 @@ void SpearPrototype::DrawEditor() {
     }
 
     ImGui::TextWrapped("%s", editorStatus_.c_str());
-    ImGui::Checkbox("Fracture floor attack (trial)", &adventure_.scorchedFloorEnabled);
-    ImGui::TextWrapped("Off: compare with the horizontal laser layout. Applies to this session.");
+    if (ImGui::CollapsingHeader("Atmosphere", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto &a=editorSettings_.effects;
+        ImGui::Checkbox("Floating crystal dust",&a.ambientEnabled);
+        ImGui::SliderFloat("Dust density",&a.ambientDensity,0,2,"%.2f",ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Dust brightness",&a.ambientBrightness,0,2,"%.2f",ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Drift speed",&a.ambientDrift,.1f,3,"%.2f",ImGuiSliderFlags_AlwaysClamp);
+    }
 
-    if (ImGui::CollapsingHeader("Directional light", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Player trail / particles", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto &e = editorSettings_.effects;
+        ImGui::Checkbox("Loop preview (game stays paused)", &effectPreview_);
+        ImGui::TextWrapped("A dash and impact repeat beside the player. Close F2 to test in play.");
+        ImGui::PushItemWidth(185);
+        ImGui::SliderFloat("Trail width", &e.trailWidth, .1f, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Ribbon spread", &e.trailSpread, 0, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Ribbon twists", &e.trailTwist, 0, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderInt("Trail lifetime (frames)", &e.trailFrames, 4, 90, "%d", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Emission", &e.trailGlow, 0, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::ColorEdit3("Blue ribbon", e.blue.data());
+        ImGui::ColorEdit3("Red ribbon", e.red.data());
+        ImGui::SliderFloat("Particle size", &e.sparkSize, .1f, 4, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Particle speed", &e.sparkSpeed, .1f, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderFloat("Particle lifetime", &e.sparkLife, .25f, 3, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderInt("Dash particle interval", &e.dashSparkInterval, 1, 12, "%d", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::SliderInt("Impact particle count", &e.hitSparkCount, 0, 24, "%d", ImGuiSliderFlags_AlwaysClamp);
+        ImGui::PopItemWidth();
+        if (ImGui::Button("Replay preview")) { previewEffects_ = {}; effectPreviewFrame_ = 0; effectPreview_ = true; }
+        ImGui::SameLine();
+        if (ImGui::Button("Reset effects only")) e = SpearEffectSettings{};
+        ImGui::TextUnformatted("60 frames = 1 second. Save keeps these settings for next launch.");
+    }
+
+    if (ImGui::CollapsingHeader("Directional light")) {
         ImGui::SliderFloat3("Direction", editorSettings_.lightDirection.data(), -1.0f, 1.0f, "%.3f",
                             ImGuiSliderFlags_AlwaysClamp);
         ImGui::ColorEdit3("Light color", editorSettings_.lightColor.data());
@@ -528,7 +578,7 @@ void SpearPrototype::DrawEditor() {
                            ImGuiSliderFlags_AlwaysClamp);
     }
 
-    if (ImGui::CollapsingHeader("Model appearance", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Model appearance")) {
         const char *names[] = {"Player",
                                "Platforms",
                                "Spear shaft",
@@ -552,7 +602,7 @@ void SpearPrototype::DrawEditor() {
         }
     }
 
-    if (ImGui::CollapsingHeader("Movement feel", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Movement feel")) {
         auto &m = editorSettings_.movement;
         ImGui::TextUnformatted("Values per 60Hz frame; higher accel/brake = quicker response.");
         ImGui::SliderFloat("Move speed", &m.moveSpeed, 0.05f, 0.30f, "%.3f",
@@ -579,6 +629,24 @@ void SpearPrototype::DrawEditor() {
 
     ImGui::End();
 #endif
+}
+
+void SpearPrototype::UpdateEffectPreview() {
+    previewEffects_.settings = editorSettings_.effects;
+    while (accumulator_ >= 1.0f / 60.0f) {
+        accumulator_ -= 1.0f / 60.0f;
+        if (!effectPreview_) { previewEffects_ = {}; effectPreviewFrame_ = 0; continue; }
+        previewEffects_.Tick();
+        const int frame = effectPreviewFrame_++ % 150;
+        SpearMotion preview;
+        preview.attackId = effectPreviewFrame_ / 150 + 1000;
+        preview.directionX = 1; preview.directionY = 0;
+        preview.x = motion_.x - 3 + float((std::min)(frame, 10)) * .55f;
+        preview.y = motion_.y + 1.2f;
+        if (frame == 0) previewEffects_.BeginDash(preview, {preview.x, preview.y});
+        if (frame <= 10) previewEffects_.Record(preview);
+        if (frame == 11) previewEffects_.Hit(preview.x, preview.y, 0, 1);
+    }
 }
 
 void SpearPrototype::LoadSettings() {
@@ -719,13 +787,11 @@ void SpearPrototype::Draw(const ViewProjection &camera) {
 
     // 光の軌跡は実際の経路に沿うHDRの帯へ移す。
 
-    if (adventure_.GateX() < 130 && adventure_.bossState == SpearAdventure::BossState::Dormant) {
+    if (adventure_.GateX() < adventure_.stage.WorldRight() && adventure_.bossState == SpearAdventure::BossState::Dormant) {
         gateModel_->Draw(stageCamera);
     }
 
-    if (adventure_.bossState == SpearAdventure::BossState::DashWarning ||
-        (adventure_.bossState == SpearAdventure::BossState::LaserWarning &&
-         !adventure_.scorchedFloorEnabled)) {
+    if (adventure_.bossState == SpearAdventure::BossState::DashWarning) {
         warningModel_->Draw(stageCamera);
     }
 
@@ -735,7 +801,7 @@ void SpearPrototype::Draw(const ViewProjection &camera) {
             continue;
         }
 
-        if (!restartTransition_.Active() && adventure_.invincibility > 0 && adventure_.invincibility % 6 < 2 &&
+        if (!pause_.active && !restartTransition_.Active() && adventure_.invincibility > 0 && adventure_.invincibility % 6 < 2 &&
             (i == 0 || i == 2 || i == 3)) {
             continue;
         }
@@ -755,7 +821,14 @@ void SpearPrototype::Draw(const ViewProjection &camera) {
 
 bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
     renderer.Begin();
+    DrawAmbientEffects(renderer);
     DrawBossOverhaulEffects(renderer);
+    if (!flow_.Finished() && adventure_.airPower >= 2 && !motion_.grounded) {
+        const float pulse=.75f+.15f*std::sin(float(adventure_.frame)*.13f);
+        renderer.AddArc({motion_.x,motion_.y+.25f,-.5f},float(adventure_.frame)*.035f,.85f,5.5f,.022f,{.1f,1.4f,2.2f,pulse});
+        if(adventure_.bossState!=SpearAdventure::BossState::Dormant)
+            renderer.AddArc({adventure_.bossX,adventure_.bossY,-.7f},-float(adventure_.frame)*.025f,2.2f,5.7f,.035f,{.2f,1.2f,2,pulse*.6f});
+    }
     if (flow_.Finished() && flow_.clearFrames < 110) {
         const float t = float(flow_.clearFrames);
         const float fade = 1 - SpearGameFlow::Ease(35,110,t);
@@ -776,7 +849,7 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
             renderer.AddGlow(center,{0,1,0},3.3f,.045f,{1.6f,2.2f,3.0f,flash});
         }
     }
-    const bool playerVisible = restartTransition_.Active() || !(adventure_.invincibility > 0 && adventure_.invincibility % 6 < 2);
+    const bool playerVisible = pause_.active || restartTransition_.Active() || !(adventure_.invincibility > 0 && adventure_.invincibility % 6 < 2);
     if (playerVisible) {
         const float pulse = 1.8f + std::sin(float(adventure_.frame) * 0.035f) * 0.12f;
         renderer.AddModelEmission(*objects_[0]->GetModel(), objects_[0]->GetWorldMatrix(), pulse);
@@ -786,14 +859,6 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         renderer.AddGlow({center.x, center.y, -0.28f}, {0, 1, 0}, 0.68f, 0.28f,
                          {0.015f, 0.65f, 1.4f, 0.15f});
     }
-    // 床の持続レーザーも白い芯・赤い外光・不規則な放電に統一する。
-    if (!adventure_.scorchedFloorEnabled && adventure_.hazards[0].life > 0 &&
-        adventure_.hazards[0].kind == 2) {
-        const float fade = (std::min)(1.0f, float(adventure_.hazards[0].life) / 10);
-        renderer.AddElectricBeam({80, -2.6f, 0.1f}, {150, -2.6f, 0.1f}, adventure_.frame,
-                                 0.45f + fade * 0.55f);
-    }
-
     const bool fanWarning = adventure_.bossState == SpearAdventure::BossState::FanWarning;
     if (fanWarning) {
         const int count = adventure_.FanCount();
@@ -828,15 +893,15 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         }
     }
 
-    for (const auto &hazard : adventure_.hazards) {
+    const auto drawProjectile = [&](const SpearAdventure::Hazard &hazard) {
         if (hazard.life <= 0 || hazard.kind < 3) {
-            continue;
+            return;
         }
 
         if(hazard.warning>0) {
             renderer.AddBeam({hazard.x,9.7f,.1f},{hazard.x,-3.48f,.1f},.017f,{2.6f,.55f,.1f,.3f});
             renderer.AddCrystal({hazard.x,9.7f,.1f},-1.570796f,.4f,{2.7f,.65f,.1f,.5f});
-            continue;
+            return;
         }
         const float angle = std::atan2(hazard.vy, hazard.vx);
         const float length=(std::max)(.001f,std::sqrt(hazard.vx*hazard.vx+hazard.vy*hazard.vy));
@@ -846,54 +911,20 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
             {hazard.x,hazard.y,.2f},hazard.kind==3?.055f:.035f,{2.8f,.6f,.12f,fade*.55f});
         const Vector3 position = {hazard.x, hazard.y, 0.1f};
         renderer.AddGlow(position, {hazard.vx, hazard.vy, 0}, hazard.kind == 3 ? 0.65f : 0.42f,
-                         0.12f, {2.6f, 0.45f, 0.08f, 0.65f});
-        renderer.AddCrystal(position, angle, hazard.kind == 3 ? 0.46f : 0.3f,
-                            {2.8f, 0.85f, 0.22f, 0.9f});
+                         0.12f, {2.6f, 0.45f, 0.08f, 0.65f*fade});
+        const float bodySize=hazard.kind==3?.46f:.3f;
+        renderer.AddObj(hazard.kind==3?EffectRenderer::ObjEffect::Lance:EffectRenderer::ObjEffect::Projectile,
+            position,{.18f,.2f,angle},{bodySize,bodySize,bodySize},{2.8f,.85f,.22f,.9f*fade});
         renderer.AddGlow(position, {hazard.vx, hazard.vy, 0}, 0.18f, 0.025f,
-                         {3, 1.8f, 0.85f, 0.7f});
-    }
+                         {3, 1.8f, 0.85f, 0.7f*fade});
+    };
 
-    const bool floorWarning = adventure_.bossState == SpearAdventure::BossState::LaserWarning;
-    const bool floorActive = adventure_.bossState == SpearAdventure::BossState::Laser;
-    const auto &scorch = effects_.groundScorch;
-    if (floorWarning || floorActive) {
-        float charge =
-            floorWarning ? (std::clamp)(1 - float(adventure_.bossTimer) / 75, 0.0f, 1.0f) : 1;
-        const bool striking = floorActive && (!adventure_.scorchedFloorEnabled || scorch.age < 14);
-        if (floorActive && !striking) {
-            charge = 0.25f;
-        }
-
-        const float aim = adventure_.scorchedFloorEnabled
-                              ? std::atan2(-3.48f - adventure_.bossY, 114 - adventure_.bossX)
-                              : -1.570796f;
-        renderer.AddLaserEmitter({adventure_.bossX, adventure_.bossY, -0.9f}, aim, adventure_.frame,
-                                 charge, striking);
-    }
-
-    if (adventure_.scorchedFloorEnabled && scorch.age >= 0) {
-        const float fade =
-            scorch.age < scorch.duration
-                ? 1.0f
-                : (std::clamp)(1 - float(scorch.age - scorch.duration) / 24, 0.0f, 1.0f);
-        const float radius = (std::min)(12.0f, float(scorch.age + 1) * 1.4f);
-        renderer.AddScorchedGround({scorch.centerX, -3.48f, 0.6f}, radius, scorch.age, fade,
-                                   adventure_.frame);
-        // 撃ち込みは短く。以後は床の亀裂と噴出する光が攻撃の主体になる。
-        if (floorActive && scorch.age < 14) {
-            const float impact = 1 - float(scorch.age) / 14;
-            if (scorch.age < 5) {
-                const float flash = 1 - float(scorch.age) / 5;
-                renderer.AddGlow({scorch.centerX, -3.3f, 0.2f}, {1, 0, 0}, 3.3f, 0.09f,
-                                 {3.5f, 2.2f, 0.7f, flash});
-            }
-
-            renderer.AddElectricBeam({adventure_.bossX, adventure_.bossY, 0.1f},
-                                     {scorch.centerX, -3.48f, 0.1f}, adventure_.frame,
-                                     impact * 1.15f);
-            renderer.AddGlow({scorch.centerX, -3.35f, -0.2f}, {1, 0, 0}, 2.4f, 0.55f,
-                             {2.8f, 0.6f, 0.025f, impact * 0.8f});
-        }
+    for(const auto &hazard:adventure_.hazards) drawProjectile(hazard);
+    for(const auto &tail:adventure_.retiringHazards) drawProjectile(tail);
+    if(adventure_.beamAfterglowFrames>0) {
+        const auto &line=adventure_.beamAfterglow;
+        const float fade=float(adventure_.beamAfterglowFrames)/12;
+        renderer.AddBeam({line[0],line[1],.1f},{line[2],line[3],.1f},.07f*fade,{2.5f,.8f,.15f,fade*.35f});
     }
 
     const bool beamWarning = adventure_.bossState == SpearAdventure::BossState::BeamWarning;
@@ -906,14 +937,14 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
                                                         float(adventure_.beamWarningDuration),
                                                 0.0f, 1.0f)
                                  : 1;
-        renderer.AddLaserEmitter(emitter, adventure_.beamAimAngle, adventure_.frame, charge,
+        renderer.AddLaserEmitter(emitter, beamWarning?adventure_.beamAimAngle-adventure_.BeamSweepHalfAngle():adventure_.BeamAngle(), adventure_.frame, charge,
                                  beamActive);
         if (beamWarning) {
             // 発射方向を追い続けず、予告した範囲を読んで避けられるようにする。
             for (int i = -1; i <= 1; ++i) {
                 const auto line = adventure_.BeamTrace(adventure_.beamAimAngle + float(i) * adventure_.BeamSweepHalfAngle());
                 renderer.AddBeam({line.x1, line.y1, -0.9f}, {line.x2, line.y2, -0.9f}, 0.013f,
-                                 {2.2f, 0.55f, 0.03f, i == 0 ? 0.4f : 0.15f});
+                                 {2.2f, 0.55f, 0.03f, i == -1 ? 0.4f : 0.12f});
             }
         } else {
             const auto line = adventure_.BeamTrace();
@@ -961,40 +992,20 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
                          Vector4{0.12f, 0.2f, 0.35f, 0.18f});
     }
 
-    for (size_t i = 0; i < adventure_.enemies.size(); ++i) {
-        const auto &enemy = adventure_.enemies[i];
-        if (!enemy.alive) {
-            continue;
-        }
-
-        auto center = enemyModels_[i]->GetTransform().translate;
+    // Share the orange core and orbit so a learned refill target stays recognizable.
+    const auto drawRefillTarget = [&](Object3d &model, size_t index) {
+        auto center = model.GetTransform().translate;
         center.z = -0.7f;
-        const float pulse = 0.65f + std::sin(float(adventure_.frame) * 0.05f + float(i)) * 0.15f;
+        const float pulse = 0.65f + std::sin(float(adventure_.frame) * 0.05f + float(index)) * 0.15f;
         renderer.AddGlow(center, {1, 0, 0}, 0.24f, 0.13f, {2.5f, 0.55f, 0.13f, pulse});
-        renderer.AddArc(center, 0.7f, enemy.kind == 3 ? 1.0f : 0.72f, 4.4f, 0.018f,
+        renderer.AddArc(center, 0.7f, 0.72f, 4.4f, 0.018f,
                         {1.5f, 0.3f, 0.08f, 0.3f});
-        if (enemy.kind == 3) {
-            center.y += 0.5f;
-            renderer.AddGlow(center, {1, 0, 0}, 0.2f, 0.055f, {2.5f, 1.8f, 1.0f, 0.8f});
-        }
+    };
+    for (size_t i = 0; i < adventure_.enemies.size(); ++i) {
+        if (adventure_.enemies[i].alive) drawRefillTarget(*enemyModels_[i], i);
     }
-
-    for (const auto &minion : adventure_.minions) {
-        if (minion.life > 0) {
-            renderer.AddGlow({minion.x, minion.y, -0.7f}, {1, 0, 0}, 0.22f, 0.12f,
-                             {2.5f, 0.55f, 0.13f, 0.8f});
-        }
-    }
-
-    // 床レーザーは地面全体が危険になる予告として、赤い光を点滅させる。
-    if (adventure_.bossState == SpearAdventure::BossState::LaserWarning) {
-        const float alpha = 0.25f + (std::sin(float(adventure_.frame) * 0.2f) * 0.5f + 0.5f) * 0.4f;
-        if (adventure_.scorchedFloorEnabled) {
-            renderer.AddScorchedGround({114, -3.48f, 0.6f}, 12, -1, alpha * 0.35f,
-                                       adventure_.frame);
-        } else {
-            renderer.AddGlow({114, -2.9f, -1.3f}, {1, 0, 0}, 12, 0.14f, {2.5f, 0.04f, 0.2f, alpha});
-        }
+    for (size_t i = 0; i < adventure_.minions.size(); ++i) {
+        if (adventure_.minions[i].life > 0) drawRefillTarget(*minionModels_[i], i);
     }
 
     // ボスは攻撃と同じ橙・銅色の結晶体に揃える。プレイヤーの赤青は使わない。
@@ -1043,7 +1054,9 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         }
     }
 
-    for (const auto &trail : effects_.trails) {
+    const auto &playerEffects = editorOpen_ && effectPreview_ ? previewEffects_ : effects_;
+    const auto &tuning = editorSettings_.effects;
+    for (const auto &trail : playerEffects.trails) {
         if (trail.fade <= 0 || trail.count < 2) {
             continue;
         }
@@ -1053,12 +1066,15 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
             path[i] = {trail.points[i].x, trail.points[i].y, 0.75f};
         }
 
-        const float remaining = float(trail.fade) / 16;
+        const float remaining = float(trail.fade) / float(trail.duration);
         renderer.AddInterwovenRibbon(std::span(path.data(), trail.count), remaining,
-                                     float(16 - trail.fade) * 0.025f);
+                                     float(trail.duration - trail.fade) * 0.025f, tuning.trailWidth,
+                                     tuning.trailSpread, tuning.trailTwist, tuning.trailGlow,
+                                     {tuning.blue[0]*2.4f,tuning.blue[1]*2.4f,tuning.blue[2]*2.4f,1},
+                                     {tuning.red[0]*2.4f,tuning.red[1]*2.4f,tuning.red[2]*2.4f,1});
     }
 
-    for (const auto &shard : effects_.shards) {
+    for (const auto &shard : playerEffects.shards) {
         if (shard.life <= 0) {
             continue;
         }
@@ -1073,7 +1089,7 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         renderer.AddGlow(center, {1, 0, 0}, shard.size, shard.size * 0.5f, halo);
     }
 
-    for (const auto &pulse : effects_.pulses) {
+    for (const auto &pulse : playerEffects.pulses) {
         if (pulse.life <= 0) {
             continue;
         }
@@ -1087,7 +1103,7 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
                         {2.2f, 0.05f, 0.25f, fade * fade * 0.55f});
     }
 
-    for (const auto &flash : effects_.flashes) {
+    for (const auto &flash : playerEffects.flashes) {
         if (flash.life <= 0) {
             continue;
         }
@@ -1125,16 +1141,19 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
                          {0.35f, 1.1f, 2.2f, opacity * 0.7f});
     }
 
-    for (const auto &spark : effects_.sparks) {
+    for (const auto &spark : playerEffects.sparks) {
         if (spark.life <= 0) {
             continue;
         }
 
         const float remaining = float(spark.life) / float(spark.duration);
-        const Vector4 color = spark.red ? Vector4{2.2f, 0.05f, 0.25f, remaining * remaining}
-                                        : Vector4{0.2f, 1.1f, 3.0f, remaining * remaining};
+        const auto &rgb = spark.red ? tuning.red : tuning.blue;
+        const Vector4 color{rgb[0]*3, rgb[1]*3, rgb[2]*3, remaining*remaining};
+        const float grainSize=.025f*tuning.sparkSize;
+        renderer.AddObj(EffectRenderer::ObjEffect::Dust,{spark.x,spark.y,.6f},{0,float(spark.life)*.06f,float(spark.life)*.1f},
+            {grainSize,grainSize,grainSize},color);
         renderer.AddGlow({spark.x, spark.y, 0.6f}, {spark.vx, spark.vy, 0},
-                         0.08f + std::hypot(spark.vx, spark.vy) * 0.8f, 0.035f, color);
+                         (0.08f + std::hypot(spark.vx, spark.vy) * 0.8f) * tuning.sparkSize, 0.035f * tuning.sparkSize, color);
     }
 
     // 既存の撃破・着地粒子も、箱ではなく小さな点として描画する。
@@ -1147,6 +1166,9 @@ bool SpearPrototype::DrawEffects(EffectRenderer &renderer) {
         const float alpha = (std::min)(1.0f, float(particle.life) / 15);
         const Vector4 color =
             i % 6 == 0 ? Vector4{1.2f, 1.7f, 2.5f, alpha} : Vector4{0.2f, 0.8f, 2.5f, alpha};
+        const float grainSize=.035f*particle.size;
+        renderer.AddObj(EffectRenderer::ObjEffect::Dust,{particle.x,particle.y,.8f},{float(i),float(particle.life)*.1f,float(particle.life)*.05f},
+            {grainSize,grainSize,grainSize},color);
         renderer.AddGlow({particle.x, particle.y, 0.8f}, {1, 0, 0}, 0.09f * particle.size,
                          0.055f * particle.size, color);
     }
@@ -1173,9 +1195,33 @@ void SpearPrototype::PlayStage() {
     }
 }
 
+namespace {
+std::filesystem::path StageResourcePath() {
+    const std::filesystem::path relative="Resources/Stages/tutorial-stage.json";
+    auto folder=std::filesystem::current_path();
+    for(;;) {
+        if(std::filesystem::exists(folder/"CG2_DirectX.sln")) return folder/relative;
+        const auto parent=folder.parent_path();if(parent==folder) break;folder=parent;
+    }
+    return std::filesystem::absolute(relative);
+}
+void WriteStageResource(const std::filesystem::path &path,const SpearStage &stage) {
+    std::filesystem::create_directories(path.parent_path());
+    const std::filesystem::path temporary=path.wstring()+L".tmp";
+    std::ofstream file(temporary,std::ios::binary|std::ios::trunc);
+    file<<stage.Serialize().dump(2)<<'\n';file.close();
+    if(!file) throw std::runtime_error("Could not write stage file");
+    if(std::filesystem::exists(path)) std::filesystem::copy_file(path,path.wstring()+L".bak",std::filesystem::copy_options::overwrite_existing);
+    if(!MoveFileExW(temporary.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))
+        throw std::runtime_error("Could not replace stage file");
+}
+}
+
 void SpearPrototype::LoadStage() {
     try {
-        const std::filesystem::path path = "Settings/tutorial-stage.json";
+        auto path=stageSaveOverride_.empty()?StageResourcePath():std::filesystem::path(stageSaveOverride_);
+        if(stageSaveOverride_.empty() && !std::filesystem::exists(path)) path="Resources/Stages/tutorial-stage.json";
+        if(stageSaveOverride_.empty() && !std::filesystem::exists(path)) path="Settings/tutorial-stage.json";
         if (!std::filesystem::exists(path)) {
             stageStatus_ = "No saved stage. Using built-in tutorial.";
             return;
@@ -1198,245 +1244,21 @@ void SpearPrototype::LoadStage() {
 void SpearPrototype::SaveStage() {
     try {
         stageDraft_.Validate();
-        const std::filesystem::path path = "Settings/tutorial-stage.json";
-        const std::filesystem::path temporary = "Settings/tutorial-stage.json.tmp";
-        std::filesystem::create_directories(path.parent_path());
-        std::ofstream file(temporary, std::ios::trunc);
-        file << stageDraft_.Serialize().dump(2) << '\n';
-        file.close();
-        if (!file)
-            throw std::runtime_error("Could not write stage file");
-        if (std::filesystem::exists(path))
-            std::filesystem::copy_file(path, "Settings/tutorial-stage.json.bak",
-                                       std::filesystem::copy_options::overwrite_existing);
-        if (!MoveFileExW(temporary.c_str(), path.c_str(),
-                         MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-            throw std::runtime_error("Could not replace stage file");
-        stageDirty_ = false;
-        stageStatus_ = "Saved. Previous version: Settings/tutorial-stage.json.bak";
-    } catch (const std::exception &e) {
-        stageStatus_ = std::string("Save failed: ") + e.what();
-    }
-}
-
-void SpearPrototype::DrawStageEditor() {
-#ifdef USE_IMGUI
-    ImGui::SetNextWindowSize(ImVec2(1060, 650), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Tutorial stage editor - F3", &stageEditorOpen_)) {
-        ImGui::End();
-        return;
-    }
-    ImGui::TextUnformatted(
-        "Editing pauses gameplay. Changes stay in the draft until Play from start.");
-    if (ImGui::Button("Save"))
-        SaveStage();
-    ImGui::SameLine();
-    if (ImGui::Button("Load")) {
-        if (stageDirty_)
-            ImGui::OpenPopup("Discard draft and load?");
-        else
-            LoadStage();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Built-in tutorial"))
-        ImGui::OpenPopup("Replace draft?");
-    ImGui::SameLine();
-    if (ImGui::Button("Play from start"))
-        PlayStage();
-    ImGui::SameLine();
-    ImGui::TextUnformatted(stageDirty_ ? "* Unsaved changes" : "Saved / unchanged");
-    if (ImGui::BeginPopupModal("Discard draft and load?", nullptr,
-                               ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::TextUnformatted("Unsaved edits will be lost.");
-        if (ImGui::Button("Load saved")) {
-            LoadStage();
-            ImGui::CloseCurrentPopup();
+        const auto path=stageSaveOverride_.empty()?StageResourcePath():std::filesystem::path(stageSaveOverride_);
+        WriteStageResource(path,stageDraft_);
+        stageDirty_=false;
+        stageStatus_="Saved: "+path.string();
+        const auto local=std::filesystem::absolute("Resources/Stages/tutorial-stage.json");
+        if(stageSaveOverride_.empty() && local!=path) {
+            try { WriteStageResource(local,stageDraft_); }
+            catch(const std::exception &e) {stageStatus_+=" (runtime copy failed: "+std::string(e.what())+")";}
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel"))
-            ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
-    }
-    if (ImGui::BeginPopupModal("Replace draft?", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::TextUnformatted(
-            "Replace this draft with the built-in tutorial? Saved file stays until Save.");
-        if (ImGui::Button("Replace")) {
-            stageDraft_ = SpearStage{};
-            stageDirty_ = true;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel"))
-            ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
-    }
-    ImGui::TextWrapped("%s", stageStatus_.c_str());
-    ImGui::TextWrapped("File: %s",
-                       std::filesystem::absolute("Settings/tutorial-stage.json").string().c_str());
-    bool changed = ImGui::Checkbox("Boss battle after tutorial (off: clear at x=98)",
-                                   &stageDraft_.bossEnabled);
-    ImGui::TextUnformatted("Select / drag on map. Cyan: platforms, red: enemies, green: "
-                           "start/checkpoints. Arena is fixed.");
-    const ImVec2 origin = ImGui::GetCursorScreenPos();
-    const ImVec2 size((std::max)(ImGui::GetContentRegionAvail().x, 200.0f), 240);
-    ImGui::InvisibleButton("Stage map", size);
-    const float sx = size.x / 138.0f, sy = size.y / 25.0f;
-    const auto screen = [&](float x, float y) {
-        return ImVec2(origin.x + (x + 8) * sx, origin.y + (15 - y) * sy);
-    };
-    auto *draw = ImGui::GetWindowDrawList();
-    draw->PushClipRect(origin, ImVec2(origin.x + size.x, origin.y + size.y), true);
-    draw->AddRectFilled(origin, ImVec2(origin.x + size.x, origin.y + size.y),
-                        IM_COL32(20, 27, 38, 255));
-    for (int x = 0; x <= 130; x += 10) {
-        const auto p = screen(float(x), 15);
-        draw->AddLine(p, screen(float(x), -10), IM_COL32(48, 58, 70, 255));
-        draw->AddText(p, IM_COL32(160, 170, 180, 255), std::to_string(x).c_str());
-    }
-    draw->AddRectFilled(screen(98, 12), screen(130, -8), IM_COL32(65, 50, 65, 150));
-    draw->AddText(screen(100, 11), IM_COL32(220, 190, 220, 255), "BOSS ARENA");
-    for (size_t i = 0; i < 8; ++i) {
-        const auto &p = stageDraft_.platforms[i];
-        const auto a = screen(p.left, p.top), b = screen(p.right, p.top);
-        const bool selected = stageSelectionType_ == 0 && stageSelection_ == int(i);
-        draw->AddLine(a, b, selected ? IM_COL32(255, 220, 100, 255) : IM_COL32(80, 200, 230, 255),
-                      6);
-        draw->AddText(ImVec2(a.x, a.y + 6), IM_COL32(220, 230, 240, 255),
-                      ("P" + std::to_string(i)).c_str());
-    }
-    for (size_t i = 0; i < 7; ++i) {
-        const auto &e = stageDraft_.enemies[i];
-        const auto p = screen(e.x, e.y);
-        const bool selected = stageSelectionType_ == 1 && stageSelection_ == int(i);
-        draw->AddCircleFilled(p, selected ? 8.0f : 6.0f,
-                              e.enabled ? IM_COL32(255, 110, 100, 255)
-                                        : IM_COL32(100, 100, 100, 255));
-        draw->AddText(ImVec2(p.x + 8, p.y - 8), IM_COL32(255, 210, 200, 255),
-                      ("E" + std::to_string(i)).c_str());
-        if (selected && e.enabled)
-            draw->AddLine(screen(e.gate, 12), screen(e.gate, -8), IM_COL32(255, 190, 80, 200), 2);
-    }
-    for (size_t i = 0; i < 6; ++i) {
-        const auto &s = stageDraft_.spawns[i];
-        const auto p = screen(s.x, s.y);
-        draw->AddLine(p, ImVec2(p.x, p.y - 22), IM_COL32(100, 255, 150, 255), 3);
-        draw->AddText(ImVec2(p.x + 2, p.y - 30), IM_COL32(100, 255, 150, 255),
-                      (i == 0 ? "START" : "C" + std::to_string(i)).c_str());
-    }
-    draw->PopClipRect();
-    if (ImGui::IsItemActivated()) {
-        const auto mouse = ImGui::GetIO().MousePos;
-        stageMapDragging_ = false;
-        float best = 18 * 18.0f;
-        const auto pick = [&](float dx, float dy, int type, int index) {
-            const float distance = dx * dx + dy * dy;
-            if (distance < best) {
-                stageMapDragging_ = true;
-                best = distance;
-                stageSelectionType_ = type;
-                stageSelection_ = index;
-            }
-        };
-        for (int i = 0; i < 7; ++i) {
-            const auto &p = stageDraft_.platforms[size_t(i)];
-            const auto a = screen(p.left, p.top), b = screen(p.right, p.top);
-            pick(mouse.x - (std::clamp)(mouse.x, a.x, b.x), mouse.y - a.y, 0, i);
-        }
-        for (int i = 0; i < 7; ++i) {
-            const auto &e = stageDraft_.enemies[size_t(i)];
-            const auto p = screen(e.x, e.y);
-            pick(mouse.x - p.x, mouse.y - p.y, 1, i);
-        }
-        for (int i = 0; i < 6; ++i) {
-            const auto &s = stageDraft_.spawns[size_t(i)];
-            const auto p = screen(s.x, s.y);
-            pick(mouse.x - p.x, mouse.y - (p.y - 16), 2, i);
-        }
-    }
-    if (stageMapDragging_ && ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) {
-        const auto d = ImGui::GetIO().MouseDelta;
-        const float dx = d.x / sx, dy = -d.y / sy;
-        if (stageSelectionType_ == 0 && stageSelection_ < 7) {
-            auto &p = stageDraft_.platforms[size_t(stageSelection_)];
-            const float move = (std::clamp)(dx, -8 - p.left, 98 - p.right);
-            const float rise = (std::clamp)(dy, -8 - p.top, 10 - p.top);
-            // Keep checkpoint markers on a moved supporting platform.
-            for (auto &s : stageDraft_.spawns)
-                if (s.x >= p.left && s.x <= p.right && std::abs(s.y - p.top) < 0.01f) {
-                    s.x += move;
-                    s.y += rise;
-                }
-            p.left += move;
-            p.right += move;
-            p.top += rise;
-            changed |= move != 0 || rise != 0;
-        } else if (stageSelectionType_ == 1) {
-            auto &e = stageDraft_.enemies[size_t(stageSelection_)];
-            e.x = (std::clamp)(e.x + dx, -6.0f, 96.0f);
-            e.y = (std::clamp)(e.y + dy, -7.0f, 11.0f);
-            changed |= dx != 0 || dy != 0;
-        } else if (stageSelectionType_ == 2) {
-            auto &s = stageDraft_.spawns[size_t(stageSelection_)];
-            s.x = (std::clamp)(s.x + dx, -7.0f, 96.0f);
-            s.y = (std::clamp)(s.y + dy, -8.0f, 10.0f);
-            for (const auto &p : stageDraft_.platforms)
-                if (s.x >= p.left + 0.5f && s.x <= p.right - 0.5f && std::abs(s.y - p.top) < 0.5f)
-                    s.y = p.top;
-            changed |= dx != 0 || dy != 0;
-        }
-    }
-    const char *types[] = {"Platform", "Enemy", "Start / checkpoint"};
-    if (ImGui::Combo("Selection", &stageSelectionType_, types, 3))
-        stageSelection_ = 0;
-    ImGui::SliderInt("Slot", &stageSelection_, 0,
-                     stageSelectionType_ == 0   ? 7
-                     : stageSelectionType_ == 1 ? 6
-                                                : 5);
-    const auto edit = [&](const char *label, float &v, float lo, float hi) {
-        return ImGui::DragFloat(label, &v, 0.05f, lo, hi, "%.2f", ImGuiSliderFlags_AlwaysClamp);
-    };
-    if (stageSelectionType_ == 0) {
-        auto &p = stageDraft_.platforms[size_t(stageSelection_)];
-        if (stageSelection_ == 7)
-            ImGui::TextUnformatted("Boss arena floor: fixed at [98,130], y=-3.");
-        else {
-            changed |= edit("Left", p.left, -8, p.right - 1);
-            changed |= edit("Right", p.right, p.left + 1, 98);
-            changed |= edit("Top", p.top, -8, 10);
-        }
-    } else if (stageSelectionType_ == 1) {
-        auto &e = stageDraft_.enemies[size_t(stageSelection_)];
-        changed |= ImGui::Checkbox("Enabled", &e.enabled);
-        changed |= edit("X", e.x, -6, 96);
-        changed |= edit("Y", e.y, -7, 11);
-        const char *kinds[] = {"Normal", "Air chain", "Up thrust", "Down thrust"};
-        changed |= ImGui::Combo("Kind", &e.kind, kinds, 4);
-        changed |= edit("Gate X (opens when defeated)", e.gate, -5, 98);
-        auto &lesson = stageDraft_.lessons[size_t(stageSelection_)];
-        char buffer[256]{};
-        std::copy(lesson.begin(), lesson.end(), buffer);
-        if (ImGui::InputText("Lesson (English)", buffer, sizeof(buffer))) {
-            lesson = buffer;
-            changed = true;
-        }
-    } else {
-        auto &s = stageDraft_.spawns[size_t(stageSelection_)];
-        changed |= edit("Spawn X", s.x, -7, 96);
-        changed |= edit("Spawn Y (platform top)", s.y, -8, 10);
-        ImGui::TextUnformatted("Slot 0: start. Slots 1-5: checkpoints in ascending X order.");
-    }
-    stageDirty_ |= changed;
-    try {
-        stageDraft_.Validate();
-        ImGui::TextColored(ImVec4(0.5f, 1, 0.6f, 1), "Ready to save / play");
-    } catch (const std::exception &e) {
-        ImGui::TextWrapped("Fix before save / play: %s", e.what());
-    }
-    ImGui::End();
-#endif
+    } catch(const std::exception &e) {stageStatus_=std::string("Save failed: ")+e.what();}
 }
 
 void SpearPrototype::RestartRun() {
+    PlayExtra(ExtraCue::Confirm);
+    if(pause_.active) EndPause(false);
     restartTransition_.Begin(true);
     pendingJump_ = false;
     jumpHeld_ = false;
@@ -1445,6 +1267,8 @@ void SpearPrototype::RestartRun() {
 }
 
 void SpearPrototype::ApplyRestart(bool fullRun) {
+    StopGameSoundLayers();
+    jumpUseFlash_=0;jumpSpentSlot_=-1;
     if (fullRun) {
         adventure_.RestartStage(adventure_.stage);
         flow_.Reset();

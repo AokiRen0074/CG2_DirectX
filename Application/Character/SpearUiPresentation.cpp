@@ -59,7 +59,8 @@ void SpearPrototype::PrepareUiAssets(const SpearUiLayout &layout) {
                             : std::filesystem::path(e.texture);
     if (!std::filesystem::exists(actual))
       throw std::runtime_error("PNG not found: " + e.texture);
-    screen_.PrepareImage(e.texture, actual.string());
+    const auto bytes=actual.u8string();
+    screen_.PrepareImage(e.texture, std::string(bytes.begin(),bytes.end()));
   }
 }
 void SpearPrototype::LoadUiLayout(bool fromSource) {
@@ -106,16 +107,22 @@ void SpearPrototype::RememberUiEdit() {
 SpearUiContext SpearPrototype::UiContext(bool preview) const {
   SpearUiContext c;
   c.finished = flow_.Finished();
+  c.paused=pause_.active;c.pauseChoice=pause_.selection;
   c.canReplay = flow_.CanReplay();
   c.newBest = flow_.newBest;
   c.hp = adventure_.hp;
   c.charges = motion_.charges;
+  c.chargeRefill = float(adventure_.chargeRefillFlash)/36;
+  c.chargeUse = float(jumpUseFlash_)/12;
+  c.spentCharge = jumpSpentSlot_;
   c.boss = adventure_.bossState != SpearAdventure::BossState::Dormant;
   c.bossHp = float(adventure_.bossHp) / SpearAdventure::bossMaxHp;
   c.phase = adventure_.secondPhase ? 2 : 1;
   c.dodge = adventure_.dodgeFlash > 0;
   c.pierce = adventure_.pierceFlash > 0 && adventure_.pierceCount >= 2;
   c.refill = adventure_.chargeRefillFlash > 0;
+  c.airReady=adventure_.airPower>=2 && !motion_.grounded && adventure_.airStrikeFlash==0;
+  c.airStrike=adventure_.airStrikeFlash>0;
   const float t = float(flow_.clearFrames);
   c.reveal = SpearGameFlow::Ease(60, 90, t);
   c.chartReveal = SpearGameFlow::Ease(90, 145, t);
@@ -140,13 +147,19 @@ SpearUiContext SpearPrototype::UiContext(bool preview) const {
       Multiply(dashGaugeCamera_.matView, dashGaugeCamera_.matProjection));
   c.title = {(title.x * .5f + .5f) * 1280, (.5f - title.y * .5f) * 720};
   c.titleScale = 34.0f / (adventure_.cameraDistance + 2);
+  c.tutorial=!flow_.Finished() && adventure_.bossState==SpearAdventure::BossState::Dormant;
+  c.playerWorldX=motion_.x;
+  const auto projection=Multiply(dashGaugeCamera_.matView,dashGaugeCamera_.matProjection);
+  for(int row=0;row<4;++row) for(int column=0;column<4;++column) c.worldProjection[size_t(row)][size_t(column)]=projection.m[row][column];
   c.player = dashGaugeScreenPoint_;
   c.feedback = feedbackScreenPoint_;
-  c.values = {{"time", TimeText(flow_.runFrames)},
+  c.values = {{"charges", std::to_string(c.charges)}, {"time", TimeText(flow_.runFrames)},
               {"score", std::to_string(adventure_.score)},
               {"bestTime", TimeText(flow_.bestFrames)},
               {"score6", std::format("{:06}", adventure_.score)},
               {"chain", std::to_string(adventure_.maximumChain)},
+              {"airChain", std::to_string(adventure_.chain)},
+              {"airRefill", adventure_.chain>0?std::format("+1  /  AIR {}",adventure_.chain):"+1"},
               {"retries", std::to_string(adventure_.deaths)},
               {"rank", evaluation.Rank()},
               {"attackRating", std::to_string(c.evaluation[0])},
@@ -157,6 +170,10 @@ SpearUiContext SpearPrototype::UiContext(bool preview) const {
               {"pierce", std::to_string(adventure_.pierceCount)}};
   if (preview) {
     c.preview = uiPreviewPage_;
+    if(uiPreviewPage_=="tutorial") {
+      c.worldProjection={};c.worldProjection[0][0]=1.0f/28;c.worldProjection[1][1]=1.0f/10;
+      c.worldProjection[3][0]=-18.0f/28;c.worldProjection[3][3]=1;
+    }
     c.title = {640, 145};
     c.titleScale = 1;
     c.player = {380, 520};
@@ -170,14 +187,17 @@ SpearUiContext SpearPrototype::UiContext(bool preview) const {
         uiSelection_ >= 0 && uiSelection_ < int(uiLayout_.elements.size())
             ? uiLayout_.elements[size_t(uiSelection_)].condition
             : "";
+    if(uiPreviewPage_=="pause") c.pauseChoice=selectedCondition=="pauseRetrySelected"?1:0;
     c.dodge = selectedCondition == "dodge";
     c.pierce = selectedCondition == "pierce";
     c.refill = selectedCondition == "refill";
+    c.airReady=selectedCondition=="airReady";c.airStrike=selectedCondition=="airStrike";
     if (selectedCondition == "lowHealth")
       c.hp = 2;
     c.values = {
+        {"charges", std::to_string(c.charges)},
         {"time", "01:23.45"}, {"score", "12800"},       {"score6", "012800"},
-        {"chain", "7"},       {"retries", "1"},         {"rank", "A"},
+        {"airRefill", "+1  /  AIR 3"}, {"airChain", "3"}, {"chain", "7"},       {"retries", "1"},         {"rank", "A"},
         {"pierce", "3"},      {"bestTime", "01:20.18"}, {"attackRating", "4"},
         {"dodgeRating", "3"}, {"speedRating", "5"},     {"pierceRating", "2"},
         {"chainRating", "4"}};
@@ -205,6 +225,11 @@ void SpearPrototype::DrawPresentation() {
     if (!editing && replayHovered_ &&
         uiLayout_.elements[d.element].action == "replay")
       color[3] = 1;
+    const auto &action=uiLayout_.elements[d.element].action;
+    if(action=="pauseResume" || action=="pauseRetry") {
+      const int choice=action=="pauseResume"?0:1;
+      if(choice!=context.pauseChoice) color[3]*=.48f;
+    }
     Vector4 tint{color[0], color[1], color[2], color[3]};
     if (uiLayout_.elements[d.element].meter == "evaluation")
       screen_.Radar(offsetX + d.x * scale, offsetY + d.y * scale,
@@ -303,7 +328,7 @@ void SpearPrototype::DrawUiEditor() {
   if (ImGui::Button("Return to game (F4)"))
     uiEditorOpen_ = false;
   const char *pages[] = {"title",  "hud",   "boss",
-                         "impact", "clear", "transition"};
+                         "impact", "clear", "transition", "tutorial", "pause"};
   ImGui::TextUnformatted("Preview:");
   for (auto page : pages) {
     ImGui::SameLine(0, 5);
@@ -395,7 +420,8 @@ void SpearPrototype::DrawUiEditor() {
         ImGui::EndCombo();
       }
     };
-    combo("Anchor", e.anchor, {"screen", "title", "player", "feedback"});
+    combo("Anchor", e.anchor, {"screen", "title", "player", "feedback", "world"});
+    if(e.anchor=="world") track(ImGui::DragFloat2("World position",e.worldPosition.data(),.1f,-4096,4096,"%.2f",ImGuiSliderFlags_AlwaysClamp));
     track(ImGui::DragFloat2("Position", e.position.data(), 1, -4096, 4096,
                             "%.0f"));
     track(ImGui::DragFloat2("Size", e.size.data(), 1, 1, 4096, "%.0f"));
@@ -430,10 +456,10 @@ void SpearPrototype::DrawUiEditor() {
       track(ImGui::SliderFloat("Tracking", &e.tracking, -3, 30, "%.1f"));
     }
     combo("Condition", e.condition,
-          {"", "replay", "newBest", "dodge", "pierce", "refill", "lowHealth"});
+          {"", "replay", "newBest", "dodge", "pierce", "refill", "lesson", "airReady", "airStrike", "lowHealth", "pauseResumeSelected", "pauseRetrySelected"});
     combo("Animation", e.animation,
           {"", "reveal", "bars", "flash", "impact", "blackout", "rank", "stats",
-           "chart"});
+           "chart", "charge"});
     combo("Meter", e.meter,
           {"", "hp", "charges", "bossHp", "phase", "evaluation"});
     track(ImGui::SliderInt("Repeat", &e.repeat, 1, 16));

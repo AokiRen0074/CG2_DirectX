@@ -4,6 +4,14 @@
 #include <string_view>
 
 int main() {
+  SpearPauseState pause;
+  assert(!pause.active && pause.Confirm()==SpearPauseState::Action::None);
+  pause.Open();assert(pause.active && pause.selection==0);
+  pause.Move(-1);assert(pause.selection==1 && pause.Confirm()==SpearPauseState::Action::Retry);
+  pause.Move(1);assert(pause.selection==0 && pause.Confirm()==SpearPauseState::Action::Resume);
+  pause.Close();pause.Move(1);assert(!pause.active && pause.selection==0);
+  pause.Open();assert(pause.selection==0);
+
   SpearRestartTransition restart;
   assert(!restart.Active() && restart.Alpha() == 0 && !restart.Tick());
   restart.Begin(false);

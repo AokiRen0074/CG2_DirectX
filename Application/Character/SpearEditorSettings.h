@@ -1,5 +1,6 @@
 #pragma once
 #include "SpearMotion.h"
+#include "SpearEffectSettings.h"
 #include "externals/nlohmann/json.hpp"
 #include <array>
 #include <stdexcept>
@@ -11,6 +12,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpearMotionSettings, moveSpeed, groundAcceler
 // 描画倍率はゲームの座標・当たり判定と分けて保存する。
 struct SpearEditorSettings {
     SpearMotionSettings movement;
+    SpearEffectSettings effects;
     std::array<std::array<float, 3>, 8> scales;
     std::array<std::array<float, 3>, 8> rotations{};
     std::array<float, 3> lightDirection{-0.45f, -0.85f, 0.35f};
@@ -26,6 +28,7 @@ struct SpearEditorSettings {
     nlohmann::json Serialize() const {
         return {{"version", 1},
                 {"movement", movement},
+                {"effects", effects},
                 {"scales", scales},
                 {"rotations", rotations},
                 {"lightDirection", lightDirection},
@@ -39,6 +42,8 @@ struct SpearEditorSettings {
         }
 
         SpearEditorSettings result;
+        if (json.contains("effects")) result.effects = json.at("effects").get<SpearEffectSettings>();
+        result.effects.Validate();
         result.movement = json.at("movement").get<SpearMotionSettings>();
         result.scales = json.at("scales").get<decltype(scales)>();
         result.rotations = json.at("rotations").get<decltype(rotations)>();

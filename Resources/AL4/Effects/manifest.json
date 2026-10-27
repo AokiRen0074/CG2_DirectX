@@ -1,0 +1,40 @@
+{
+  "source": "GameplayEffects.blend",
+  "models": [
+    {
+      "name": "effect_shard",
+      "vertices": 6,
+      "triangles": 8,
+      "obj": "effect_shard.obj",
+      "mtl": "effect_shard.mtl"
+    },
+    {
+      "name": "crystal_projectile",
+      "vertices": 8,
+      "triangles": 12,
+      "obj": "crystal_projectile.obj",
+      "mtl": "crystal_projectile.mtl"
+    },
+    {
+      "name": "lance_projectile",
+      "vertices": 6,
+      "triangles": 8,
+      "obj": "lance_projectile.obj",
+      "mtl": "lance_projectile.mtl"
+    },
+    {
+      "name": "ambient_grain",
+      "vertices": 6,
+      "triangles": 8,
+      "obj": "ambient_grain.obj",
+      "mtl": "ambient_grain.mtl"
+    },
+    {
+      "name": "refill_crystal",
+      "vertices": 6,
+      "triangles": 8,
+      "obj": "refill_crystal.obj",
+      "mtl": "refill_crystal.mtl"
+    }
+  ]
+}

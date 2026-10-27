@@ -1,5 +1,6 @@
 #include "EffectRenderer.h"
 #include "Model.h"
+#include "ModelManager.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -18,6 +19,8 @@ Vector4 Fade(Vector4 color, float alpha) {
 
 void EffectRenderer::Initialize(DirectXCommon *dxCommon) {
     dxCommon_ = dxCommon;
+    const char *meshes[]={"effect_shard.obj","crystal_projectile.obj","lance_projectile.obj","ambient_grain.obj"};
+    for(size_t i=0;i<effectModels_.size();++i) effectModels_[i]=ModelManager::Load("Resources/AL4/Effects",meshes[i]);
     auto *device = dxCommon->GetDevice();
     D3D12_ROOT_PARAMETER parameter{};
     parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -195,7 +198,7 @@ void EffectRenderer::AddArc(Vector3 center, float angle, float radius, float swe
     }
 }
 
-void EffectRenderer::AddInterwovenRibbon(std::span<const Vector3> path, float fade, float phase) {
+void EffectRenderer::AddInterwovenRibbon(std::span<const Vector3> path, float fade, float phase, float width, float spread, float twist, float glow, Vector4 blueColor, Vector4 redColor) {
     if (path.size() < 2 || fade <= 0) {
         return;
     }
@@ -213,8 +216,8 @@ void EffectRenderer::AddInterwovenRibbon(std::span<const Vector3> path, float fa
         const float length = std::hypot(b.x - a.x, b.y - a.y);
         const float nx = length > 0.001f ? -(b.y - a.y) / length : 0;
         const float ny = length > 0.001f ? (b.x - a.x) / length : 1;
-        const float wave = t * 9.424778f + phase;
-        const float offset = std::sin(wave) * std::sin(t * 3.141593f) * 0.5f;
+        const float wave = t * 9.424778f * twist + phase;
+        const float offset = std::sin(wave) * std::sin(t * 3.141593f) * 0.5f * spread;
         const Vector3 center = {a.x + (b.x - a.x) * fraction, a.y + (b.y - a.y) * fraction, 0.75f};
         // 奥行きも交互に入れ替え、組み合わさる印象を作る。
         blue[i] = {center.x + nx * offset, center.y + ny * offset,
@@ -224,10 +227,14 @@ void EffectRenderer::AddInterwovenRibbon(std::span<const Vector3> path, float fa
     }
 
     const float opacity = fade * fade;
-    AddRibbon(blue, 0.22f * fade, {0.08f, 0.65f, 2.4f, opacity * 0.65f});
-    AddRibbon(red, 0.19f * fade, {2.4f, 0.04f, 0.25f, opacity * 0.65f});
-    AddRibbon(blue, 0.027f, {0.65f, 1.7f, 2.6f, opacity * 0.7f});
-    AddRibbon(red, 0.023f, {2.3f, 0.45f, 0.7f, opacity * 0.6f});
+    const auto color = [glow, opacity](Vector4 c, float alpha, bool core) {
+        if (core) { c.x = c.x * .65f + .6f; c.y = c.y * .65f + .4f; c.z = c.z * .65f + .4f; }
+        return Vector4{c.x * glow, c.y * glow, c.z * glow, opacity * alpha};
+    };
+    AddRibbon(blue, .22f * fade * width, color(blueColor,.65f,false));
+    AddRibbon(red, .19f * fade * width, color(redColor,.65f,false));
+    AddRibbon(blue, .027f * width, color(blueColor,.7f,true));
+    AddRibbon(red, .023f * width, color(redColor,.6f,true));
 }
 
 void EffectRenderer::Draw(const ViewProjection &camera) {
@@ -245,18 +252,34 @@ void EffectRenderer::Draw(const ViewProjection &camera) {
     command->DrawInstanced(UINT(vertexCount_), 1, 0, 0);
 }
 
+void EffectRenderer::AddObj(ObjEffect kind, Vector3 center, Vector3 rotation, Vector3 scale, Vector4 color) {
+    if(color.w<=0 || scale.x<=0 || scale.y<=0 || scale.z<=0) return;
+    const auto &model=effectModels_.at(size_t(kind));
+    if(!model) return;
+    const auto world=MakeAffineMatrix(scale,rotation,center);
+    const auto normalMatrix=MakeAffineMatrix({1,1,1},rotation,{0,0,0});
+    for(const auto &mesh:model->meshes) {
+        const auto material=model->materials.find(mesh.useMaterialName);
+        const Vector4 base=material==model->materials.end()?Vector4{1,1,1,1}:material->second.diffuseColor;
+        for(size_t i=0;i+2<mesh.vertices.size();i+=3) {
+            const auto normal=TransformNormal(mesh.vertices[i].normal,normalMatrix);
+            // This side-on camera sees the front OBJ facets. Avoid adding the
+            // hidden back faces into the emission and washing out their edges.
+            if(normal.z>.001f) continue;
+            if(vertexCount_+3>capacity) return;
+            const float shade=.35f+.65f*(std::clamp)(-normal.z*.75f+normal.y*.4f-normal.x*.25f,0.0f,1.0f);
+            const Vector4 lit{color.x*base.x*shade,color.y*base.y*shade,color.z*base.z*shade,color.w};
+            for(size_t corner=0;corner<3;++corner) {
+                const auto &v=mesh.vertices[i+corner].position;
+                const auto p=Transform({v.x,v.y,v.z},world);
+                vertices_[vertexCount_++]={p,0,0,lit,2};
+            }
+        }
+    }
+}
+
 void EffectRenderer::AddCrystal(Vector3 center, float angle, float size, Vector4 color) {
-    const Vector3 axis = {std::cos(angle), std::sin(angle), 0};
-    const Vector3 normal = {-axis.y, axis.x, 0};
-    Vector4 shadow = color;
-    shadow.x *= 0.35f;
-    shadow.y *= 0.35f;
-    shadow.z *= 0.35f;
-    // 二つの面で明暗を分け、発光していても破片の輪郭を残す。
-    AddQuad({Vertex{Offset(center, normal, size * 0.45f), 0, 0, color, 2},
-             Vertex{Offset(center, axis, -size), 0, 0, shadow, 2},
-             Vertex{Offset(center, axis, size), 0, 0, color, 2},
-             Vertex{Offset(center, normal, -size * 0.45f), 0, 0, shadow, 2}});
+    AddObj(ObjEffect::Shard,center,{.15f,angle*.35f,angle},{size,size,size},color);
 }
 
 void EffectRenderer::AddBeam(Vector3 start, Vector3 end, float width, Vector4 color) {

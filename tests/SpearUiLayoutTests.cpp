@@ -96,6 +96,43 @@ int main(int argc, char **argv) {
   c.canReplay = false;
   assert(contains(layout.Resolve(c), "replay_button") &&
          !contains(layout.Resolve(c), "time_label"));
+  c={};c.tutorial=true;c.playerWorldX=3;
+  c.worldProjection[0][0]=.02f;c.worldProjection[1][1]=.05f;c.worldProjection[3][3]=1;
+  assert(contains(layout.Resolve(c),"tutorial_jump"));
+  c.playerWorldX=90;assert(!contains(layout.Resolve(c),"tutorial_jump"));
+  c.playerWorldX=3;c.tutorial=false;assert(!contains(layout.Resolve(c),"tutorial_jump"));
+  c.preview="tutorial";assert(contains(layout.Resolve(c),"tutorial_jump") && !contains(layout.Resolve(c),"tutorial_chain"));
+  // All four charge states have a readable digit and the exact same lit count.
+  for(int remaining=0;remaining<=3;++remaining) {
+    c={};c.charges=remaining;c.values={{"charges",std::to_string(remaining)}};
+    int lit=0,dim=0;
+    for(const auto &d:layout.Resolve(c)) {
+      const auto &e=layout.elements[d.element];
+      if(e.id=="dash_icons") {if(d.tint==e.tint) ++lit;else if(d.tint==e.emptyTint) ++dim;assert(e.anchor=="player");}
+    }
+    assert(lit==remaining && dim==3-remaining);
+  }
+  c={};c.charges=2;c.chargeUse=1;c.spentCharge=2;
+  for(const auto &d:layout.Resolve(c)) if(layout.elements[d.element].id=="dash_icons" && std::abs(d.x-(c.player[0]+find("dash_icons").position[0]+2*find("dash_icons").spacing[0]))<.01f) assert(d.tint[0]>.5f && d.tint[3]>0);
+  c={};c.charges=2;c.chargeRefill=1;
+  for(const auto &d:layout.Resolve(c)) if(layout.elements[d.element].id=="dash_icons" && std::abs(d.x-(c.player[0]+find("dash_icons").position[0]+find("dash_icons").spacing[0]))<.01f) assert(d.tint[0]==1 && d.tint[1]==1);
+  c={};assert(!contains(layout.Resolve(c),"pause_heading"));
+  c.paused=true;assert(contains(layout.Resolve(c),"pause_heading") && contains(layout.Resolve(c),"pause_resume_line"));
+  c.boss=true;c.tutorial=true;draws=layout.Resolve(c);
+  for(const auto &d:draws) {
+    const auto &e=layout.elements[d.element];
+    assert(e.page=="pause" || e.page=="transition");
+  }
+  assert(!contains(draws,"title_logo") && !contains(draws,"tutorial_jump") && !contains(draws,"health_icons"));
+
+  assert(!contains(layout.Resolve(c),"pause_retry_line"));
+  c.pauseChoice=1;assert(contains(layout.Resolve(c),"pause_retry_line") && !contains(layout.Resolve(c),"pause_resume_line"));
+  auto &resume=find("pause_resume");resume.position={123,234};
+  bool resumeHit=false;
+  for(const auto &d:layout.Resolve(c)) if(layout.elements[d.element].action=="pauseResume") resumeHit=d.Contains(150,250) && !d.Contains(20,20);
+  assert(resumeHit);c.blackout=1;draws=layout.Resolve(c);
+  assert(layout.elements[draws.back().element].id=="restart_blackout");
+  c={};c.preview="pause";assert(contains(layout.Resolve(c),"pause_resume") && contains(layout.Resolve(c),"pause_retry"));
   const auto mustReject = [&](nlohmann::json bad) {
     bool rejected = false;
     try {
@@ -105,6 +142,9 @@ int main(int argc, char **argv) {
     }
     assert(rejected);
   };
+  c={};c.airReady=true;c.airStrike=true;c.refill=true;c.blackout=1;
+  draws=layout.Resolve(c);
+  assert(layout.elements[draws.back().element].id=="restart_blackout");
   auto bad = json;
   bad["elements"][1]["id"] = bad["elements"][0]["id"];
   mustReject(bad);

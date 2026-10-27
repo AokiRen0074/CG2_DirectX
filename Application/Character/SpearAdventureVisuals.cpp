@@ -8,6 +8,8 @@ void SpearPrototype::InitializeAdventureModels() {
         }
     };
 
+    platformModels_.resize(adventure_.stage.platforms.size());
+    enemyModels_.resize(adventure_.enemies.size());
     initialize(platformModels_, "floor.obj");
     initialize(sceneryModels_, "bossCrystal.obj");
     for (auto &model : sceneryModels_) {
@@ -50,6 +52,14 @@ void SpearPrototype::InitializeAdventureModels() {
 }
 
 void SpearPrototype::UpdateAdventureModels() {
+    const auto sync=[](auto &models,size_t size,const char *asset) {
+        models.resize(size);
+        for(auto &model:models) if(!model) {
+            model=std::make_unique<Object3d>();model->Initialize("Resources/Spear",asset);
+        }
+    };
+    sync(platformModels_,adventure_.stage.platforms.size(),"floor.obj");
+    sync(enemyModels_,adventure_.enemies.size(),"bossCrystal.obj");
     const float gaugeY =
         (std::min)(motion_.y + 1.3f,
                    adventure_.cameraY + (adventure_.cameraDistance - 1.2f) * 0.228875f - 0.35f);
@@ -93,7 +103,7 @@ void SpearPrototype::UpdateAdventureModels() {
                                    (0.8f + layer * 0.25f) * 0.5f);
     }
 
-    laserCoreModel_->SetPosition({114, -2.6f, -0.85f});
+    laserCoreModel_->SetPosition({adventure_.stage.ArenaX(114), -2.6f, -0.85f});
     laserCoreModel_->SetScale({12, 0.035f, 0.02f});
     laserCoreModel_->SetDirectionalLight({0, 0, 1}, {1, 1, 1}, 1.0f);
     for (size_t i = 0; i < platformModels_.size(); ++i) {
@@ -115,30 +125,30 @@ void SpearPrototype::UpdateAdventureModels() {
             {rotation[0] * 0.0174533f, rotation[1] * 0.0174533f, rotation[2] * 0.0174533f});
     }
 
-    for (size_t i = 0; i < enemyModels_.size(); ++i) {
-        const auto &enemy = adventure_.enemies[i];
-        const float phase = float(adventure_.frame) * 0.055f + float(i);
-        const bool flying = enemy.kind == 1 || enemy.kind == 2;
-        enemyModels_[i]->SetPosition(
-            {enemy.x, enemy.y + (flying ? std::sin(phase) * 0.15f : 0), 0});
-        enemyModels_[i]->SetScale(enemy.kind == 3 ? Vector3{0.9f, 0.55f, 0.55f}
-                                                  : Vector3{0.55f, 0.65f, 0.4f});
-        enemyModels_[i]->SetRotation(
-            {0, flying ? phase * 0.3f : 0, flying ? 0.785f + std::sin(phase) * 0.10f : 0});
+    // Both encounters use the same silhouette, size, motion and editor adjustments.
+    const auto poseRefillTarget = [this](Object3d &model, float x, float y, size_t index) {
+        const float phase = float(adventure_.frame) * 0.055f + float(index);
+        model.SetPosition({x, y + std::sin(phase) * 0.15f, 0});
+        model.SetScale({0.55f, 0.65f, 0.4f});
+        model.SetRotation({0, phase * 0.3f, 0.785f + std::sin(phase) * 0.10f});
         const auto &scale = editorSettings_.scales[4];
         const auto &rotation = editorSettings_.rotations[4];
-        auto &transform = enemyModels_[i]->GetTransform();
+        auto &transform = model.GetTransform();
         transform.scale.x *= scale[0];
         transform.scale.y *= scale[1];
         transform.scale.z *= scale[2];
         transform.rotate.x += rotation[0] * 0.0174533f;
         transform.rotate.y += rotation[1] * 0.0174533f;
         transform.rotate.z += rotation[2] * 0.0174533f;
+    };
+    for (size_t i = 0; i < enemyModels_.size(); ++i) {
+        const auto &enemy = adventure_.enemies[i];
+        poseRefillTarget(*enemyModels_[i], enemy.x, enemy.y, i);
     }
 
     const float phase = float(adventure_.frame) * 0.045f;
     const float exposed=(std::clamp)((adventure_.armorOpening-1)/.65f,0.0f,1.0f);
-    const float bossScale = adventure_.bossFlash > 0 ? 1.35f : 1.65f+exposed*(.13f+std::sin(phase*2)*.04f);
+    const float bossScale = 1.65f-adventure_.bossHitBlend*.18f+exposed*(.13f+std::sin(phase*2)*.04f);
     bossModels_[0]->SetPosition({adventure_.bossX, adventure_.bossY, 0.6f});
     bossModels_[0]->SetScale({bossScale, bossScale, 0.7f});
     bossModels_[0]->SetRotation({0, phase * 0.25f, std::sin(phase) * 0.08f});
@@ -152,38 +162,15 @@ void SpearPrototype::UpdateAdventureModels() {
     coreTransform.rotate.z += coreRotation[2] * 0.0174533f;
     bossModels_[1]->SetPosition({adventure_.bossX, adventure_.bossY, -0.35f});
     bossModels_[1]->SetScale({.9f-exposed*.15f,.8f-exposed*.14f,.4f});
-    float floorPose = 0;
-    if (adventure_.scorchedFloorEnabled) {
-        if (adventure_.bossState == SpearAdventure::BossState::LaserWarning) {
-            floorPose = (std::clamp)(1 - float(adventure_.bossTimer) / 75, 0.0f, 1.0f);
-            floorPose = floorPose * floorPose * (3 - 2 * floorPose);
-        } else if (effects_.groundScorch.age >= 0) {
-            floorPose = (std::clamp)(
-                1 - float(effects_.groundScorch.age - effects_.groundScorch.duration) / 24, 0.0f,
-                1.0f);
-        }
-    }
-
-    const float floorAim =
-        std::atan2(-3.48f - adventure_.bossY, 114 - adventure_.bossX) + 3.141593f;
-    const float tipAngle = phase + std::remainder(floorAim - phase, 6.283185f) * floorPose;
-    bossModels_[1]->SetRotation({0, 0, tipAngle});
+    bossModels_[1]->SetRotation({0, 0, phase});
 
     // 四枚の槍状の装甲。溜め中に開いて、攻撃の前兆を見せる。
-    const bool warning = adventure_.bossState == SpearAdventure::BossState::DashWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::LaserWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::SummonWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::BeamWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::FanWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::RainWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::NovaWarning ||
-                         adventure_.bossState == SpearAdventure::BossState::PhaseChange;
     for (size_t i = 2; i < 6; ++i) {
         const float angle = float(i - 2) * 1.570796f + adventure_.bossVisualAngle;
         const float radius = 2.1f + adventure_.phaseFormBlend * 0.4f +
-                             (adventure_.bossState==SpearAdventure::BossState::NovaWarning?.6f:0) +
+                             adventure_.bossNovaBlend*.6f +
                              adventure_.armorOpening * 0.45f +
-                             (warning ? std::sin(phase * 4) * 0.08f : 0);
+                             std::sin(phase * 4) * 0.08f * adventure_.bossChargeBlend;
         bossModels_[i]->SetPosition({adventure_.bossX + std::cos(angle) * radius,
                                      adventure_.bossY + std::sin(angle) * radius, 0.2f});
         bossModels_[i]->SetScale({0.9f + adventure_.phaseFormBlend * 0.2f, 0.65f, 0.65f});
@@ -194,10 +181,10 @@ void SpearPrototype::UpdateAdventureModels() {
     // カメラの画角が変わってもHPバーを画面上部へ置き、本体と重ならないようにする。
     const float healthY =
         adventure_.cameraY + (adventure_.cameraDistance - 0.7f) * 0.228875f * 0.84f;
-    bossModels_[6]->SetPosition({114, healthY, -0.5f});
+    bossModels_[6]->SetPosition({adventure_.stage.ArenaX(114), healthY, -0.5f});
     bossModels_[6]->SetScale({5, 0.16f, 0.1f});
     const float hpWidth = float(adventure_.bossHp) / float(SpearAdventure::bossMaxHp) * 4.9f;
-    bossModels_[7]->SetPosition({109.1f + hpWidth, healthY, -0.7f});
+    bossModels_[7]->SetPosition({adventure_.stage.ArenaX(109.1f) + hpWidth, healthY, -0.7f});
     bossModels_[7]->SetScale({(std::max)(0.01f, hpWidth), 0.10f, 0.1f});
 
     for (size_t i = 0; i < hazardModels_.size(); ++i) {
@@ -243,19 +230,7 @@ void SpearPrototype::UpdateAdventureModels() {
 
     for (size_t i = 0; i < minionModels_.size(); ++i) {
         const auto &minion = adventure_.minions[i];
-        minionModels_[i]->SetPosition({minion.x, minion.y, 0});
-        minionModels_[i]->SetScale({0.45f, 0.5f, 0.35f});
-        minionModels_[i]->SetRotation(
-            {0, phase * 0.4f, 0.785f + std::sin(phase + float(i)) * 0.12f});
-        const auto &scale = editorSettings_.scales[4];
-        const auto &rotation = editorSettings_.rotations[4];
-        auto &transform = minionModels_[i]->GetTransform();
-        transform.scale.x *= scale[0];
-        transform.scale.y *= scale[1];
-        transform.scale.z *= scale[2];
-        transform.rotate.x += rotation[0] * 0.0174533f;
-        transform.rotate.y += rotation[1] * 0.0174533f;
-        transform.rotate.z += rotation[2] * 0.0174533f;
+        poseRefillTarget(*minionModels_[i], minion.x, minion.y, i);
     }
 
     gateModel_->SetPosition({adventure_.GateX() + 0.45f, 1, 0.2f});
@@ -268,7 +243,7 @@ void SpearPrototype::UpdateAdventureModels() {
         warningModel_->SetScale({std::sqrt(dx * dx + dy * dy) * 0.5f, 0.035f, 0.035f});
         warningModel_->SetRotation({0, 0, std::atan2(dy, dx)});
     } else {
-        warningModel_->SetPosition({114, -2.85f, -0.5f});
+        warningModel_->SetPosition({adventure_.stage.ArenaX(114), -2.85f, -0.5f});
         warningModel_->SetScale({11.0f, 0.035f, 0.1f});
         warningModel_->SetRotation({0, 0, 0});
     }
@@ -363,7 +338,7 @@ void SpearPrototype::UpdateSceneLighting() {
 
     for (size_t i = 0; i < minionModels_.size(); ++i) {
         if (adventure_.minions[i].life > 0) {
-            castShadow(*minionModels_[i], 0.5f);
+            castShadow(*minionModels_[i], 0.55f);
         }
     }
 
@@ -382,29 +357,8 @@ void SpearPrototype::UpdateSceneLighting() {
         lighting.lights[1] =
             segmentLight({line.x1, line.y1 + 0.2f, 0.25f}, {line.x2, line.y2 + 0.2f, 0.25f}, 3.8f,
                          fade * 1.5f, {1, 0.4f, 0.12f});
-    } else if (adventure_.scorchedFloorEnabled && effects_.groundScorch.age >= 0) {
-        const auto &scorch = effects_.groundScorch;
-        const float radius = (std::min)(12.0f, float(scorch.age + 1) * 1.4f);
-        const float fade =
-            scorch.age < scorch.duration
-                ? 1.0f
-                : (std::clamp)(1 - float(scorch.age - scorch.duration) / 24, 0.0f, 1.0f);
-        lighting.lights[0] = segmentLight(
-            {scorch.centerX - radius, -3.18f, 0.5f}, {scorch.centerX + radius, -3.18f, 0.5f}, 2.6f,
-            fade * (1.9f + (std::max)(0.0f, 1 - float(scorch.age) / 14) * 1.2f),
-            {1, 0.18f, 0.015f});
-        lighting.lights[1] = segmentLight({scorch.centerX - radius, -3.15f, 0.9f},
-                                          {scorch.centerX + radius, -3.15f, 0.9f}, 2.6f,
-                                          fade * 1.6f, {1, 0.4f, 0.12f});
-    } else if (adventure_.hazards[0].life > 0 && adventure_.hazards[0].kind == 2) {
-        const float fade = (std::min)(1.0f, float(adventure_.hazards[0].life) / 10);
-        lighting.lights[0] = segmentLight({98, -2.6f, 0.1f}, {130, -2.6f, 0.1f}, 4.0f, fade * 1.6f,
-                                          {1, 0.045f, 0.025f});
-    } else if (adventure_.bossState == SpearAdventure::BossState::BeamWarning ||
-               adventure_.bossState == SpearAdventure::BossState::LaserWarning) {
-        const float duration = adventure_.bossState == SpearAdventure::BossState::BeamWarning
-                                   ? float(adventure_.beamWarningDuration)
-                                   : 75.0f;
+    } else if (adventure_.bossState == SpearAdventure::BossState::BeamWarning) {
+        const float duration = float(adventure_.beamWarningDuration);
         const float charge = (std::clamp)(1 - float(adventure_.bossTimer) / duration, 0.0f, 1.0f);
         const Vector3 source = {adventure_.bossX, adventure_.bossY, -0.8f};
         lighting.lights[0] = segmentLight(source, source, 3.5f, charge * 0.8f, {1, 0.4f, 0.12f});

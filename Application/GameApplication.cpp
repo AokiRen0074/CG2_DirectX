@@ -99,6 +99,14 @@ void GameApplication::Finalize() noexcept {
 int GameApplication::RunInternal(const char* commandLine) {
     const bool spearUiInteractionTest = std::strstr(commandLine, "--spear-ui-interaction-test") != nullptr;
     const bool spearEffectSequence = std::strstr(commandLine, "--spear-effect-sequence") != nullptr;
+    const bool spearAudioSmokeTest=std::strstr(commandLine,"--spear-audio-smoke-test")!=nullptr;
+    const bool spearFinishSmokeTest=std::strstr(commandLine,"--spear-finish-smoke-test")!=nullptr;
+    const bool spearAirChainSmokeTest=std::strstr(commandLine,"--spear-air-chain-smoke-test")!=nullptr;
+    const bool spearPauseStartSmokeTest=std::strstr(commandLine,"--spear-pause-start-smoke-test")!=nullptr;
+    const bool spearPauseSmokeTest=spearPauseStartSmokeTest || std::strstr(commandLine,"--spear-pause-smoke-test")!=nullptr;
+    const bool spearJumpUiSmokeTest=std::strstr(commandLine,"--spear-jump-ui-smoke-test")!=nullptr;
+    const bool spearTutorialRefillSmokeTest=std::strstr(commandLine,"--spear-tutorial-refill-smoke-test")!=nullptr;
+    const bool spearStageEditorSmokeTest = std::strstr(commandLine, "--spear-stage-editor-smoke-test") != nullptr;
     const bool spearUiEditorSmokeTest = std::strstr(commandLine, "--spear-ui-editor-smoke-test") != nullptr;
     const bool spearUiClearPreview = std::strstr(commandLine, "--spear-ui-clear-preview") != nullptr;
     const bool spearLoopSmokeTest = std::strstr(commandLine, "--spear-loop-smoke-test") != nullptr;
@@ -123,8 +131,10 @@ int GameApplication::RunInternal(const char* commandLine) {
     const std::string capturePath = captureArgument == std::string::npos ? "" :
         arguments.substr(captureArgument + std::strlen("--spear-capture="));
     bool capturePassed = true;
-    const bool spearSmokeTest = spearCounterSmokeTest || spearNovaSmokeTest || spearUiInteractionTest || spearUiEditorSmokeTest || spearLoopSmokeTest || spearFanSmokeTest || spearRainSmokeTest || spearPhaseSmokeTest || spearComboSmokeTest || spearPierceSmokeTest || spearDodgeSmokeTest || spearBeamSmokeTest || spearLaserSmokeTest || spearSummonSmokeTest || spearVictorySmokeTest || spearBossSmokeTest || spearEditorSmokeTest || std::strstr(commandLine, "--spear-smoke-test") != nullptr;
+    const bool spearSmokeTest = spearAudioSmokeTest || spearFinishSmokeTest || spearAirChainSmokeTest || spearPauseSmokeTest || spearJumpUiSmokeTest || spearTutorialRefillSmokeTest || spearStageEditorSmokeTest || spearCounterSmokeTest || spearNovaSmokeTest || spearUiInteractionTest || spearUiEditorSmokeTest || spearLoopSmokeTest || spearFanSmokeTest || spearRainSmokeTest || spearPhaseSmokeTest || spearComboSmokeTest || spearPierceSmokeTest || spearDodgeSmokeTest || spearBeamSmokeTest || spearLaserSmokeTest || spearSummonSmokeTest || spearVictorySmokeTest || spearBossSmokeTest || spearEditorSmokeTest || std::strstr(commandLine, "--spear-smoke-test") != nullptr;
     int smokeFrames = 0;
+    std::string pauseStamp;
+    nlohmann::json pausedAudioSamples;
     SpearUiLayout uiTestBaseline;
     std::array<float,4> uiTestRect{};
     if (spearUiInteractionTest) {
@@ -207,7 +217,7 @@ int GameApplication::RunInternal(const char* commandLine) {
     GameScene* gameScene = gameScene_.get();
     gameScene->Initialize(dxCommon);
     sceneManager_.ChangeScene(std::make_unique<PlayingSceneState>(gameScene_, sceneManager_));
-    if (spearEffectSequence || spearLoopSmokeTest || spearNovaSmokeTest || spearCounterSmokeTest) {
+    if (spearAudioSmokeTest || spearFinishSmokeTest || spearAirChainSmokeTest || spearPauseSmokeTest || spearJumpUiSmokeTest || spearTutorialRefillSmokeTest || spearStageEditorSmokeTest || spearEditorSmokeTest || spearEffectSequence || spearLoopSmokeTest || spearNovaSmokeTest || spearCounterSmokeTest) {
         gameScene->SetFixedPreviewStep();
     }
 
@@ -241,6 +251,9 @@ int GameApplication::RunInternal(const char* commandLine) {
         }
     }
 
+    if(spearPauseSmokeTest && !spearPauseStartSmokeTest) gameScene->PreviewBossAttack(3);
+    if (spearStageEditorSmokeTest) gameScene->BeginStageEditorSmokeTest();
+
     if (spearEditorSmokeTest) {
         gameScene->OpenSpearEditor();
     }
@@ -260,6 +273,39 @@ int GameApplication::RunInternal(const char* commandLine) {
 #ifdef USE_IMGUI
         ImGui_ImplDX12_NewFrame();
         ImGui_ImplWin32_NewFrame();
+#ifdef USE_IMGUI
+        if(spearStageEditorSmokeTest) {
+            const auto mouse=[&](float x,float y,bool down) {auto &io=ImGui::GetIO();io.AddMousePosEvent(x,y);io.AddMouseButtonEvent(0,down);};
+            if(smokeFrames==10) mouse(150,114,true);
+            if(smokeFrames==12) mouse(150,114,false);
+            if(smokeFrames==20) mouse(365,256,true);
+            if(smokeFrames==22) mouse(365,256,false);
+            if(smokeFrames==30) mouse(250,114,true);
+            if(smokeFrames==32) mouse(250,114,false);
+            if(smokeFrames==40) mouse(365,247,true);
+            if(smokeFrames==42) mouse(365,247,false);
+            if(smokeFrames==50) mouse(55,114,true);
+            if(smokeFrames==52) mouse(55,114,false);
+            if(smokeFrames==60) mouse(968,180,true);
+            if(smokeFrames==62) mouse(1145,180,true);
+            if(smokeFrames==65) mouse(1145,180,false);
+            if(smokeFrames==75) mouse(45,56,true);
+            if(smokeFrames==77) mouse(45,56,false);
+            if(smokeFrames==85) {
+                try {
+                    std::ifstream file("Settings/stage-editor-smoke.json");nlohmann::json j;file>>j;
+                    const auto stage=SpearStage::Parse(j);
+                    capturePassed=stage.platforms.size()==9 && stage.enemies.size()==8 && stage.bossStart>115 && capturePassed;
+                } catch(...) {capturePassed=false;}
+            }
+            if(smokeFrames==86) mouse(268,56,true);
+            if(smokeFrames==88) mouse(268,56,false);
+            if(smokeFrames==95) mouse(312,56,true);
+            if(smokeFrames==97) mouse(312,56,false);
+            if(smokeFrames==125) mouse(392,56,true);
+            if(smokeFrames==127) mouse(392,56,false);
+        }
+#endif
         if (spearUiInteractionTest) {
             auto &io = ImGui::GetIO();
             // Feed the real editor widgets through ImGui's input queue.
@@ -315,6 +361,9 @@ int GameApplication::RunInternal(const char* commandLine) {
 
         // --- ゲームの更新 ---
         // 実際の攻撃判定で撃破を発生させ、ブラーを画面で確認する。
+        if(spearJumpUiSmokeTest && smokeFrames<160 && smokeFrames%40==0) gameScene->PreviewJumpCount(3-smokeFrames/40);
+        if(spearJumpUiSmokeTest && smokeFrames==160) gameScene->PreviewTutorialRefill();
+        if(spearTutorialRefillSmokeTest && smokeFrames==98) gameScene->PreviewTutorialRefill();
         if (spearVictorySmokeTest && smokeFrames == 98) {
             gameScene->PreviewBossDefeat();
         }
@@ -349,6 +398,46 @@ int GameApplication::RunInternal(const char* commandLine) {
                 Logger::Log("Scene state check: playing after restart\n");
             }
         }
+        if(spearAudioSmokeTest) {
+            const int action=smokeFrames==30?0:smokeFrames==60?1:smokeFrames==90?2:smokeFrames==120?3:
+                             smokeFrames==270?4:smokeFrames==430?5:smokeFrames==438?6:smokeFrames==442?7:
+                             smokeFrames==450?5:smokeFrames==454?8:smokeFrames==470?9:-1;
+            if(action>=0) gameScene->AudioSmokeAction(action);
+            if(smokeFrames==433) pausedAudioSamples=nlohmann::json::parse(gameScene->AudioStatus()).at("music");
+            if(smokeFrames>433 && smokeFrames<442) {
+                const auto state=nlohmann::json::parse(gameScene->AudioStatus());
+                capturePassed=state.at("paused").get<bool>() && state.at("music")==pausedAudioSamples && capturePassed;
+            }
+            if(smokeFrames==570) {
+                const auto state=nlohmann::json::parse(gameScene->AudioStatus());
+                for(const auto &count:state.at("selected")) capturePassed=count.get<int>()>0 && capturePassed;
+                capturePassed=state.at("musicStarts")[0].get<int>()>=2 && state.at("musicStarts")[1].get<int>()>=1 && !state.at("paused").get<bool>() && capturePassed;
+                if(!capturePath.empty()) {std::ofstream report(std::filesystem::path(capturePath)/"audio-report.json");report<<state.dump(2);}
+                Logger::Log(capturePassed?"Selected audio integration PASS\n":"Selected audio integration FAIL\n");
+            }
+        }
+        if(spearFinishSmokeTest) {
+            if(smokeFrames<=120 && smokeFrames%30==0) gameScene->PreviewFinish(smokeFrames/30);
+            if(smokeFrames==600) gameScene->RequestFinishPhase();
+        }
+        if(spearAirChainSmokeTest && smokeFrames==100) gameScene->PreviewAirRoute();
+        if(spearAirChainSmokeTest && (smokeFrames==20 || smokeFrames==60)) gameScene->PreviewAirChain(smokeFrames==60);
+        if(spearPauseSmokeTest) {
+            if(smokeFrames==60 || smokeFrames==110) {gameScene->SetPaused(true);pauseStamp=gameScene->PauseSimulationStamp();}
+            if((smokeFrames>60 && smokeFrames<90) || (smokeFrames>110 && smokeFrames<130))
+                capturePassed=gameScene->IsPaused() && gameScene->PauseSimulationStamp()==pauseStamp && capturePassed;
+            if(smokeFrames==90) gameScene->SetPaused(false);
+            if(smokeFrames==100) {
+                const auto before=nlohmann::json::parse(pauseStamp),after=nlohmann::json::parse(gameScene->PauseSimulationStamp());
+                capturePassed=!gameScene->IsPaused() && after.at("frame").get<int>()==before.at("frame").get<int>()+10 && capturePassed;
+            }
+            if(smokeFrames==130) gameScene->RetryFromPause();
+            if(smokeFrames==140) {gameScene->SetPaused(true);capturePassed=!gameScene->IsPaused() && capturePassed;}
+            if(smokeFrames==195) {
+                const auto state=nlohmann::json::parse(gameScene->PauseSimulationStamp());
+                capturePassed=!gameScene->IsPaused() && state.at("deaths").get<int>()==1 && capturePassed;
+            }
+        }
         sceneManager_.Update();
 
 #ifdef USE_IMGUI
@@ -362,7 +451,7 @@ int GameApplication::RunInternal(const char* commandLine) {
         dxCommon->PostDraw();
         ++smokeFrames;
 
-        if (!spearCounterSmokeTest && !spearNovaSmokeTest && !spearLoopSmokeTest && !spearEffectSequence && !capturePath.empty() && smokeFrames == (spearPierceSmokeTest ? 101 : (spearVictorySmokeTest || spearDodgeSmokeTest ? 100 : 110))) {
+        if (!spearAudioSmokeTest && !spearFinishSmokeTest && !spearAirChainSmokeTest && !spearPauseSmokeTest && !spearJumpUiSmokeTest && !spearCounterSmokeTest && !spearNovaSmokeTest && !spearLoopSmokeTest && !spearEffectSequence && !capturePath.empty() && smokeFrames == (spearEditorSmokeTest ? 8 : spearTutorialRefillSmokeTest ? 100 : spearPierceSmokeTest ? 101 : (spearVictorySmokeTest || spearDodgeSmokeTest ? 100 : 110))) {
             capturePassed = CaptureSpearFrame(dxCommon, captureIndex, capturePath);
         }
 
@@ -374,6 +463,26 @@ int GameApplication::RunInternal(const char* commandLine) {
             capturePassed = CaptureSpearFrame(dxCommon, captureIndex, framePath) && capturePassed;
         }
 
+        if(spearFinishSmokeTest && !capturePath.empty()) {
+            if(smokeFrames==20 || smokeFrames==50 || smokeFrames==80 || smokeFrames==110 ||
+               smokeFrames==200 || smokeFrames==300 || smokeFrames==400 || smokeFrames==700 || smokeFrames==900 || smokeFrames==1150) {
+                const auto name=std::format("finish-{:04}",smokeFrames);
+                capturePassed=CaptureSpearFrame(dxCommon,captureIndex,std::filesystem::path(capturePath)/(name+".png"))&&capturePassed;
+                std::ofstream stamp(std::filesystem::path(capturePath)/(name+".json"));stamp<<gameScene->PauseSimulationStamp();
+            }
+        }
+        if(spearAirChainSmokeTest && !capturePath.empty()) {
+            const char *name=smokeFrames==25?"ready.png":smokeFrames==64?"strike.png":smokeFrames==104?"route.png":nullptr;
+            if(name) capturePassed=CaptureSpearFrame(dxCommon,captureIndex,std::filesystem::path(capturePath)/name)&&capturePassed;
+        }
+        if(spearPauseSmokeTest && !capturePath.empty()) {
+            const char *name=smokeFrames==80?"paused.png":smokeFrames==105?"resumed.png":smokeFrames==156?"retry-black.png":nullptr;
+            if(name) capturePassed=CaptureSpearFrame(dxCommon,captureIndex,std::filesystem::path(capturePath)/name)&&capturePassed;
+        }
+        if(spearJumpUiSmokeTest && !capturePath.empty() && smokeFrames%40==4 && smokeFrames<=164) {
+            const std::string name=smokeFrames==164?"refill.png":std::format("charges-{}.png",3-smokeFrames/40);
+            capturePassed=CaptureSpearFrame(dxCommon,captureIndex,std::filesystem::path(capturePath)/name)&&capturePassed;
+        }
         if (spearLoopSmokeTest && !capturePath.empty()) {
             const char *shot = smokeFrames == 20 ? "title.png" : smokeFrames == 90 ? "departed.png"
                              : smokeFrames == 103 ? "impact.png" : smokeFrames == 170 ? "aftermath.png"
@@ -407,7 +516,7 @@ int GameApplication::RunInternal(const char* commandLine) {
             }
         }
         // 起動・描画・終了までを短時間で確認する開発用モード。
-        if (spearSmokeTest && smokeFrames >= (spearCounterSmokeTest ? 80 : spearNovaSmokeTest ? 285 : spearUiInteractionTest ? 140 : spearLoopSmokeTest ? 470 : spearEffectSequence ? (extendedBossSequence ? 180 : 150) : 120)) {
+        if (spearSmokeTest && smokeFrames >= (spearAudioSmokeTest ? 580 : spearFinishSmokeTest ? 1200 : spearPauseSmokeTest ? 220 : spearJumpUiSmokeTest ? 180 : spearStageEditorSmokeTest ? 180 : spearCounterSmokeTest ? 80 : spearNovaSmokeTest ? 285 : spearUiInteractionTest ? 140 : spearLoopSmokeTest ? 470 : spearEffectSequence ? (extendedBossSequence ? 180 : 150) : 120)) {
             break;
         }
 

@@ -6,84 +6,140 @@
   ],
   "elements": [
     {
-      "id": "title_jewel",
-      "page": "title",
+      "id": "tutorial_chain",
+      "page": "tutorial",
+      "anchor": "world",
+      "worldPosition": [
+        30,
+        4
+      ],
       "position": [
         0,
-        -18
+        0
       ],
       "size": [
-        18,
-        18
-      ],
-      "texture": "Resources/UI/PrismUI/diamond.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        1
+        340,
+        88
       ],
       "pivot": [
         0.5,
         0.5
       ],
+      "texture": "Resources/UI/PrismUI/TutorialFinish/chain.png",
+      "condition": "lesson",
+      "visible": false
+    },
+    {
+      "id": "tutorial_refill",
+      "page": "tutorial",
+      "anchor": "world",
+      "worldPosition": [
+        16,
+        3.8
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        380,
+        88
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "texture": "Resources/UI/PrismUI/TutorialFinish/refill.png",
+      "condition": "lesson",
+      "visible": false
+    },
+    {
+      "id": "tutorial_jump",
+      "page": "tutorial",
+      "anchor": "world",
+      "worldPosition": [
+        3,
+        1.2
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        174,
+        72
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "texture": "Resources/UI/PrismUI/TutorialFinish/jump_buttons.png",
+      "condition": "lesson"
+    },
+    {
+      "id": "title_jewel",
+      "page": "title",
+      "position": [
+        0,
+        -26
+      ],
+      "size": [
+        18,
+        31
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/core_icon.png",
+      "tint": [
+        0.91,
+        0.96,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
       "anchor": "title"
     },
     {
-      "id": "title_line_left",
+      "id": "title_kicker",
       "page": "title",
       "position": [
-        -185,
-        -18
+        0,
+        22
       ],
       "size": [
-        150,
+        211.66666666666666,
+        9.333333333333334
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/title_kicker.png",
+      "tint": [
+        0.49,
+        0.64,
+        0.74,
         1
       ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        0.6
+      "anchor": "title",
+      "pivot": [
+        0.5,
+        0
       ],
-      "anchor": "title"
-    },
-    {
-      "id": "title_line_right",
-      "page": "title",
-      "position": [
-        35,
-        -18
-      ],
-      "size": [
-        150,
-        1
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        0.6
-      ],
-      "anchor": "title"
+      "visible": false
     },
     {
       "id": "title_logo",
       "page": "title",
       "position": [
         0,
-        0
+        45
       ],
       "size": [
-        592,
-        108
+        439.3333333333333,
+        42.666666666666664
       ],
-      "texture": "Resources/UI/PrismUI/title_logo.png",
+      "texture": "Resources/UI/PrismUI/Facet/title_logo.png",
       "tint": [
-        0.88,
-        0.95,
+        0.91,
+        0.96,
         1,
         1
       ],
@@ -94,46 +150,89 @@
       ]
     },
     {
+      "id": "title_line_left",
+      "page": "title",
+      "position": [
+        -130,
+        119
+      ],
+      "size": [
+        65,
+        1
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.35,
+        0.91,
+        1,
+        0.5
+      ],
+      "anchor": "title",
+      "visible": false
+    },
+    {
+      "id": "title_line_right",
+      "page": "title",
+      "position": [
+        65,
+        119
+      ],
+      "size": [
+        65,
+        1
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.35,
+        0.91,
+        1,
+        0.5
+      ],
+      "anchor": "title",
+      "visible": false
+    },
+    {
       "id": "title_tagline",
       "page": "title",
       "position": [
         0,
-        88
+        114
       ],
       "size": [
-        347,
-        26
+        94.33333333333333,
+        7.0
       ],
-      "texture": "Resources/UI/PrismUI/title_tagline.png",
+      "texture": "Resources/UI/PrismUI/Facet/title_tagline.png",
       "tint": [
-        0.22,
-        0.86,
+        0.35,
+        0.91,
         1,
-        0.85
+        1
       ],
       "anchor": "title",
       "pivot": [
         0.5,
         0
-      ]
+      ],
+      "visible": false
     },
     {
       "id": "title_controls",
       "page": "title",
       "position": [
         0,
-        128
+        124
       ],
       "size": [
-        332,
-        23
+        170,
+        38
       ],
-      "texture": "Resources/UI/PrismUI/title_controls.png",
+      "texture": "Resources/UI/PrismUI/TutorialFinish/move_buttons.png",
       "tint": [
-        0.88,
-        0.95,
-        1,
-        0.65
+        0.49,
+        0.64,
+        0.74,
+        1
       ],
       "anchor": "title",
       "pivot": [
@@ -145,105 +244,137 @@
       "id": "health_panel",
       "page": "hud",
       "position": [
-        24,
-        20
+        30,
+        26
       ],
       "size": [
-        212,
-        54
+        252,
+        74
       ],
-      "texture": "Resources/UI/PrismUI/panel.png",
+      "texture": "Resources/UI/PrismUI/Facet/hud_core.png",
       "tint": [
-        0.012,
-        0.025,
-        0.045,
-        0.65
+        0.91,
+        0.96,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "health_emblem",
+      "page": "hud",
+      "position": [
+        47,
+        40
+      ],
+      "size": [
+        20,
+        34
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/core_icon.png",
+      "tint": [
+        0.91,
+        0.96,
+        1,
+        1
       ]
     },
     {
       "id": "health_label",
       "page": "hud",
       "position": [
-        36,
-        24
+        81,
+        40
       ],
       "size": [
-        52,
-        21
+        91.0,
+        7.0
       ],
-      "texture": "Resources/UI/PrismUI/health_label.png",
+      "texture": "Resources/UI/PrismUI/Facet/health_label.png",
       "tint": [
-        0.88,
-        0.95,
-        1,
-        0.65
+        0.49,
+        0.64,
+        0.74,
+        1
       ]
     },
     {
       "id": "health_icons",
       "page": "hud",
       "position": [
-        102,
-        47
+        81,
+        63
       ],
       "size": [
-        10,
-        10
+        25,
+        9
       ],
-      "texture": "Resources/UI/PrismUI/diamond.png",
+      "texture": "Resources/UI/PrismUI/Facet/hp_segment.png",
       "tint": [
-        0.22,
-        0.86,
+        0.35,
+        0.91,
         1,
         1
       ],
-      "pivot": [
-        0.5,
-        0.5
-      ],
       "repeat": 6,
       "spacing": [
-        20,
+        29,
         0
       ],
-      "meter": "hp"
-    },
-    {
-      "id": "score_label",
-      "page": "hud",
-      "position": [
-        930,
-        20
-      ],
-      "size": [
-        53,
-        20
-      ],
-      "texture": "Resources/UI/PrismUI/score_label.png",
-      "tint": [
-        0.88,
-        0.95,
-        1,
-        0.5
+      "meter": "hp",
+      "emptyTint": [
+        0.13,
+        0.23,
+        0.29,
+        0.85
       ]
     },
     {
-      "id": "score_value",
+      "id": "health_critical",
       "page": "hud",
       "position": [
-        930,
-        36
+        81,
+        63
       ],
       "size": [
-        100,
-        40
+        25,
+        9
       ],
-      "text": "{score6}",
-      "fontSize": 24,
-      "tracking": 1,
+      "texture": "Resources/UI/PrismUI/Facet/hp_segment.png",
       "tint": [
-        0.88,
-        0.95,
+        1,
+        0.36,
+        0.29,
+        1
+      ],
+      "repeat": 6,
+      "spacing": [
+        29,
+        0
+      ],
+      "meter": "hp",
+      "emptyTint": [
+        0.13,
+        0.23,
+        0.29,
+        0.85
+      ],
+      "condition": "lowHealth"
+    },
+    {
+      "id": "time_panel",
+      "page": "hud",
+      "position": [
+        1000,
+        26
+      ],
+      "size": [
+        250,
+        84
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/hud_stats.png",
+      "tint": [
+        0.91,
+        0.96,
         1,
         1
       ]
@@ -252,71 +383,141 @@
       "id": "time_label",
       "page": "hud",
       "position": [
-        1110,
-        20
+        1020,
+        38
       ],
       "size": [
-        43,
-        20
+        51.333333333333336,
+        6.333333333333333
       ],
-      "texture": "Resources/UI/PrismUI/time_label.png",
+      "texture": "Resources/UI/PrismUI/Facet/time_label.png",
       "tint": [
-        0.88,
-        0.95,
-        1,
-        0.5
+        0.49,
+        0.64,
+        0.74,
+        1
       ]
     },
     {
       "id": "time_value",
       "page": "hud",
       "position": [
-        1080,
-        36
+        1017,
+        48
       ],
       "size": [
         100,
         40
       ],
       "text": "{time}",
-      "fontSize": 23,
-      "tracking": 0,
+      "fontSize": 25,
       "tint": [
-        0.88,
-        0.95,
+        0.91,
+        0.96,
         1,
         1
+      ]
+    },
+    {
+      "id": "score_label",
+      "page": "hud",
+      "position": [
+        1020,
+        88
+      ],
+      "size": [
+        33.666666666666664,
+        6.333333333333333
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/score_label.png",
+      "tint": [
+        0.49,
+        0.64,
+        0.74,
+        1
+      ]
+    },
+    {
+      "id": "score_value",
+      "page": "hud",
+      "position": [
+        1132,
+        78
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{score6}",
+      "fontSize": 18,
+      "tint": [
+        0.91,
+        0.96,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "jump_outline",
+      "page": "hud",
+      "anchor": "player",
+      "position": [
+        -25,
+        -14
+      ],
+      "size": [
+        12,
+        20
+      ],
+      "repeat": 3,
+      "spacing": [
+        19,
+        0
+      ],
+      "texture": "Resources/UI/PrismUI/Jump/charge_outline.png",
+      "tint": [
+        0.12,
+        0.3,
+        0.38,
+        0.9
       ]
     },
     {
       "id": "dash_icons",
       "page": "hud",
       "position": [
-        -12,
-        0
+        -25,
+        -14
       ],
       "size": [
         12,
-        12
+        20
       ],
-      "texture": "Resources/UI/PrismUI/diamond.png",
+      "texture": "Resources/UI/PrismUI/Jump/charge_crystal.png",
       "tint": [
-        0.22,
-        0.86,
+        0.32,
+        0.89,
         1,
         1
       ],
       "anchor": "player",
       "repeat": 3,
       "spacing": [
-        12,
+        19,
         0
       ],
       "pivot": [
-        0.5,
-        0.5
+        0,
+        0
       ],
-      "meter": "charges"
+      "meter": "charges",
+      "emptyTint": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "animation": "charge"
     },
     {
       "id": "dodge_feedback",
@@ -326,13 +527,13 @@
         0
       ],
       "size": [
-        169,
-        38
+        152.33333333333334,
+        12.666666666666666
       ],
-      "texture": "Resources/UI/PrismUI/dodge_feedback.png",
+      "texture": "Resources/UI/PrismUI/Facet/dodge_feedback.png",
       "tint": [
-        0.22,
-        0.86,
+        0.35,
+        0.91,
         1,
         1
       ],
@@ -341,7 +542,8 @@
       "pivot": [
         0.5,
         0
-      ]
+      ],
+      "visible": false
     },
     {
       "id": "pierce_feedback",
@@ -355,12 +557,11 @@
         40
       ],
       "text": "PIERCE x{pierce}",
-      "fontSize": 25,
-      "tracking": 1,
+      "fontSize": 22,
       "tint": [
         1,
-        0.7,
-        0.25,
+        0.73,
+        0.36,
         1
       ],
       "anchor": "feedback",
@@ -368,84 +569,52 @@
         0.5,
         0
       ],
-      "condition": "pierce"
+      "condition": "pierce",
+      "visible": false
     },
     {
       "id": "refill_feedback",
       "page": "hud",
       "position": [
-        26,
-        12
+        0,
+        16
       ],
       "size": [
-        29,
-        27
+        180,
+        28
       ],
-      "texture": "Resources/UI/PrismUI/refill_feedback.png",
       "tint": [
-        0.6,
+        0.55,
         1,
-        0.6,
+        1,
         1
       ],
       "anchor": "player",
-      "condition": "refill"
-    },
-    {
-      "id": "boss_health_panel",
-      "page": "boss",
-      "position": [
-        400,
-        34
+      "condition": "refill",
+      "pivot": [
+        0.5,
+        0
       ],
-      "size": [
-        480,
-        14
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.04,
-        0.025,
-        0.02,
-        0.9
-      ]
-    },
-    {
-      "id": "boss_health_fill",
-      "page": "boss",
-      "position": [
-        403,
-        37
-      ],
-      "size": [
-        474,
-        8
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        1,
-        0.4,
-        0.08,
-        1
-      ],
-      "meter": "bossHp"
+      "text": "{airRefill}",
+      "fontSize": 17,
+      "visible": false
     },
     {
       "id": "boss_name",
       "page": "boss",
       "position": [
         640,
-        8
+        29
       ],
       "size": [
-        167,
-        24
+        124.0,
+        7.666666666666667
       ],
-      "texture": "Resources/UI/PrismUI/boss_name.png",
+      "texture": "Resources/UI/PrismUI/Facet/boss_name.png",
       "tint": [
         1,
-        0.65,
-        0.3,
+        0.73,
+        0.36,
         1
       ],
       "pivot": [
@@ -454,26 +623,65 @@
       ]
     },
     {
+      "id": "boss_health_panel",
+      "page": "boss",
+      "position": [
+        405,
+        52
+      ],
+      "size": [
+        470,
+        12
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/boss_track.png",
+      "tint": [
+        0.91,
+        0.96,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "boss_health_fill",
+      "page": "boss",
+      "position": [
+        408,
+        55
+      ],
+      "size": [
+        464,
+        6
+      ],
+      "texture": "Resources/UI/PrismUI/Facet/boss_fill.png",
+      "tint": [
+        0.91,
+        0.96,
+        1,
+        1
+      ],
+      "meter": "bossHp"
+    },
+    {
       "id": "boss_phase_icons",
       "page": "boss",
       "position": [
-        385,
-        41
+        389,
+        58
       ],
       "size": [
-        8,
-        8
+        7,
+        10
       ],
-      "texture": "Resources/UI/PrismUI/diamond.png",
+      "texture": "Resources/UI/PrismUI/Facet/core_icon.png",
       "tint": [
         1,
-        0.6,
-        0.2,
+        0.73,
+        0.36,
         1
       ],
       "repeat": 2,
       "spacing": [
-        -14,
+        -12,
         0
       ],
       "pivot": [
@@ -491,7 +699,7 @@
       ],
       "size": [
         1280,
-        38
+        25
       ],
       "texture": "Resources/UI/PrismUI/panel.png",
       "tint": [
@@ -511,7 +719,7 @@
       ],
       "size": [
         1280,
-        38
+        25
       ],
       "texture": "Resources/UI/PrismUI/panel.png",
       "tint": [
@@ -554,13 +762,13 @@
         108
       ],
       "size": [
-        296,
-        36
+        245.66666666666666,
+        15.666666666666666
       ],
-      "texture": "Resources/UI/PrismUI/shattered_caption.png",
+      "texture": "Resources/UI/PrismUI/Facet/shattered_caption.png",
       "tint": [
-        0.22,
-        0.86,
+        0.35,
+        0.91,
         1,
         1
       ],
@@ -583,52 +791,89 @@
       ],
       "texture": "Resources/UI/PrismUI/panel.png",
       "tint": [
-        0.005,
+        0.006,
         0.014,
-        0.03,
-        0.76
+        0.026,
+        0.98
       ],
       "animation": "reveal"
-    },
-    {
-      "id": "result_mission",
-      "page": "clear",
-      "position": [
-        640,
-        122
-      ],
-      "size": [
-        240,
-        27
-      ],
-      "texture": "Resources/UI/PrismUI/result_mission.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        1
-      ],
-      "animation": "reveal",
-      "pivot": [
-        0.5,
-        0
-      ]
     },
     {
       "id": "result_heading",
       "page": "clear",
       "position": [
-        640,
-        176
+        760,
+        140
       ],
       "size": [
-        666,
-        132
+        103.33333333333333,
+        30.0
       ],
-      "texture": "Resources/UI/PrismUI/result_heading.png",
+      "texture": "Resources/UI/PrismUI/Radar/result_heading.png",
       "tint": [
-        0.88,
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "evaluation_grid",
+      "page": "clear",
+      "position": [
+        160,
+        170
+      ],
+      "size": [
+        380,
+        380
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/grid.png",
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "animation": "reveal"
+    },
+    {
+      "id": "evaluation_area",
+      "page": "clear",
+      "position": [
+        160,
+        170
+      ],
+      "size": [
+        380,
+        380
+      ],
+      "texture": "Resources/UI/PrismUI/panel.png",
+      "tint": [
+        0.2,
+        0.8,
         0.95,
+        0.85
+      ],
+      "meter": "evaluation",
+      "animation": "chart"
+    },
+    {
+      "id": "attack_label",
+      "page": "clear",
+      "position": [
+        350,
+        138
+      ],
+      "size": [
+        37.333333333333336,
+        17.666666666666668
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/attack_label.png",
+      "tint": [
+        0.9,
+        0.96,
         1,
         1
       ],
@@ -639,445 +884,652 @@
       ]
     },
     {
-      "id": "result_divider",
+      "id": "attack_level",
       "page": "clear",
       "position": [
-        310,
-        290
+        350,
+        163
       ],
       "size": [
-        660,
-        1
+        100,
+        40
       ],
-      "texture": "Resources/UI/PrismUI/panel.png",
+      "text": "{attackRating}",
+      "fontSize": 21,
       "tint": [
-        0.22,
-        0.86,
-        1,
-        0.5
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "result_jewel",
-      "page": "clear",
-      "position": [
-        640,
-        290
-      ],
-      "size": [
-        12,
-        12
-      ],
-      "texture": "Resources/UI/PrismUI/diamond.png",
-      "tint": [
-        0.22,
-        0.86,
+        0.9,
+        0.96,
         1,
         1
       ],
       "pivot": [
         0.5,
-        0.5
+        0
       ],
-      "animation": "reveal"
+      "animation": "chart"
     },
     {
-      "id": "rank_panel",
+      "id": "dodge_label",
       "page": "clear",
       "position": [
-        288,
-        334
+        579,
+        287
       ],
       "size": [
-        120,
-        140
+        37.333333333333336,
+        17.0
       ],
-      "texture": "Resources/UI/PrismUI/panel.png",
+      "texture": "Resources/UI/PrismUI/Radar/dodge_label.png",
       "tint": [
-        0.04,
-        0.15,
-        0.2,
-        0.45
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "rank_border",
-      "page": "clear",
-      "position": [
-        288,
-        334
-      ],
-      "size": [
-        2,
-        140
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.22,
-        0.86,
+        0.9,
+        0.96,
         1,
         1
       ],
-      "animation": "reveal"
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "dodge_level",
+      "page": "clear",
+      "position": [
+        579,
+        312
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{dodgeRating}",
+      "fontSize": 21,
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "animation": "chart"
+    },
+    {
+      "id": "speed_label",
+      "page": "clear",
+      "position": [
+        490,
+        543
+      ],
+      "size": [
+        37.333333333333336,
+        17.333333333333332
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/speed_label.png",
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "speed_level",
+      "page": "clear",
+      "position": [
+        490,
+        568
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{speedRating}",
+      "fontSize": 21,
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "animation": "chart"
+    },
+    {
+      "id": "pierce_label",
+      "page": "clear",
+      "position": [
+        210,
+        543
+      ],
+      "size": [
+        37.333333333333336,
+        17.0
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/pierce_label.png",
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "pierce_level",
+      "page": "clear",
+      "position": [
+        210,
+        568
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{pierceRating}",
+      "fontSize": 21,
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "animation": "chart"
+    },
+    {
+      "id": "chain_label",
+      "page": "clear",
+      "position": [
+        121,
+        287
+      ],
+      "size": [
+        37.333333333333336,
+        17.333333333333332
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/chain_label.png",
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "animation": "reveal",
+      "pivot": [
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "chain_level",
+      "page": "clear",
+      "position": [
+        121,
+        312
+      ],
+      "size": [
+        100,
+        40
+      ],
+      "text": "{chainRating}",
+      "fontSize": 21,
+      "tint": [
+        0.9,
+        0.96,
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "animation": "chart"
     },
     {
       "id": "rank_label",
       "page": "clear",
       "position": [
-        348,
-        342
+        760,
+        235
       ],
       "size": [
-        51,
-        23
+        73.33333333333333,
+        17.333333333333332
       ],
-      "texture": "Resources/UI/PrismUI/rank_label.png",
+      "texture": "Resources/UI/PrismUI/Radar/rank_label.png",
       "tint": [
-        0.22,
-        0.86,
-        1,
+        0.6,
+        0.7,
+        0.76,
         1
       ],
-      "animation": "reveal",
-      "pivot": [
-        0.5,
-        0
-      ]
+      "animation": "stats"
     },
     {
       "id": "rank_value",
       "page": "clear",
       "position": [
-        348,
-        363
+        1040,
+        280
       ],
       "size": [
         100,
         40
       ],
       "text": "{rank}",
-      "fontSize": 108,
-      "tracking": 0,
+      "fontSize": 128,
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
         1
       ],
       "pivot": [
         0.5,
-        0
+        0.5
       ],
-      "animation": "reveal"
+      "animation": "rank"
     },
     {
       "id": "result_time_label",
       "page": "clear",
       "position": [
-        480,
-        334
+        760,
+        398
       ],
       "size": [
-        51,
-        26
+        55.333333333333336,
+        17.0
       ],
-      "texture": "Resources/UI/PrismUI/result_time_label.png",
+      "texture": "Resources/UI/PrismUI/Radar/result_time_label.png",
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
-        0.55
+        1
       ],
-      "animation": "reveal"
+      "animation": "stats"
     },
     {
       "id": "result_time_value",
       "page": "clear",
       "position": [
-        770,
-        331
+        880,
+        380
       ],
       "size": [
         100,
         40
       ],
       "text": "{time}",
-      "fontSize": 25,
-      "tracking": 0,
+      "fontSize": 32,
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
         1
       ],
-      "animation": "reveal"
+      "animation": "stats"
     },
     {
       "id": "result_score_label",
       "page": "clear",
       "position": [
-        480,
-        373
+        760,
+        460
       ],
       "size": [
-        62,
-        26
+        55.333333333333336,
+        15.666666666666666
       ],
-      "texture": "Resources/UI/PrismUI/result_score_label.png",
+      "texture": "Resources/UI/PrismUI/Radar/result_score_label.png",
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
-        0.55
+        1
       ],
-      "animation": "reveal"
+      "animation": "stats"
     },
     {
       "id": "result_score_value",
       "page": "clear",
       "position": [
-        770,
-        370
+        880,
+        442
       ],
       "size": [
         100,
         40
       ],
       "text": "{score}",
-      "fontSize": 25,
-      "tracking": 0,
+      "fontSize": 32,
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
         1
       ],
-      "animation": "reveal"
-    },
-    {
-      "id": "result_chain_label",
-      "page": "clear",
-      "position": [
-        480,
-        412
-      ],
-      "size": [
-        118,
-        26
-      ],
-      "texture": "Resources/UI/PrismUI/result_chain_label.png",
-      "tint": [
-        0.88,
-        0.95,
-        1,
-        0.55
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "result_chain_value",
-      "page": "clear",
-      "position": [
-        770,
-        409
-      ],
-      "size": [
-        100,
-        40
-      ],
-      "text": "{chain}",
-      "fontSize": 25,
-      "tracking": 0,
-      "tint": [
-        0.88,
-        0.95,
-        1,
-        1
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "result_retries_label",
-      "page": "clear",
-      "position": [
-        480,
-        451
-      ],
-      "size": [
-        85,
-        26
-      ],
-      "texture": "Resources/UI/PrismUI/result_retries_label.png",
-      "tint": [
-        0.88,
-        0.95,
-        1,
-        0.55
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "result_retries_value",
-      "page": "clear",
-      "position": [
-        770,
-        448
-      ],
-      "size": [
-        100,
-        40
-      ],
-      "text": "{retries}",
-      "fontSize": 25,
-      "tracking": 0,
-      "tint": [
-        0.88,
-        0.95,
-        1,
-        1
-      ],
-      "animation": "reveal"
-    },
-    {
-      "id": "new_best",
-      "page": "clear",
-      "position": [
-        640,
-        504
-      ],
-      "size": [
-        180,
-        23
-      ],
-      "texture": "Resources/UI/PrismUI/new_best.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        1
-      ],
-      "condition": "newBest",
-      "animation": "reveal",
-      "pivot": [
-        0.5,
-        0
-      ]
+      "animation": "stats"
     },
     {
       "id": "replay_button",
       "page": "clear",
       "position": [
-        445,
-        560
+        760,
+        550
       ],
       "size": [
-        390,
-        62
+        380,
+        58
       ],
       "texture": "Resources/UI/PrismUI/panel.png",
       "tint": [
-        0.025,
-        0.14,
-        0.2,
-        0.85
+        0.04,
+        0.12,
+        0.16,
+        0.8
       ],
-      "action": "replay",
+      "animation": "stats",
       "condition": "replay",
-      "animation": "reveal"
-    },
-    {
-      "id": "replay_border_top",
-      "page": "clear",
-      "position": [
-        445,
-        560
-      ],
-      "size": [
-        390,
-        2
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        1
-      ],
-      "condition": "replay",
-      "animation": "reveal"
-    },
-    {
-      "id": "replay_border_bottom",
-      "page": "clear",
-      "position": [
-        445,
-        620
-      ],
-      "size": [
-        390,
-        2
-      ],
-      "texture": "Resources/UI/PrismUI/panel.png",
-      "tint": [
-        0.22,
-        0.86,
-        1,
-        1
-      ],
-      "condition": "replay",
-      "animation": "reveal"
+      "action": "replay"
     },
     {
       "id": "replay_caption",
       "page": "clear",
       "position": [
-        640,
-        572
+        790,
+        569
       ],
       "size": [
-        324,
-        32
+        81.33333333333333,
+        19.333333333333332
       ],
-      "texture": "Resources/UI/PrismUI/replay_caption.png",
+      "texture": "Resources/UI/PrismUI/Radar/replay_caption.png",
       "tint": [
-        0.88,
-        0.95,
+        0.9,
+        0.96,
         1,
         1
       ],
-      "condition": "replay",
-      "animation": "reveal",
+      "animation": "stats",
+      "condition": "replay"
+    },
+    {
+      "id": "replay_keys",
+      "page": "clear",
+      "position": [
+        1045,
+        571
+      ],
+      "size": [
+        67.66666666666667,
+        15.333333333333334
+      ],
+      "texture": "Resources/UI/PrismUI/Radar/replay_keys.png",
+      "tint": [
+        0.6,
+        0.76,
+        0.82,
+        1
+      ],
+      "animation": "stats",
+      "condition": "replay"
+    },
+    {
+      "id": "air_ready",
+      "page": "hud",
+      "anchor": "player",
+      "position": [
+        0,
+        40
+      ],
+      "size": [
+        150,
+        24
+      ],
       "pivot": [
         0.5,
         0
+      ],
+      "texture": "Resources/UI/PrismUI/AirChain/ready.png",
+      "condition": "airReady",
+      "visible": false
+    },
+    {
+      "id": "air_strike",
+      "page": "hud",
+      "anchor": "player",
+      "position": [
+        0,
+        40
+      ],
+      "size": [
+        170,
+        28
+      ],
+      "pivot": [
+        0.5,
+        0
+      ],
+      "texture": "Resources/UI/PrismUI/AirChain/strike.png",
+      "condition": "airStrike",
+      "visible": false
+    },
+    {
+      "id": "air_boss_lesson",
+      "page": "tutorial",
+      "anchor": "world",
+      "worldPosition": [
+        86,
+        4.9
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        380,
+        88
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "texture": "Resources/UI/PrismUI/TutorialFinish/boss.png",
+      "condition": "lesson",
+      "visible": false
+    },
+    {
+      "id": "pause_dim",
+      "page": "pause",
+      "position": [
+        0,
+        0
+      ],
+      "size": [
+        1280,
+        720
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/solid.png",
+      "tint": [
+        0,
+        0,
+        0,
+        0.84
       ]
     },
     {
-      "id": "replay_controls",
-      "page": "clear",
+      "id": "pause_heading",
+      "page": "pause",
       "position": [
-        640,
-        641
+        400,
+        146
       ],
       "size": [
-        254,
-        20
+        480,
+        72
       ],
-      "texture": "Resources/UI/PrismUI/replay_controls.png",
+      "texture": "Resources/UI/PrismUI/Pause/heading.png"
+    },
+    {
+      "id": "pause_caption",
+      "page": "pause",
+      "position": [
+        440,
+        224
+      ],
+      "size": [
+        400,
+        32
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/caption.png"
+    },
+    {
+      "id": "pause_resume_highlight",
+      "page": "pause",
+      "position": [
+        400,
+        292
+      ],
+      "size": [
+        480,
+        80
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/solid.png",
+      "tint": [
+        0.1,
+        0.45,
+        0.6,
+        0.22
+      ],
+      "condition": "pauseResumeSelected"
+    },
+    {
+      "id": "pause_retry_highlight",
+      "page": "pause",
+      "position": [
+        400,
+        402
+      ],
+      "size": [
+        480,
+        94
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/solid.png",
+      "tint": [
+        0.1,
+        0.45,
+        0.6,
+        0.22
+      ],
+      "condition": "pauseRetrySelected"
+    },
+    {
+      "id": "pause_resume",
+      "page": "pause",
+      "position": [
+        400,
+        292
+      ],
+      "size": [
+        480,
+        80
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/resume.png",
+      "action": "pauseResume"
+    },
+    {
+      "id": "pause_retry",
+      "page": "pause",
+      "position": [
+        400,
+        402
+      ],
+      "size": [
+        480,
+        94
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/retry.png",
+      "action": "pauseRetry"
+    },
+    {
+      "id": "pause_controls",
+      "page": "pause",
+      "position": [
+        250,
+        558
+      ],
+      "size": [
+        780,
+        64
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/controls.png",
       "tint": [
         0.88,
-        0.95,
-        1,
-        0.45
-      ],
-      "condition": "replay",
-      "animation": "reveal",
-      "pivot": [
-        0.5,
-        0
+        0.93,
+        0.98,
+        1
       ]
+    },
+    {
+      "id": "pause_resume_line",
+      "page": "pause",
+      "position": [
+        440,
+        378
+      ],
+      "size": [
+        400,
+        3
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/line.png",
+      "tint": [
+        0.35,
+        0.9,
+        1,
+        1
+      ],
+      "condition": "pauseResumeSelected"
+    },
+    {
+      "id": "pause_retry_line",
+      "page": "pause",
+      "position": [
+        440,
+        502
+      ],
+      "size": [
+        400,
+        3
+      ],
+      "texture": "Resources/UI/PrismUI/Pause/line.png",
+      "tint": [
+        0.35,
+        0.9,
+        1,
+        1
+      ],
+      "condition": "pauseRetrySelected"
     },
     {
       "id": "restart_blackout",

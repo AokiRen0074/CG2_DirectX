@@ -42,6 +42,7 @@ public:
     bool grounded = true;
     bool diving = false;
     bool landed = false;
+    int refillFloatFrames = 0;
 
     bool IsAttacking() const {
         return dashFrames > 0;
@@ -58,6 +59,7 @@ public:
 
         if (jumpPressed && grounded) {
             grounded = false;
+            refillFloatFrames = 0;
             velocityY = settings.jumpSpeed;
         } else if (jumpPressed && charges > 0) {
             const float length = std::sqrt(inputX * inputX + inputY * inputY);
@@ -66,6 +68,7 @@ public:
             if (length > 0.01f) {
                 directionX = inputX / length;
                 directionY = inputY / length;
+                refillFloatFrames = 0;
                 --charges;
                 ++attackId;
                 dashFrames = 11;
@@ -111,7 +114,12 @@ public:
                 directionY = aimY;
             }
 
-            if (!grounded) {
+            if (!grounded && refillFloatFrames > 0) {
+                // A kill buys a short aiming window; directional dash cancels it immediately.
+                --refillFloatFrames;
+                velocityY = (std::max)(velocityY, 0.015f);
+                y += velocityY;
+            } else if (!grounded) {
                 // 短押しは低いジャンプ。頂点は少し浮き、落下はきびきび。
                 if (!jumpHeld && velocityY > 0.12f) {
                     velocityY = 0.12f;
@@ -142,6 +150,7 @@ public:
             dashFrames = 0;
             velocityY = 0.0f;
             charges = 3;
+            refillFloatFrames = 0;
         }
     }
 };

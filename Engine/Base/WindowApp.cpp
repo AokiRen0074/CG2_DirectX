@@ -81,7 +81,7 @@ void WindowApp::Initialize() {
     AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
     hwnd_ = CreateWindow(
-        wc_.lpszClassName, L"Rengine", WS_OVERLAPPEDWINDOW,
+        wc_.lpszClassName, L"空を穿つ", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
         wrc.right - wrc.left, wrc.bottom - wrc.top,
         nullptr, nullptr, wc_.hInstance, nullptr

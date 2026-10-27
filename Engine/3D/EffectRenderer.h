@@ -4,6 +4,7 @@
 #include "Vector4.h"
 #include <array>
 #include <span>
+#include <memory>
 
 struct ModelData;
 
@@ -16,7 +17,10 @@ public:
     void AddGlow(Vector3 center, Vector3 axis, float length, float width, Vector4 color);
     void AddRibbon(std::span<const Vector3> path, float width, Vector4 color);
     // 二つの帯を実際の移動経路に沿って交差させ、端で一つに収束させる。
-    void AddInterwovenRibbon(std::span<const Vector3> path, float fade, float phase);
+    void AddInterwovenRibbon(std::span<const Vector3> path, float fade, float phase, float width = 1, float spread = 1, float twist = 1, float glow = 1,
+                             Vector4 blue = {0.08f, 0.65f, 2.4f, 1}, Vector4 red = {2.4f, 0.04f, 0.25f, 1});
+    enum class ObjEffect { Shard, Projectile, Lance, Dust };
+    void AddObj(ObjEffect mesh, Vector3 center, Vector3 rotation, Vector3 scale, Vector4 color);
     void AddCrystal(Vector3 center, float angle, float size, Vector4 color);
     // Draw the actual crystal facets into the HDR emission layer.
     void AddModelEmission(const ModelData &model, const Matrix4x4 &world, float intensity);
@@ -43,6 +47,7 @@ private:
     void AddStrip(Vector3 a, Vector3 b, Vector3 normal, float widthA, float widthB, Vector4 colorA,
                   Vector4 colorB, float shape);
     void AddQuad(const std::array<Vertex, 4> &quad);
+    std::array<std::shared_ptr<const ModelData>,4> effectModels_;
     DirectXCommon *dxCommon_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> pipeline_;

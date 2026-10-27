@@ -15,8 +15,12 @@ std::shared_ptr<const ModelData> ModelManager::Load(
 	const std::string& directoryPath, const std::string& filename) {
 	// 相対パスの表記違いでも、同じファイルとして管理する
 	const auto filePath = std::filesystem::weakly_canonical(
-		std::filesystem::path(directoryPath) / filename);
-	std::string key = filePath.generic_string();
+		std::filesystem::path(std::u8string(directoryPath.begin(), directoryPath.end())) / std::filesystem::path(std::u8string(filename.begin(), filename.end())));
+	const auto utf8=[](const std::filesystem::path &path) {
+        const auto bytes=path.generic_u8string();
+        return std::string(bytes.begin(),bytes.end());
+    };
+    std::string key = utf8(filePath);
 
 #ifdef _WIN32
 	std::transform(key.begin(), key.end(), key.begin(), [](unsigned char value) {
@@ -33,7 +37,7 @@ std::shared_ptr<const ModelData> ModelManager::Load(
 
 	// ファイルからの読み込みは、最初の1回だけ行う
 	auto model = std::make_shared<const ModelData>(
-		LoadObjectFile(filePath.parent_path().string(), filePath.filename().string()));
+		LoadObjectFile(utf8(filePath.parent_path()), utf8(filePath.filename())));
 	loadedModels.emplace(key, model);
 
 	return model;
