@@ -61,7 +61,7 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 // 4x4　Z軸回転行列
 Matrix4x4 MakeRotateZMatrix(float radian);
 
-// 4x4　三次元アフィン変換行列 
+// 4x4　三次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 
 
@@ -78,3 +78,5 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 // クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
+// ベクトル変換
+Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);

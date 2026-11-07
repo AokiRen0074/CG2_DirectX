@@ -1,5 +1,7 @@
 #include "Vector3.h"
-#include <math.h>
+#include <cmath>
+#include <algorithm>
+
 
 static const int kColumnWidth = 60;
 static const int kRowHeight = 20;
@@ -38,7 +40,7 @@ float Dot(const Vector3& v1, const Vector3& v2) {
 
 // 三次元ベクトルの長さ
 float Length(const Vector3& v) {
-	return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+	return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 // 三次元ベクトルの正規化
@@ -53,3 +55,28 @@ Vector3 Normalize(const Vector3& v) {
 	return result;
 }
 
+Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t) {
+	float dot = Dot(v1, v2);
+	dot = std::clamp(dot, -1.0f, 1.0f); // 誤差吸収
+
+	float theta = std::acos(dot); // 2つのベクトルのなす角
+
+	// 角度がほぼ0の場合は、通常の線形補間で返す
+	if (std::abs(theta) < 0.001f) {
+		return {
+			v1.x * (1.0f - t) + v2.x * t,
+			v1.y * (1.0f - t) + v2.y * t,
+			v1.z * (1.0f - t) + v2.z * t
+		};
+	}
+
+	float sinTheta = std::sin(theta);
+	float s1 = std::sin((1.0f - t) * theta) / sinTheta;
+	float s2 = std::sin(t * theta) / sinTheta;
+
+	return {
+		v1.x * s1 + v2.x * s2,
+		v1.y * s1 + v2.y * s2,
+		v1.z * s1 + v2.z * s2
+	};
+}

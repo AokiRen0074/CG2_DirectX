@@ -1,10 +1,13 @@
 #include "Object3d.h"
 #include <cassert>
-#include "DirectXCommon.h" 
+#include "DirectXCommon.h"
 #include "WindowApp.h"
 #include "TextureManager.h"
 #include <numbers>
 #include "Model.h"
+#include "ModelManager.h"
+#include <stdexcept>
+#include <cmath>
 
 #ifdef USE_IMGUI
 #include "externals/imgui/imgui.h"
@@ -20,9 +23,9 @@ void Object3d::StaticInitialize(DirectXCommon* dxCommon) {
 }
 
 //Create関数
-Object3d* Object3d::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<Object3d> Object3d::CreateOwned(const std::string& directoryPath, const std::string& filename) {
 	// メモリを確保
-	Object3d* object3d = new Object3d();
+	auto object3d = std::make_unique<Object3d>();
 
 	// 初期化処理
 	object3d->Initialize(directoryPath, filename);
@@ -36,6 +39,10 @@ Object3d* Object3d::Create(const std::string& directoryPath, const std::string& 
 void Object3d::Initialize(const std::string& directoryPath, const std::string& filename) {
 
 	dxCommon_ = sDxCommon_;
+
+	if (!dxCommon_) {
+		throw std::logic_error("Object3d requires StaticInitialize");
+	}
 	ID3D12Device* device = dxCommon_->GetDevice();
 
 	// RootSignature作成
@@ -89,8 +96,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
 	// シリアライズしてバイナリにする
-	ID3DBlob* signatureBlob = nullptr;
-	ID3DBlob* errorBlob = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
 	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature,
 		D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
@@ -100,7 +107,7 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	}
 
 	// バイナリを元に生成
-	ID3D12RootSignature* rootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
 	hr = device->CreateRootSignature(0,
 		signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(&rootSignature_));
@@ -132,78 +139,137 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
-	// BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-
-	// 全ての色要素を書き込む
-
-	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		D3D12_COLOR_WRITE_ENABLE_ALL;
-
 	// RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-
-	// 裏面は表示しない
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-
-	// 三角形の中を塗りつぶす
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	// Shaderをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.VS.hlsl",
-		L"vs_6_0", dxCommon_->GetDxcUtils(),
-		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
-	);
+		L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(vertexShaderBlob != nullptr);
 
-
-	Microsoft::WRL::ComPtr<IDxcBlob>pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
-		L"ps_6_0", dxCommon_->GetDxcUtils(),
-		dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler()
-	);
-
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.PS.hlsl",
+		L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
 	assert(pixelShaderBlob != nullptr);
 
-	// PSOを作成する
-
+	// DepthStencilStateの設定
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	// Depthの機能を有効化する
 	depthStencilDesc.DepthEnable = true;
-
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	// 近ければ描画される
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get(); // RootSignature
-	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;// InputLayout
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
-	vertexShaderBlob->GetBufferSize() }; // VertexShader
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
-	pixelShaderBlob->GetBufferSize() };// PixelShader
-	graphicsPipelineStateDesc.BlendState = blendDesc; // BlendState
-	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc; // RasterizerState
-	//書き込むRTVの情報
+	graphicsPipelineStateDesc.pRootSignature = rootSignature_.Get();
+	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
+	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	//利用するトポロジ(形状)のタイプ。三角形
-	graphicsPipelineStateDesc.PrimitiveTopologyType =
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	//どのように画面に色を打ち込むかの設定(気にしなくて良い)
+	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	//実際に生成
-	ID3D12PipelineState* graphicsPipelineState = nullptr;
-
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
-		IID_PPV_ARGS(&graphicsPipelineState_));
+
+	for (int i = 0; i < static_cast<int>(BlendMode::kCount); i++) {
+		// BlendStateの設定
+		D3D12_BLEND_DESC blendDesc{};
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		blendDesc.RenderTarget[0].BlendEnable = TRUE;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+		switch (static_cast<BlendMode>(i)) {
+		case BlendMode::kNormal:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+			break;
+		case BlendMode::kAdd:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		case BlendMode::kSubtract:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		case BlendMode::kMultiply:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+			break;
+		case BlendMode::kScreen:
+			blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+			blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+			blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+			break;
+		}
+
+		graphicsPipelineStateDesc.BlendState = blendDesc;
+
+		// 配列の [i] 番目に生成
+		hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&pipelineStates_[i]));
+		assert(SUCCEEDED(hr));
+	}
+
+
+	D3D12_ROOT_PARAMETER rootParamsNoTex[3] = {};
+	rootParamsNoTex[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParamsNoTex[0].Descriptor.ShaderRegister = 0; // マテリアル(b0)
+
+	rootParamsNoTex[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParamsNoTex[1].Descriptor.ShaderRegister = 0; // WVP(b0)
+
+	rootParamsNoTex[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParamsNoTex[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParamsNoTex[2].Descriptor.ShaderRegister = 1; // ライト
+
+	D3D12_ROOT_SIGNATURE_DESC rootSigDescNoTex{};
+	rootSigDescNoTex.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	rootSigDescNoTex.pParameters = rootParamsNoTex;
+	rootSigDescNoTex.NumParameters = _countof(rootParamsNoTex);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> sigBlobNoTex;
+	Microsoft::WRL::ComPtr<ID3DBlob> errBlobNoTex;
+	hr = D3D12SerializeRootSignature(&rootSigDescNoTex, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlobNoTex, &errBlobNoTex);
+	assert(SUCCEEDED(hr));
+	hr = device->CreateRootSignature(0, sigBlobNoTex->GetBufferPointer(), sigBlobNoTex->GetBufferSize(), IID_PPV_ARGS(&rootSignatureNoTexture_));
+	assert(SUCCEEDED(hr));
+
+	// 新しいShaderのコンパイル
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlobNoTex = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.NoTexture.VS.hlsl", L"vs_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+	Microsoft::WRL::ComPtr<IDxcBlob> psBlobNoTex = dxCommon_->CompilerShader(L"Resources/Shaders/Object3D.NoTexture.PS.hlsl", L"ps_6_0", dxCommon_->GetDxcUtils(), dxCommon_->GetDxcCompiler(), dxCommon_->GetIncludeHandler());
+
+	// パイプラインの作成
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDescNoTex = graphicsPipelineStateDesc;
+	psoDescNoTex.pRootSignature = rootSignatureNoTexture_.Get();
+	psoDescNoTex.VS = { vsBlobNoTex->GetBufferPointer(), vsBlobNoTex->GetBufferSize() };
+	psoDescNoTex.PS = { psBlobNoTex->GetBufferPointer(), psBlobNoTex->GetBufferSize() };
+
+	D3D12_BLEND_DESC normalBlendDesc{};
+	normalBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	normalBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+	normalBlendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	normalBlendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	normalBlendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	normalBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	normalBlendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	normalBlendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+	psoDescNoTex.BlendState = normalBlendDesc;
+
+	hr = device->CreateGraphicsPipelineState(&psoDescNoTex, IID_PPV_ARGS(&graphicsPipelineStateNoTexture_));
 	assert(SUCCEEDED(hr));
 
 
-	/*
 	// ==========================================
 	// 球体の頂点・インデックスデータの計算
 	// ==========================================
@@ -272,80 +338,15 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 		}
 	}
 
-	*/
+
 
 
 	// ==========================================
 	// OBJモデルデータの読み込み
 	// ==========================================
 
-	ModelData modelData = LoadObjectFile(directoryPath, filename);
-
-	// SRVの割り当て用インデックス
-	uint32_t srvIndex = 1;
-	ID3D12DescriptorHeap* srvHeap = dxCommon_->GetSrvDescriptorHeap();
-	uint32_t srvSize = dxCommon_->GetDescriptorSizeSRV();
-
-
-	// ==========================================
-	//  メッシュの数だけバッファを作るループ
-	// ==========================================
-	for (auto& mesh : modelData.meshes) {
-		MeshResource meshRes;
-		meshRes.vertexCount = UINT(mesh.vertices.size());
-
-		// 頂点バッファの作成
-		meshRes.vertexResource = CreateBufferResource(device, sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.BufferLocation = meshRes.vertexResource->GetGPUVirtualAddress();
-		meshRes.vertexBufferView.SizeInBytes = UINT(sizeof(VertexData) * meshRes.vertexCount);
-		meshRes.vertexBufferView.StrideInBytes = sizeof(VertexData);
-
-		VertexData* vertexData = nullptr;
-		meshRes.vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
-		std::memcpy(vertexData, mesh.vertices.data(), sizeof(VertexData) * meshRes.vertexCount);
-
-		// マテリアルバッファの作成
-		uint32_t materialSize = sizeof(Material);
-		materialSize = (materialSize + 255) & ~255;
-		meshRes.materialResource = CreateBufferResource(device, materialSize);
-		meshRes.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
-
-		// MTLから読み込んだデータ（色・UV）を反映
-		MaterialData& matData = modelData.materials[mesh.useMaterialName];
-		meshRes.materialData->color = matData.diffuseColor;
-		meshRes.materialData->enableLighting = 1;
-
-		Matrix4x4 uvTransformMatrix = MakeScaleMatrix(matData.textureScale);
-		uvTransformMatrix = Multiply(uvTransformMatrix, MakeTranslateMatrix(matData.textureOffset));
-		meshRes.materialData->uvTransform = uvTransformMatrix;
-
-		// このパーツ専用のテクスチャを読み込んでSRVを作成
-		if (!matData.textureFilePath.empty()) {
-			DirectX::ScratchImage mipImages = TextureManager::LoadTexture(matData.textureFilePath);
-			const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-			meshRes.textureResource = TextureManager::CreateTextureResource(device, metadata);
-
-			Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = TextureManager::UploadTextureData(meshRes.textureResource.Get(), mipImages, device, dxCommon_->GetCommandList());
-			dxCommon_->FlushCommandList(); // コマンドを実行して転送を待つ
-
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-			srvDesc.Format = metadata.format;
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-			// SRVを空いている場所に作る
-			D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = dxCommon_->GetCPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			meshRes.textureHandleGPU = dxCommon_->GetGPUDescriptorHandle(srvHeap, srvSize, srvIndex);
-			device->CreateShaderResourceView(meshRes.textureResource.Get(), &srvDesc, textureSrvHandleCPU);
-
-			srvIndex++; // 次のテクスチャが来たら被らないように+1する
-		}
-
-		// 完成したパーツを配列に追加！
-		meshResources_.push_back(meshRes);
-	}
-
+	SetModel(directoryPath, filename);
+	defaultTextureHandle_ = TextureManager::Load("Resources/white1x1.png");
 
 	// ==========================================
 	//  全体で共有するリソース（ライト、WVP行列）
@@ -357,6 +358,8 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	directionalLightData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	directionalLightData_->direction = { 0.0f, -1.0f, 0.0f };
 	directionalLightData_->intensity = 1.0f;
+	directionalLightData_->lightingType = 1;
+	directionalLightData_->scene = {};
 
 	uint32_t transformMatrixSize = sizeof(TransformationMatrix);
 	transformMatrixSize = (transformMatrixSize + 255) & ~255;
@@ -364,6 +367,126 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>(&wvpData_));
 	wvpData_->WVP = MakeIdentity4x4();
 	wvpData_->World = MakeIdentity4x4();
+
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+// モデルの切り替え
+void Object3d::SetModel(const std::string& directoryPath, const std::string& filename) {
+	SetModel(ModelManager::Load(directoryPath, filename));
+}
+
+void Object3d::SetModel(const std::shared_ptr<const ModelData>& model) {
+	if (!dxCommon_ || !model) {
+		throw std::invalid_argument("SetModel requires an initialized object and model");
+	}
+
+	if (model_ == model) {
+		return;
+	}
+
+	// 読み込み済みの頂点バッファを使い、画像やモデルを読み直さない
+	auto sharedVertices = ModelManager::GetVertexResources(dxCommon_->GetDevice(), model);
+	const ModelData& modelData = *model;
+	std::vector<MeshResource> newMeshResources;
+	newMeshResources.reserve(modelData.meshes.size());
+	ID3D12Device* device = dxCommon_->GetDevice();
+
+
+	// ==========================================
+	//  メッシュの数だけバッファを作るループ
+	// ==========================================
+	for (size_t i = 0; i < modelData.meshes.size(); ++i) {
+		const auto& mesh = modelData.meshes[i];
+		const auto& sharedMesh = sharedVertices->meshes[i];
+
+		if (sharedMesh.vertexCount == 0) {
+			continue;
+		}
+
+		MeshResource meshRes;
+		meshRes.vertexCount = sharedMesh.vertexCount;
+
+		// 頂点バッファの作成
+		// 作成済みのバッファを共有し、オブジェクトごとの重複を避ける
+		meshRes.vertexResource = sharedMesh.vertexResource;
+		meshRes.vertexBufferView = sharedMesh.vertexBufferView;
+
+		// マテリアルバッファの作成
+		uint32_t materialSize = sizeof(Material);
+		materialSize = (materialSize + 255) & ~255;
+		meshRes.materialResource = CreateBufferResource(device, materialSize);
+		HRESULT hr = meshRes.materialResource->Map(
+			0, nullptr, reinterpret_cast<void**>(&meshRes.materialData));
+
+		if (FAILED(hr)) {
+			throw std::runtime_error("Failed to map model material buffer");
+		}
+
+		*meshRes.materialData = {};
+
+		// MTLから読み込んだデータ（色・UV）を反映
+		const auto material = modelData.materials.find(mesh.useMaterialName);
+		const MaterialData defaultMaterial;
+		const MaterialData& matData = material != modelData.materials.end()
+			? material->second : defaultMaterial;
+		meshRes.materialData->color = matData.diffuseColor;
+		meshRes.materialData->enableLighting = 1;
+
+		meshRes.uvTransform.scale = matData.textureScale;
+		meshRes.uvTransform.translate = matData.textureOffset;
+		meshRes.uvTransform.rotate = { 0.0f, 0.0f, 0.0f }; // 初期回転はゼロ
+
+		// SRTからAffine行列を作ってGPUに送る
+		meshRes.materialData->uvTransform = MakeAffineMatrix(
+			meshRes.uvTransform.scale,
+			meshRes.uvTransform.rotate,
+			meshRes.uvTransform.translate
+		);
+
+		// このパーツ専用のテクスチャを読み込んでSRVを作成
+		if (!matData.textureFilePath.empty() && matData.textureFilePath.find(".") != std::string::npos) {
+			// TextureManager に安全な場所へロードしてもらい、そのハンドルをもらう
+			uint32_t handle = TextureManager::Load(matData.textureFilePath);
+			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(handle);
+		}
+		else {
+			// 画像がない場合はダミーを入れてクラッシュを防ぐ
+			meshRes.textureHandleGPU = TextureManager::GetInstance()->GetSrvHandleGPU(0);
+		}
+
+		// 完成したパーツを配列に追加！
+		newMeshResources.push_back(std::move(meshRes));
+	}
+
+	// 全パーツの準備ができてから切り替え、途中で失敗した場合は元のモデルを残す
+	meshResources_ = std::move(newMeshResources);
+	model_ = model;
+}
+
+void Object3d::SetPosition(const Vector3& position) {
+	transform_.translate = position;
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+void Object3d::SetScale(const Vector3& scale) {
+	transform_.scale = scale;
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+void Object3d::SetRotation(const Vector3& rotation) {
+	transform_.rotate = rotation;
+	UpdateMatrices(MakeIdentity4x4());
+}
+
+void Object3d::UpdateMatrices(const Matrix4x4& parentMatrix) {
+	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
+	worldMatrix_ = Multiply(worldMatrix_, parentMatrix);
+
+	if (wvpData_) {
+		wvpData_->World = worldMatrix_;
+		wvpData_->WVP = Multiply(worldMatrix_, Multiply(viewMatrix_, projectionMatrix_));
+	}
 }
 
 // ==========================================
@@ -371,88 +494,172 @@ void Object3d::Initialize(const std::string& directoryPath, const std::string& f
 // ==========================================
 void Object3d::Update() {
 	//transform_.rotate.y += 0.03f;
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform_.scale, cameraTransform_.rotate, cameraTransform_.translate);
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix_, projectionMatrix_));
-	
-
-	wvpData_->WVP = worldViewProjectionMatrix;
-	wvpData_->World = worldMatrix;
+	UpdateMatrices(MakeIdentity4x4());
 
 #ifdef USE_IMGUI
 	ImGui::Begin("Settings");
-	if (ImGui::TreeNode("Camera")) {
-		ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
-		ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Directional Light")) {
-		ImGui::ColorEdit4("LightColor", &directionalLightData_->color.x);
-		if (ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f)) {
-			float len = std::sqrt(directionalLightData_->direction.x * directionalLightData_->direction.x + directionalLightData_->direction.y * directionalLightData_->direction.y + directionalLightData_->direction.z * directionalLightData_->direction.z);
-			if (len != 0.0f) {
-				directionalLightData_->direction.x /= len;
-				directionalLightData_->direction.y /= len;
-				directionalLightData_->direction.z /= len;
+	ImGui::PushID(this);
+
+	const char* blendModeNames[] = { "Normal", "Add", "Subtract", "Multiply", "Screen" };
+	ImGui::Combo("Blend Mode", &blendMode_, blendModeNames, IM_ARRAYSIZE(blendModeNames));
+
+	ImGui::DragFloat3("CameraTranslate", &cameraTransform_.translate.x, 0.01f);
+	ImGui::DragFloat("CameraRotateX", &cameraTransform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateY", &cameraTransform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("CameraRotateZ", &cameraTransform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
+	ImGui::DragFloat("SphereRotateX", &transform_.rotate.x, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("SphereRotateY", &transform_.rotate.y, 0.01f, 0.0f, 0.0f, "%.3f deg");
+	ImGui::DragFloat("SphereRotateZ", &transform_.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
+	ImGui::ColorEdit3("LightColor", &directionalLightData_->color.x);
+	ImGui::DragFloat3("LightDirection", &directionalLightData_->direction.x, 0.01f, -1.0f, 1.0f);
+	ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
+
+	ImGui::Checkbox("useMonsterBall", &useMonsterBall_);
+
+	static float colorSprite[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	ImGui::ColorEdit4("colorSprite", colorSprite);
+	static float translateSprite[3] = { 0.0f, 0.0f, 0.0f };
+	ImGui::DragFloat3("translateSprite", translateSprite, 0.01f);
+
+
+	for (size_t i = 0; i < meshResources_.size(); ++i) {
+		ImGui::PushID(static_cast<int>(i));
+
+		std::string nodeName = "Mesh " + std::to_string(i);
+		if (ImGui::TreeNode(nodeName.c_str())) {
+			ImGui::ColorEdit4("color", &meshResources_[i].materialData->color.x);
+
+			bool isLighting = meshResources_[i].materialData->enableLighting != 0;
+			if (ImGui::Checkbox("enableLighting", &isLighting)) {
+				meshResources_[i].materialData->enableLighting = isLighting ? 1 : 0;
 			}
+
+			ImGui::DragFloat2("UVTranslate", &meshResources_[i].uvTransform.translate.x, 0.01f);
+			ImGui::DragFloat2("UVScale", &meshResources_[i].uvTransform.scale.x, 0.01f);
+			ImGui::DragFloat("UVRotate", &meshResources_[i].uvTransform.rotate.z, 0.01f, 0.0f, 0.0f, "%.3f deg");
+
+			ImGui::TreePop(); // ツリーを閉じる
 		}
-		ImGui::DragFloat("Intensity", &directionalLightData_->intensity, 0.01f);
-		ImGui::TreePop();
+
+		ImGui::PopID();
+
+		meshResources_[i].materialData->uvTransform = MakeAffineMatrix(
+			meshResources_[i].uvTransform.scale,
+			meshResources_[i].uvTransform.rotate,
+			meshResources_[i].uvTransform.translate
+		);
 	}
+
+	ImGui::PopID();
 	ImGui::End();
 #endif
-	
 }
 
 // ==========================================
 // 描画
 // ==========================================
+
+// オブジェクト自身のワールド行列を使う描画
+void Object3d::Draw(const ViewProjection& viewProjection, uint32_t textureHandle) {
+	WorldTransform parentTransform;
+	Draw(parentTransform, viewProjection, textureHandle);
+}
+
+void Object3d::Draw(const ViewProjection& viewProjection) {
+	WorldTransform parentTransform;
+	Draw(parentTransform, viewProjection);
+}
+
+void Object3d::Draw(uint32_t textureHandle) {
+	ViewProjection viewProjection;
+	viewProjection.matView = viewMatrix_;
+	viewProjection.matProjection = projectionMatrix_;
+	Draw(viewProjection, textureHandle);
+}
+
 void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, uint32_t textureHandle) {
+	// 渡されたカメラと親の行列を、オブジェクト自身の行列に反映する
+	SetCameraMatrix(viewProjection.matView, viewProjection.matProjection);
+	UpdateMatrices(worldTransform.matWorld_);
+
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 	D3D12_VIEWPORT viewport{};
 	viewport.Width = WindowApp::kClientWidth;
 	viewport.Height = WindowApp::kClientHeight;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0; viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
 	D3D12_RECT scissorRect{};
-	scissorRect.left = 0;
-	scissorRect.right = WindowApp::kClientWidth;
-	scissorRect.top = 0;
-	scissorRect.bottom = WindowApp::kClientHeight;
+	scissorRect.left = 0; scissorRect.right = WindowApp::kClientWidth; scissorRect.top = 0; scissorRect.bottom = WindowApp::kClientHeight;
 
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);
-	commandList->SetGraphicsRootSignature(rootSignature_.Get());
-	commandList->SetPipelineState(graphicsPipelineState_.Get());
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { dxCommon_->GetSrvDescriptorHeap() };
 	commandList->SetDescriptorHeaps(1, descriptorHeaps);
 
-	// 全体で共有する WVP と ライト は先にセットしておく
-	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
-
-	// ==========================================
-	// パーツの数だけループして描画する！
-	// ==========================================
 	for (const auto& meshRes : meshResources_) {
-		// そのパーツの頂点データ
 		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
 
-		// そのパーツのマテリアルデータ（色やUV）
+		commandList->SetGraphicsRootSignature(rootSignature_.Get());
+		commandList->SetPipelineState(pipelineStates_[blendMode_].Get());
+
 		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 
-		// そのパーツのテクスチャ
-		commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+		if (meshRes.textureHandleGPU.ptr != 0) {
+			commandList->SetGraphicsRootDescriptorTable(2, meshRes.textureHandleGPU);
+		}
+		else {
+			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = TextureManager::GetInstance()->GetSrvHandleGPU(textureHandle != 0 ? textureHandle : defaultTextureHandle_);
+			commandList->SetGraphicsRootDescriptorTable(2, gpuHandle);
+		}
+		commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 
-		// 描画
 		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);
 	}
+}
+
+// テクスチャなし
+void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
+	// 渡されたカメラと親の行列を、オブジェクト自身の行列に反映する
+	SetCameraMatrix(viewProjection.matView, viewProjection.matProjection);
+	UpdateMatrices(worldTransform.matWorld_);
+
+	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+	D3D12_VIEWPORT viewport{};
+	viewport.Width = WindowApp::kClientWidth;
+	viewport.Height = WindowApp::kClientHeight;
+	viewport.TopLeftX = 0; viewport.TopLeftY = 0; viewport.MinDepth = 0.0f; viewport.MaxDepth = 1.0f;
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0; scissorRect.right = WindowApp::kClientWidth; scissorRect.top = 0; scissorRect.bottom = WindowApp::kClientHeight;
+
+	commandList->RSSetViewports(1, &viewport);
+	commandList->RSSetScissorRects(1, &scissorRect);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// 後続のスプライト描画のためにヒープだけはセットしておく
+	ID3D12DescriptorHeap* descriptorHeaps[] = { dxCommon_->GetSrvDescriptorHeap() };
+	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+	for (const auto& meshRes : meshResources_) {
+		commandList->IASetVertexBuffers(0, 1, &meshRes.vertexBufferView);
+
+		// テクスチャなし専用のパイプライン！
+		commandList->SetGraphicsRootSignature(rootSignatureNoTexture_.Get());
+		commandList->SetPipelineState(graphicsPipelineStateNoTexture_.Get());
+
+		commandList->SetGraphicsRootConstantBufferView(0, meshRes.materialResource->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(2, directionalLightResource_->GetGPUVirtualAddress()); // ライトは2番
+
+		commandList->DrawInstanced(meshRes.vertexCount, 1, 0, 0);
+	}
+
+	// スプライト描画のクラッシュを防ぐ
+	commandList->SetGraphicsRootSignature(rootSignature_.Get());
+	commandList->SetPipelineState(pipelineStates_[0].Get());
 }
 
 // ==========================================
@@ -475,3 +682,35 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Object3d::CreateBufferResource(ID3D12Devi
 	return resource;
 }
 
+void Object3d::SetDirectionalLight(const Vector3& direction, const Vector3& color, float intensity) {
+    const float length = std::sqrt(direction.x * direction.x + direction.y * direction.y
+        + direction.z * direction.z);
+
+    if (length > 0.0001f) {
+        directionalLightData_->direction = { direction.x / length, direction.y / length,
+            direction.z / length };
+    }
+    else {
+        directionalLightData_->direction = { -0.57735f, -0.57735f, 0.57735f };
+    }
+
+    directionalLightData_->color = { color.x, color.y, color.z, 1.0f };
+    directionalLightData_->intensity = intensity;
+
+	// 槍ステージではハーフランバートで暗い面の輪郭も読めるようにする。
+	directionalLightData_->lightingType = 2;
+}
+
+void Object3d::SetSceneLighting(const SceneLighting& lighting) {
+    directionalLightData_->scene = lighting;
+}
+
+void Object3d::SetMaterialColor(const Vector4& color) {
+    for (auto& mesh : meshResources_) {
+        if (mesh.materialData) {
+            mesh.materialData->color = color;
+        }
+    }
+}
+
+Object3d* Object3d::Create(const std::string& directory, const std::string& filename) { return CreateOwned(directory, filename).release(); }

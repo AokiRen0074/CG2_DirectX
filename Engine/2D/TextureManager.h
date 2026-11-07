@@ -3,6 +3,7 @@
 #include <string>
 #include <wrl.h>
 #include <vector>
+#include <unordered_map>
 #include "externals/DirectXTex/DirectXTex.h"
 #include "externals/DirectXTex/d3dx12.h"
 
@@ -15,6 +16,7 @@ public:
 
     static uint32_t Load(const std::string& filePath);
     D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(uint32_t textureHandle);
+    D3D12_RESOURCE_DESC GetResourceDesc(uint32_t textureHandle) const;
 
 
     static void StaticInitialize(DirectXCommon* dxCommon);
@@ -47,6 +49,8 @@ private:
     DirectXCommon* dxCommon_ = nullptr;
 
     std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> textureResources_;
+
+    std::unordered_map<std::string, uint32_t> loadedTextures_;
 
 
 };

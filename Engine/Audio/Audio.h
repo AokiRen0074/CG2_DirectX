@@ -1,8 +1,11 @@
 #pragma once
 #include <xaudio2.h>
-#pragma comment(lib, "xaudio2.lib") 
+#pragma comment(lib, "xaudio2.lib")
 #include <wrl.h>
 #include <string>
+#include <list>
+#include <memory>
+#include <cstdint>
 
 
 // チャンクヘッダ
@@ -25,11 +28,21 @@ struct FormatChunk {
 
 // 音声データ
 struct SoundData {
-	WAVEFORMATEX wfex;       // 波形フォーマット
-	BYTE* pBuffer;           // バッファの先頭アドレス
-	unsigned int bufferSize; // バッファのサイズ
+	WAVEFORMATEX wfex{};       // 波形フォーマット
+	std::shared_ptr<BYTE[]> pBuffer;           // バッファの先頭アドレス
+	unsigned int bufferSize = 0; // バッファのサイズ
 };
 
+
+// XAudio2のボイスはCOMではないため、専用の解放関数をスマートポインタに設定する
+struct AudioVoiceDeleter {
+	template<class TVoice>
+	void operator()(TVoice* voice) const noexcept {
+		if (voice) {
+			voice->DestroyVoice();
+		}
+	}
+};
 
 class Audio {
 
@@ -49,11 +62,34 @@ public:
 	// 音声データの読み込み
 	SoundData SoundLoadWave(const char* filename);
 
+	// WAVや圧縮音声をMedia FoundationでPCMへ変換して読み込む
+	// 読み込み済みデータはSoundPlayで繰り返し再生し、最後にSoundUnloadで解放する
+	SoundData SoundLoad(const char* filename);
+
 	// 音声データの解放
 	void SoundUnload(SoundData* soundData);
 
 	// 音声の再生関数
-	void SoundPlayWave(const SoundData& soundData);	
+	IXAudio2SourceVoice* SoundPlayWave(const SoundData& soundData, bool loop = false);
+
+	// ファイル形式に依存せず、読み込み済みのPCMデータを再生する
+	IXAudio2SourceVoice* SoundPlay(const SoundData& soundData, bool loop = false);
+
+
+
+	// 鳴っている音を途中で止める関数
+	void SoundStopWave(IXAudio2SourceVoice* pVoice);
+    void SoundPauseWave(IXAudio2SourceVoice* pVoice, bool paused);
+
+    // Stable IDs let independent sound layers survive completed-voice cleanup safely.
+    using VoiceId = std::uint64_t;
+    struct VoiceSnapshot { bool active=false, paused=false; std::uint64_t samplesPlayed=0; };
+    VoiceId PlayVoice(const SoundData &sound, bool loop=false);
+    void StopVoice(VoiceId id);
+    void PauseVoice(VoiceId id, bool paused);
+    void SetVoiceVolume(VoiceId id, float volume);
+    void SetVoicePitch(VoiceId id, float ratio);
+    VoiceSnapshot GetVoiceSnapshot(VoiceId id) const;
 
 	void Finalize();
 
@@ -61,5 +97,19 @@ private:
 	// XAudio2エンジンのインスタンス
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
 	// マスターボイス
-	IXAudio2MasteringVoice* masterVoice_ = nullptr;
+	std::unique_ptr<IXAudio2MasteringVoice, AudioVoiceDeleter> masterVoice_;
+
+	// ボイスが波形を参照している間は、SoundUnloadの後もデータの寿命を保つ
+	struct PlayingVoice {
+		std::shared_ptr<BYTE[]> buffer;
+		std::unique_ptr<IXAudio2SourceVoice, AudioVoiceDeleter> voice;
+        VoiceId id=0;
+        bool paused=false;
+	};
+
+	std::list<PlayingVoice> voices_;
+    VoiceId nextVoiceId_=1;
+
+	// MFStartupとMFShutdownを一度ずつ対応させる
+	bool mediaFoundationInitialized_ = false;
 };

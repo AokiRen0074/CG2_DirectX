@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "Object3d.h"
 #include "WorldTransform.h"
 
 

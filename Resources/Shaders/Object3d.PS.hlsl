@@ -1,3 +1,5 @@
+#include "SceneLighting.hlsli"
+
 // ==========================================
 // 構造体の定義
 // ==========================================
@@ -17,6 +19,9 @@ struct DirectionalLight
     float32_t4 color; // ライトの色
     float32_t3 direction; // ライトの向き
     float intensity; // 輝度
+    int lightingType;
+    float3 padding;
+    SceneLighting scene;
 };
 
 // 頂点シェーダーから送られてきたデータ
@@ -25,6 +30,7 @@ struct VertexShaderOutput
     float32_t4 position : SV_POSITION;
     float32_t2 texcoord : TEXCOORD0;
     float32_t3 normal : NORMAL0;
+    float32_t3 worldPos : TEXCOORD1;
 };
 
 // ==========================================
@@ -40,32 +46,51 @@ SamplerState gSampler : register(s0);
 // ==========================================
 float32_t4 main(VertexShaderOutput input) : SV_TARGET
 {
-    
-    // テクスチャから色をサンプリング
     float32_t4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
-    
+
+    if (textureColor.a <= 0.5f)
+    {
+        discard;
+    }
+
+    if (gMaterial.enableLighting != 0 && gDirectionalLight.scene.cameraEnabled.w > 0) {
+        float3 lit = ShadeScene(gDirectionalLight.scene, gMaterial.color.rgb * textureColor.rgb,
+                                input.normal, input.worldPos, gDirectionalLight.color.rgb,
+                                gDirectionalLight.direction, gDirectionalLight.intensity);
+        return float4(lit, gMaterial.color.a * textureColor.a);
+    }
 
     float32_t4 outputColor;
 
-    // ライティングの計算
     if (gMaterial.enableLighting != 0)
     {
-        // ライティング有効の場合
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
- 
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
-        // 光の計算
-        outputColor.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-        
-  
+        float32_t3 normal = normalize(input.normal);
+        float32_t3 lightDir = normalize(-gDirectionalLight.direction);
+
+        //  拡散反射
+        float NdotL = dot(normal, lightDir);
+        float diffuse = pow(NdotL * 0.5f + 0.5f, 2.0f);
+
+        // 鏡面反射
+        float32_t3 viewDir = normalize(float32_t3(0.0f, 0.0f, -1.0f));
+        float32_t3 halfVector = normalize(lightDir + viewDir);
+        float NdotH = dot(normal, halfVector);
+
+        // ハイライトの鋭さ
+        float specular = pow(max(NdotH, 0.0f), 40.0f);
+
+        float32_t3 baseColor = gMaterial.color.rgb * textureColor.rgb;
+
+        outputColor.rgb = (baseColor * diffuse * gDirectionalLight.color.rgb.xyz * gDirectionalLight.intensity)
+                        + (baseColor * specular * 3.0f * gDirectionalLight.intensity);
+
         outputColor.a = gMaterial.color.a * textureColor.a;
-        
     }
     else
     {
-        // ライティング無効の場合
-        outputColor = gMaterial.color * textureColor;
+        outputColor.rgb = gMaterial.color.rgb * textureColor.rgb;
+        outputColor.a = gMaterial.color.a * textureColor.a;
     }
 
     return outputColor;

@@ -1,11 +1,14 @@
 #include "TextureManager.h"
 #include "Logger.h"
 #include <cassert>
+#include <stdexcept>
 #include "Base/DirectXCommon.h"
 
 
 void TextureManager::StaticInitialize(DirectXCommon* dxCommon) {
     GetInstance()->dxCommon_ = dxCommon;
+    D3D12_GPU_DESCRIPTOR_HANDLE dummy{};
+    GetInstance()->srvHandles_.push_back(dummy);
 }
 
 TextureManager* TextureManager::GetInstance() {
@@ -17,6 +20,7 @@ void TextureManager::Finalize() {
 
     GetInstance()->textureResources_.clear();
     GetInstance()->srvHandles_.clear();
+    GetInstance()->loadedTextures_.clear();
 }
 
 uint32_t TextureManager::Load(const std::string& filePath) {
@@ -28,7 +32,21 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureHand
     return srvHandles_[textureHandle];
 }
 
+D3D12_RESOURCE_DESC TextureManager::GetResourceDesc(uint32_t textureHandle) const {
+    if (textureHandle == 0 || textureHandle > textureResources_.size()) {
+        throw std::out_of_range("Invalid texture handle");
+    }
+
+    return textureResources_[textureHandle - 1]->GetDesc();
+}
+
 uint32_t TextureManager::LoadInternal(const std::string& filePath) {
+
+    // 読み込み済みなら作らない
+    if (loadedTextures_.find(filePath) != loadedTextures_.end()) {
+        return loadedTextures_[filePath];
+    }
+
     // 画像ファイルを読み込んでミップマップを生成
     DirectX::ScratchImage mipImages = LoadTexture(filePath);
     const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
@@ -38,11 +56,11 @@ uint32_t TextureManager::LoadInternal(const std::string& filePath) {
 
     // データをVRAMに転送
     Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = UploadTextureData(
-      
+
      textureResource.Get(), mipImages, dxCommon_->GetDevice(), dxCommon_->GetCommandList());
     dxCommon_->FlushCommandList();
 
- 
+
     //  管理用配列に保存
     textureResources_.push_back(textureResource);
 
@@ -69,7 +87,10 @@ uint32_t TextureManager::LoadInternal(const std::string& filePath) {
     device->CreateShaderResourceView(textureResource.Get(), &srvDesc, cpuHandle);
 
     srvHandles_.push_back(gpuHandle);
-    return static_cast<uint32_t>(srvHandles_.size() - 1);
+    uint32_t handle = static_cast<uint32_t>(srvHandles_.size() - 1);
+    loadedTextures_[filePath] = handle;
+
+    return handle;
 
 }
 
@@ -81,12 +102,21 @@ DirectX::ScratchImage TextureManager::LoadTexture(const std::string& filePath) {
     std::wstring filePathW = Logger::ConvertString(filePath);
 
     HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-    assert(SUCCEEDED(hr));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to load or create texture: " + filePath);
+    }
+
+    // 1x1画像はこれ以上縮小できないため、そのまま使う
+    if (image.GetMetadata().width == 1 && image.GetMetadata().height == 1) {
+        return image;
+    }
 
     // ミップマップを自動生成する
     DirectX::ScratchImage mipImages{};
     hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-    assert(SUCCEEDED(hr));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to load or create texture: " + filePath);
+    }
 
     // ミップマップ付きのデータを返す
     return mipImages;

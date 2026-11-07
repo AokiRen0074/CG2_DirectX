@@ -12,6 +12,8 @@ class WindowApp;
 
 class DirectXCommon {
 public:
+    ~DirectXCommon();
+
     // 初期化
     void Initialize(WindowApp* winApp);
 
@@ -21,6 +23,9 @@ public:
 
     // コマンドを実行してGPUを待つ関数
     void FlushCommandList();
+
+    // 描画先をメインの画面に戻す関数
+    void SetBackBufferRenderTarget();
 
     // ゲッター
     ID3D12Device* GetDevice() const { return device_.Get(); }

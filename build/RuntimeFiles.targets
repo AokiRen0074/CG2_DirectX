@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <RuntimeResources Include="$(ProjectDir)Resources\**\*" />
+    <RuntimeDlls Include="$(ProjectDir)dxcompiler.dll;$(ProjectDir)dxil.dll" />
+  </ItemGroup>
+  <Target Name="CopyRuntimeFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(RuntimeResources)" DestinationFiles="@(RuntimeResources->'$(OutDir)Resources\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RuntimeDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

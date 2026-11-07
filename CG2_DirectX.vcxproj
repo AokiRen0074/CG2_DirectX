@@ -43,6 +43,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <Import Project="build\ProjectPaths.props" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -54,7 +55,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>./Engine;./Application;./Engine./Base;./Engine./Math;./Engine./2D;./Engine./3D;./Engine./Input;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Engine;$(ProjectDir)Application;$(ProjectDir)Engine\2D;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Audio;$(ProjectDir)Engine\Base;$(ProjectDir)Engine\Collision;$(ProjectDir)Engine\Input;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\PostProcess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,9 +78,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <Optimization>MinSpace</Optimization>
-      <AdditionalIncludeDirectories>./Engine;./Application;./Engine./Base;./Engine./Math;./Engine./2D;./Engine./3D;./Engine./Input;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Engine;$(ProjectDir)Application;$(ProjectDir)Engine\2D;$(ProjectDir)Engine\3D;$(ProjectDir)Engine\Audio;$(ProjectDir)Engine\Base;$(ProjectDir)Engine\Collision;$(ProjectDir)Engine\Input;$(ProjectDir)Engine\Math;$(ProjectDir)Engine\PostProcess;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -167,8 +168,8 @@
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Vector4.h" />
+    <ClInclude Include="Engine\Math\Vector2.h" />
+    <ClInclude Include="Engine\Math\Vector4.h" />
     <ClInclude Include="ViewProjection.h" />
     <ClInclude Include="WorldTransform.h" />
   </ItemGroup>
@@ -196,4 +197,38 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\3D\CameraShake.cpp" />
+    <ClInclude Include="Engine\3D\CameraShake.h" />
+    <ClCompile Include="Engine\3D\ModelManager.cpp" />
+    <ClInclude Include="Engine\3D\ModelManager.h" />
+    <ClInclude Include="Engine\3D\SceneLighting.h" />
+    <ClInclude Include="Engine\3D\Particle.h" />
+    <ClCompile Include="Engine\3D\ParticleManager.cpp" />
+    <ClInclude Include="Engine\3D\ParticleManager.h" />
+    <ClInclude Include="Engine\Collision\Collider.h" />
+    <ClCompile Include="Engine\Collision\CollisionManager.cpp" />
+    <ClInclude Include="Engine\Collision\CollisionManager.h" />
+    <ClInclude Include="Engine\Math\FlickerTimer.h" />
+    <ClCompile Include="Engine\Math\MathUtility.cpp" />
+    <ClInclude Include="Engine\Math\MathUtility.h" />
+    <ClCompile Include="Engine\Math\TimedCall.cpp" />
+    <ClInclude Include="Engine\Math\TimedCall.h" />
+    <ClCompile Include="Engine\PostProcess\Bloom.cpp" />
+    <ClInclude Include="Engine\PostProcess\Bloom.h" />
+    <ClInclude Include="Engine\Scene\IScene.h" />
+    <ClCompile Include="Engine\Scene\SceneManager.cpp" />
+    <ClInclude Include="Engine\Scene\SceneManager.h" />
+    <None Include="Resources\Shaders\Bloom.hlsl" />
+    <None Include="Resources\Shaders\EmissionBlur.hlsl" />
+    <None Include="Resources\Shaders\Object3d.NoTexture.VS.hlsl" />
+    <None Include="Resources\Shaders\Object3d.Notexture.PS.hlsl" />
+    <None Include="Resources\Shaders\Particle.PS.hlsl" />
+    <None Include="Resources\Shaders\Particle.VS.hlsl" />
+    <None Include="Resources\Shaders\PostProcess.PS.hlsl" />
+    <None Include="Resources\Shaders\PostProcess.VS.HLSL" />
+    <None Include="Resources\Shaders\SceneLighting.hlsli" />
+    <None Include="Resources\Shaders\Sprite.PS.hlsl" />
+  </ItemGroup>
+  <Import Project="build\RuntimeFiles.targets" />
 </Project>

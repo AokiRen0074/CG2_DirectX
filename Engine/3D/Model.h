@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "Object3d.h"
 #include "Sprite.h"
 #include <string>
 #include <map>
@@ -16,7 +15,7 @@ struct MaterialData {
 	Vector4 diffuseColor = { 1.0f,1.0f,1.0f,1.0f};// 色情報
 
 	// UVTransform情報
-	Vector3 textureScale = { 1.0f,1.0f,1.0f }; 
+	Vector3 textureScale = { 1.0f,1.0f,1.0f };
 	Vector3 textureOffset = { 0.0f,0.0f,0.0f };
 };
 

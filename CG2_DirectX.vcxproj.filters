@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="imgui">
@@ -167,10 +167,10 @@
     <ClInclude Include="Engine\Math\Vector3.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2.h">
+    <ClInclude Include="Engine\Math\Vector2.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Vector4.h">
+    <ClInclude Include="Engine\Math\Vector4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Application\GameScene.h">
@@ -208,5 +208,28 @@
     <Text Include="Resources\Shaders\Object3d.PS.hlsl">
       <Filter>Resources\Shader</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\3D\CameraShake.cpp" />
+    <ClInclude Include="Engine\3D\CameraShake.h" />
+    <ClCompile Include="Engine\3D\ModelManager.cpp" />
+    <ClInclude Include="Engine\3D\ModelManager.h" />
+    <ClInclude Include="Engine\3D\SceneLighting.h" />
+    <ClInclude Include="Engine\3D\Particle.h" />
+    <ClCompile Include="Engine\3D\ParticleManager.cpp" />
+    <ClInclude Include="Engine\3D\ParticleManager.h" />
+    <ClInclude Include="Engine\Collision\Collider.h" />
+    <ClCompile Include="Engine\Collision\CollisionManager.cpp" />
+    <ClInclude Include="Engine\Collision\CollisionManager.h" />
+    <ClInclude Include="Engine\Math\FlickerTimer.h" />
+    <ClCompile Include="Engine\Math\MathUtility.cpp" />
+    <ClInclude Include="Engine\Math\MathUtility.h" />
+    <ClCompile Include="Engine\Math\TimedCall.cpp" />
+    <ClInclude Include="Engine\Math\TimedCall.h" />
+    <ClCompile Include="Engine\PostProcess\Bloom.cpp" />
+    <ClInclude Include="Engine\PostProcess\Bloom.h" />
+    <ClInclude Include="Engine\Scene\IScene.h" />
+    <ClCompile Include="Engine\Scene\SceneManager.cpp" />
+    <ClInclude Include="Engine\Scene\SceneManager.h" />
   </ItemGroup>
 </Project>

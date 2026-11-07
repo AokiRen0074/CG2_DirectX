@@ -139,7 +139,7 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 	rtvDescriptorHeap_ = CreateDescriptorHeap(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 
 	// SRV用のヒープ
-	srvDescriptorHeap_ = CreateDescriptorHeap(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvDescriptorHeap_ = CreateDescriptorHeap(device_.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024, true);
 
 
 	//スワップチェーンからリソースを持ってくる
@@ -444,4 +444,18 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
 	assert(SUCCEEDED(hr));
 
 	return descriptorHeap;
+}
+
+void DirectXCommon::SetBackBufferRenderTarget() {
+	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+	// 描画先をバックバッファと深度バッファに設定
+	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+}
+// イベントはCOMオブジェクトではないため、Windowsのハンドルとして閉じる
+DirectXCommon::~DirectXCommon() {
+    if (fenceEvent_) {
+        CloseHandle(fenceEvent_);
+        fenceEvent_ = nullptr;
+    }
 }
