@@ -1,4 +1,5 @@
 #pragma once
+#include "Scene/IScene.h"
 #include "3D/Object3d.h"
 #include "2D/Sprite.h"
 #include "3D/DebugCamera.h"
@@ -9,14 +10,14 @@
 
 class DirectXCommon;
 
-class GameScene {
+class GameScene : public IScene {
 public:
 
     void Initialize(DirectXCommon* dxCommon);
-    void Update();
-    void Draw();
+    void Update() override;
+    void Draw() override;
 
-    ~GameScene();
+    ~GameScene() override;
 
 private:
 

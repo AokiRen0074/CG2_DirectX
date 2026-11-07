@@ -46,3 +46,15 @@ tests\run-shader-compile-tests.cmd
 音声テストは master に既存の Alarm01.wav を使用する。
 シェーダーテストは 11 個のエントリーポイントを DXC で検証する。
 画面上での描画の目視確認は別途必要。
+
+## 起動処理とファイル構成の整理
+
+- `Application/main.cpp`: 実行ファイルの場所を作業ディレクトリに設定し、アプリを起動する。
+- `Application/GameApplication.h/.cpp`: 初期化・メインループ・終了処理。ゲーム専用のコマンドや演出処理は含めない。
+- `Application/GameScene.h/.cpp`: master に既存のサンプルシーン。IScene を実装し SceneManager から更新・描画する。
+- `Application/Character/Player.h/.cpp`: master に既存の Player をルートから移動。
+- `Engine/3D/ViewProjection.h/.cpp`, `WorldTransform.h/.cpp`: 3D 基盤をルートから移動。
+- Visual Studio のフィルターを実際のフォルダー階層に合わせ、テスト・ビルド設定・説明資料もプロジェクトに登録。
+
+終了時はシーン、ImGui、共有リソース、デバイスの順に解放する。
+ViewProjection の既定の遠クリップ面が 0 だった不具合は取り込み元と同じ 1000 に修正。
