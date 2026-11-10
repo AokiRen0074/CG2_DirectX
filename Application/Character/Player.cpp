@@ -31,6 +31,7 @@ void Player::Update() {
 --------------------*/
 void Player::Draw(const ViewProjection& viewProjection) {
 
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
+    // 現在の座標と描画カメラから、GPUへ渡す行列を更新する。
+    worldTransform_.UpdateMatrix(viewProjection);
+    model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }

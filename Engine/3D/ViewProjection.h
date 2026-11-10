@@ -8,8 +8,8 @@ struct ViewProjection {
 	Vector3 rotation_ = { 0.0f,0.0f,0.0f };
 
 	// ビュー行列とプロジェクション行列
-	Matrix4x4 matView;
-	Matrix4x4 matProjection;
+	Matrix4x4 matView = MakeIdentity4x4();
+	Matrix4x4 matProjection = MakeIdentity4x4();
 
 	// 初期化と更新
 	void Initialize();

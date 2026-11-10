@@ -209,8 +209,7 @@
     <ClInclude Include="Engine\Scene\IScene.h" />
     <ClCompile Include="Engine\Scene\SceneManager.cpp" />
     <ClInclude Include="Engine\Scene\SceneManager.h" />
-    <None Include="Resources\Shaders\Bloom.hlsl" />
-    <None Include="Resources\Shaders\EmissionBlur.hlsl" />
+    <None Include="Resources\Shaders\BloomBlur.CS.hlsl" />
     <None Include="Resources\Shaders\Object3d.NoTexture.VS.hlsl" />
     <None Include="Resources\Shaders\Object3d.Notexture.PS.hlsl" />
     <None Include="Resources\Shaders\Particle.PS.hlsl" />
@@ -235,5 +234,19 @@
     <None Include="docs\GenericEngineIntegration.md" />
     <None Include="build\ProjectPaths.props" />
     <None Include="build\RuntimeFiles.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\PostProcess\FullscreenPass.cpp" />
+    <ClInclude Include="Engine\PostProcess\FullscreenPass.h" />
+    <ClCompile Include="Engine\PostProcess\ScenePostProcess.cpp" />
+    <ClInclude Include="Engine\PostProcess\ScenePostProcess.h" />
+    <ClInclude Include="Engine\PostProcess\PostProcessSettings.h" />
+    <ClInclude Include="Engine\PostProcess\PostProcessResources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tests\PostProcessTests.cpp" />
+    <None Include="tests\run-post-process-tests.cmd" />
+    <None Include="docs\PostProcessing.md" />
+    <None Include="docs\EngineCleanup.md" />
   </ItemGroup>
 </Project>

@@ -49,12 +49,12 @@ void WorldTransform::UpdateMatrix(const ViewProjection& viewProjection) {
         matWorld_ = Multiply(matWorld_, parent_->matWorld_);
     }
 
-    // WVP行列を計算 
+    // WVP行列を計算
     Matrix4x4 wvp = Multiply(matWorld_, Multiply(viewProjection.matView, viewProjection.matProjection));
 
-    // 定数バッファに書き込んでGPUに転送
+    // 描画位置とライティングが同じ変換を使うよう、WVPとWorldを両方更新する。
     constMap_->WVP = wvp;
-
+    constMap_->World = matWorld_;
 }
 
 void WorldTransform::TransferMatrix() {

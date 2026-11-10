@@ -288,10 +288,7 @@
     <ClInclude Include="Engine\Scene\SceneManager.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
-    <None Include="Resources\Shaders\Bloom.hlsl">
-      <Filter>Resources\Shaders</Filter>
-    </None>
-    <None Include="Resources\Shaders\EmissionBlur.hlsl">
+    <None Include="Resources\Shaders\BloomBlur.CS.hlsl">
       <Filter>Resources\Shaders</Filter>
     </None>
     <None Include="Resources\Shaders\Object3d.NoTexture.VS.hlsl">
@@ -357,5 +354,19 @@
     <None Include="build\RuntimeFiles.targets">
       <Filter>build</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\PostProcess\FullscreenPass.cpp"><Filter>Engine\PostProcess</Filter></ClCompile>
+    <ClInclude Include="Engine\PostProcess\FullscreenPass.h"><Filter>Engine\PostProcess</Filter></ClInclude>
+    <ClCompile Include="Engine\PostProcess\ScenePostProcess.cpp"><Filter>Engine\PostProcess</Filter></ClCompile>
+    <ClInclude Include="Engine\PostProcess\ScenePostProcess.h"><Filter>Engine\PostProcess</Filter></ClInclude>
+    <ClInclude Include="Engine\PostProcess\PostProcessSettings.h"><Filter>Engine\PostProcess</Filter></ClInclude>
+    <ClInclude Include="Engine\PostProcess\PostProcessResources.h"><Filter>Engine\PostProcess</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tests\PostProcessTests.cpp"><Filter>tests</Filter></None>
+    <None Include="tests\run-post-process-tests.cmd"><Filter>tests</Filter></None>
+    <None Include="docs\PostProcessing.md"><Filter>docs</Filter></None>
+    <None Include="docs\EngineCleanup.md"><Filter>docs</Filter></None>
   </ItemGroup>
 </Project>

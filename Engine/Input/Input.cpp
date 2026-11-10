@@ -46,21 +46,23 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd) {
 更新
 -------------------------------------*/
 void Input::Update() {
-	//今のキー状態を、前フレームのキー状態として丸ごとコピーして保存する
-	memcpy(keyPre_, key_, sizeof(key_));
+    // 今のキー状態を、前フレームのキー状態として丸ごとコピーして保存する
+    memcpy(keyPre_, key_, sizeof(key_));
 
-	// キーボード情報の取得開始
-	keyboard_->Acquire();
+    // キーボード情報の取得開始
+    keyboard_->Acquire();
 
-	// 全キーの入力状態を取得する
-	keyboard_->GetDeviceState(sizeof(key_), key_);
+    // 取得失敗時は入力をクリアし、直前の押下状態が残るのを防ぐ。
+    if (FAILED(keyboard_->GetDeviceState(sizeof(key_), key_))) {
+        ZeroMemory(key_, sizeof(key_));
+    }
 
-	mouseStatePre_ = mouseState_; // 前フレームの状態を保存
-	mouse_->Acquire();
-	mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_);
+    mouseStatePre_ = mouseState_; // 前フレームの状態を保存
+    mouse_->Acquire();
+    if (FAILED(mouse_->GetDeviceState(sizeof(DIMOUSESTATE), &mouseState_))) {
+        mouseState_ = {};
+    }
 }
-
-
 
 // キーを押した状態か
 bool Input::PushKey(uint8_t keyNum) const {

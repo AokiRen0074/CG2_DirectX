@@ -18,7 +18,7 @@ struct WorldTransform {
 	Vector3 translation_ = { 0.0f,0.0f,0.0f };
 	
 	// 計算結果のワールド行列
-	Matrix4x4 matWorld_;
+	Matrix4x4 matWorld_ = MakeIdentity4x4();
 
 	// 親子関係用
 	const WorldTransform* parent_ = nullptr;

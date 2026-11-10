@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include <cassert>
 #include <format>
+#include <stdexcept>
 #include "WindowApp.h"
 #include <wrl.h>
 
@@ -228,74 +229,80 @@ void DirectXCommon::Initialize(WindowApp* winApp) {
 CompileShader
 --------------------------------------------*/
 
-Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompilerShader(
-	const std::wstring& filePath,
-	const wchar_t* profile,
-	IDxcUtils* dxcUtils,
-	IDxcCompiler3* dxcCompiler,
-	IDxcIncludeHandler* includeHandler
-) {
+Microsoft::WRL::ComPtr<IDxcBlob> DirectXCommon::CompilerShader(const std::wstring& filePath, const wchar_t* profile,
+                                                               IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler,
+                                                               IDxcIncludeHandler* includeHandler) {
 
-	// hlslファイルを読み込む
+    // hlslファイルを読み込む
 
-	Logger::Log(Logger::ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}\n", filePath, profile)));
+    Logger::Log(Logger::ConvertString(std::format(L"Begin CompileShader,path:{},profile:{}\n", filePath, profile)));
 
-	Microsoft::WRL::ComPtr<IDxcBlobEncoding> shaderSource;
-	HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
+    Microsoft::WRL::ComPtr<IDxcBlobEncoding> shaderSource;
+    HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
 
-	// 読み込めなかったら止める
-	assert(SUCCEEDED(hr));
+    // Releaseでも読み込み失敗を呼び出し側へ通知する。
+    if (FAILED(hr)) {
+        throw std::runtime_error("Shader operation failed: " + Logger::ConvertString(filePath));
+    }
 
-	DxcBuffer shaderSourceBuffer;
-	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
-	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
-	shaderSourceBuffer.Encoding = DXC_CP_UTF8;
+    DxcBuffer shaderSourceBuffer;
+    shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
+    shaderSourceBuffer.Size = shaderSource->GetBufferSize();
+    shaderSourceBuffer.Encoding = DXC_CP_UTF8;
 
-	// Compileする
-	LPCWSTR arguments[] = {
-		filePath.c_str(),// コンパイル対象のファイル名
-		L"-E",L"main",// エントリーポイントの指定
-		L"-T",profile,// ShaderProfileの設定
-		L"-Zi",L"-Qembed_debug",// デバッグ用の情報を埋めこむ
-		L"-Od",// 最適化を外しておく
-		L"-Zpr",// メモリレイアウトは行優先
-	};
+    // Compileする
+    LPCWSTR arguments[] = {
+        filePath.c_str(), // コンパイル対象のファイル名
+        L"-E",
+        L"main", // エントリーポイントの指定
+        L"-T",
+        profile, // ShaderProfileの設定
+        L"-Zi",
+        L"-Qembed_debug", // デバッグ用の情報を埋めこむ
+        L"-Od",           // 最適化を外しておく
+        L"-Zpr",          // メモリレイアウトは行優先
+    };
 
-	// 実際にShaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcResult> shaderResult;
-	hr = dxcCompiler->Compile(
-		&shaderSourceBuffer,// 読み込んだファイル
-		arguments,// コンパイルオプション
-		_countof(arguments),// コンパイルオプションの数
-		includeHandler,// includeに含まれた諸々
-		IID_PPV_ARGS(&shaderResult)// コンパイル結果
-	);
+    // 実際にShaderをコンパイルする
+    Microsoft::WRL::ComPtr<IDxcResult> shaderResult;
+    hr = dxcCompiler->Compile(&shaderSourceBuffer,        // 読み込んだファイル
+                              arguments,                  // コンパイルオプション
+                              _countof(arguments),        // コンパイルオプションの数
+                              includeHandler,             // includeに含まれた諸々
+                              IID_PPV_ARGS(&shaderResult) // コンパイル結果
+    );
 
-	// dxcが起動できないなどの致命的な状況
-	assert(SUCCEEDED(hr));
+    // dxcが起動できないなどの致命的な状況
+    if (FAILED(hr)) {
+        throw std::runtime_error("Shader operation failed: " + Logger::ConvertString(filePath));
+    }
 
-	// 警告、エラーが出ていないか確認する
-	Microsoft::WRL::ComPtr<IDxcBlobUtf8> shaderError;
-	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
-	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
-		Logger::Log(shaderError->GetStringPointer());
-		// 警告エラーはゆるさねえ
-		assert(false);
-	}
+    // 警告、エラーが出ていないか確認する
+    Microsoft::WRL::ComPtr<IDxcBlobUtf8> shaderError;
+    shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+    if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
+        Logger::Log(shaderError->GetStringPointer());
+        throw std::runtime_error(shaderError->GetStringPointer());
+    }
 
+    // DXCの呼び出し成功と、シェーダー自体のコンパイル成功を別々に確認する。
+    HRESULT compileStatus;
+    hr = shaderResult->GetStatus(&compileStatus);
+    if (FAILED(hr) || FAILED(compileStatus)) {
+        throw std::runtime_error("Shader compilation failed");
+    }
 
-	// Compile結果を受け取って返す
+    // Compile結果を受け取って返す
 
-	Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob;
-	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
-	assert(SUCCEEDED(hr));
+    Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob;
+    hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
+    if (FAILED(hr)) {
+        throw std::runtime_error("Shader operation failed: " + Logger::ConvertString(filePath));
+    }
 
-	Logger::Log(Logger::ConvertString(std::format(L"Compile Succeeded,path:{},profile:{}\n", filePath, profile)));
+    Logger::Log(Logger::ConvertString(std::format(L"Compile Succeeded,path:{},profile:{}\n", filePath, profile)));
 
-	return shaderBlob;
-
-
-
+    return shaderBlob;
 }
 
 void DirectXCommon::FlushCommandList() {
@@ -447,11 +454,19 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap
 }
 
 void DirectXCommon::SetBackBufferRenderTarget() {
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
-	// 描画先をバックバッファと深度バッファに設定
-	commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+    UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
+    // 描画先をバックバッファと深度バッファに設定
+    commandList_->OMSetRenderTargets(1, &rtvHandles_[backBufferIndex], false, &dsvHandle);
+
+    // 別サイズの描画先を使った後でも、画面サイズの描画範囲へ戻す。
+    const auto desc = swapChainResources_[backBufferIndex]->GetDesc();
+    const D3D12_VIEWPORT viewport{0, 0, float(desc.Width), float(desc.Height), 0, 1};
+    const D3D12_RECT scissor{0, 0, LONG(desc.Width), LONG(desc.Height)};
+    commandList_->RSSetViewports(1, &viewport);
+    commandList_->RSSetScissorRects(1, &scissor);
 }
+
 // イベントはCOMオブジェクトではないため、Windowsのハンドルとして閉じる
 DirectXCommon::~DirectXCommon() {
     if (fenceEvent_) {
